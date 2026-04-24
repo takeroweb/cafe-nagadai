@@ -1431,15 +1431,8 @@
       <div class="section-divider"></div>
     </div>
 
-    <div class="menu-tabs">
-      <button class="menu-tab active" onclick="switchTab(this, 'drinks')">ドリンク</button>
-      <button class="menu-tab" onclick="switchTab(this, 'food')">フード</button>
-      <button class="menu-tab" onclick="switchTab(this, 'sweets')">スイーツ</button>
-    </div>
-
-    <div class="menu-panel active" id="tab-drinks"><div class="menu-grid" id="d-menu-drinks"></div></div>
-    <div class="menu-panel" id="tab-food"><div class="menu-grid" id="d-menu-food"></div></div>
-    <div class="menu-panel" id="tab-sweets"><div class="menu-grid" id="d-menu-sweets"></div></div>
+    <div class="menu-tabs" id="d-menu-tabs"></div>
+    <div id="d-menu-panels"></div>
   </div>
 </section>
 
@@ -1814,10 +1807,35 @@
       setTxt(`d-concept-text-${i}`, c.text);
     });
 
-    // Menu
-    renderMenuGrid('d-menu-drinks', d.menu.drinks);
-    renderMenuGrid('d-menu-food', d.menu.food);
-    renderMenuGrid('d-menu-sweets', d.menu.sweets);
+    // Menu（固定＋追加カテゴリを動的レンダリング）
+    const allCats = [
+      { key: 'drinks', label: 'ドリンク', items: d.menu.drinks },
+      { key: 'food',   label: 'フード',   items: d.menu.food   },
+      { key: 'sweets', label: 'スイーツ', items: d.menu.sweets },
+      ...(d.menu.extraCategories || []).map((c, i) => ({ key: `extra-${i}`, label: c.label, items: c.items || [] }))
+    ];
+    const tabsEl   = document.getElementById('d-menu-tabs');
+    const panelsEl = document.getElementById('d-menu-panels');
+    tabsEl.innerHTML   = '';
+    panelsEl.innerHTML = '';
+    allCats.forEach((cat, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'menu-tab' + (idx === 0 ? ' active' : '');
+      btn.textContent = cat.label;
+      btn.onclick = () => switchTab(btn, `tab-${cat.key}`);
+      tabsEl.appendChild(btn);
+
+      const panel = document.createElement('div');
+      panel.className = 'menu-panel' + (idx === 0 ? ' active' : '');
+      panel.id = `tab-${cat.key}`;
+      const grid = document.createElement('div');
+      grid.className = 'menu-grid';
+      grid.id = `d-menu-${cat.key}`;
+      panel.appendChild(grid);
+      panelsEl.appendChild(panel);
+
+      renderMenuGrid(`d-menu-${cat.key}`, cat.items);
+    });
 
     // Access info
     setHtml('d-info-name', `${d.shop.name_jp}<br /><span class="info-note">${d.shop.name_en}</span>`);

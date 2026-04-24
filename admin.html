@@ -302,6 +302,34 @@
     .menu-tab-admin.active { color: var(--brown); border-bottom-color: var(--brown); font-weight: 500; }
     .menu-tab-admin:hover { color: var(--brown); }
 
+    .menu-tab-add-btn {
+      padding: 10px 16px;
+      font-size: 12.5px;
+      font-family: 'Noto Sans JP', sans-serif;
+      color: var(--brown-light);
+      cursor: pointer;
+      border: none;
+      background: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .menu-tab-add-btn:hover { color: var(--brown); }
+
+    .extra-tab { position: relative; padding-right: 28px !important; }
+    .tab-close {
+      position: absolute;
+      right: 8px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1;
+      cursor: pointer;
+      padding: 2px 3px;
+    }
+    .tab-close:hover { color: var(--danger); }
+
     .menu-panel-admin { display: none; }
     .menu-panel-admin.active { display: block; }
 
@@ -888,13 +916,22 @@
   <!-- メニュー -->
   <div class="section-panel" id="panel-menu">
     <h2 class="panel-heading">メニュー</h2>
-    <p class="panel-subheading">ドリンク・フード・スイーツのメニューアイテムを追加・編集・削除できます。</p>
+    <p class="panel-subheading">メニューのアイテムを追加・編集・削除できます。カテゴリも自由に追加できます。</p>
 
     <div class="card">
-      <div class="menu-tabs-admin">
-        <button class="menu-tab-admin active" onclick="switchMenuTab(this, 'drinks')">ドリンク</button>
-        <button class="menu-tab-admin" onclick="switchMenuTab(this, 'food')">フード</button>
-        <button class="menu-tab-admin" onclick="switchMenuTab(this, 'sweets')">スイーツ</button>
+      <div class="menu-tabs-admin" id="admin-menu-tabs">
+        <button class="menu-tab-admin active" onclick="switchMenuTab(this,'drinks')">ドリンク</button>
+        <button class="menu-tab-admin" onclick="switchMenuTab(this,'food')">フード</button>
+        <button class="menu-tab-admin" onclick="switchMenuTab(this,'sweets')">スイーツ</button>
+        <!-- extra tabs here -->
+        <button class="menu-tab-add-btn" onclick="toggleAddCatForm()">＋ カテゴリを追加</button>
+      </div>
+
+      <!-- カテゴリ追加フォーム -->
+      <div id="add-cat-form" style="display:none; padding:14px 0 4px; display:none; gap:8px; align-items:center;">
+        <input type="text" id="new-cat-label" placeholder="カテゴリ名（例：ランチ）" style="flex:1; max-width:260px;" />
+        <button class="btn btn-save" style="padding:9px 18px;" onclick="addCategory()">追加</button>
+        <button class="btn btn-reset" style="padding:9px 14px;" onclick="toggleAddCatForm()">キャンセル</button>
       </div>
 
       <div class="menu-panel-admin active" id="admin-tab-drinks">
@@ -920,6 +957,9 @@
           スイーツを追加
         </button>
       </div>
+
+      <!-- 追加カテゴリのパネルはここに動的挿入 -->
+      <div id="admin-extra-panels"></div>
     </div>
   </div>
 
@@ -1067,6 +1107,7 @@
 
     // Menu
     ['drinks', 'food', 'sweets'].forEach(cat => renderMenuItems(cat, data.menu[cat]));
+    renderExtraCategoryTabs(data.menu.extraCategories || []);
 
     // Chat
     document.getElementById('chat-welcome').value = data.chat.welcome;
@@ -1186,6 +1227,136 @@
     renderMenuItems(cat, currentData.menu[cat]);
   }
 
+  // ===== 追加カテゴリ =====
+  function renderExtraCategoryTabs(extraCategories) {
+    const tabsContainer  = document.getElementById('admin-menu-tabs');
+    const addBtn         = tabsContainer.querySelector('.menu-tab-add-btn');
+    const panelContainer = document.getElementById('admin-extra-panels');
+
+    // 既存の追加タブを削除
+    tabsContainer.querySelectorAll('.extra-tab').forEach(el => el.remove());
+    panelContainer.innerHTML = '';
+
+    extraCategories.forEach((cat, i) => {
+      // タブ
+      const tab = document.createElement('button');
+      tab.className = 'menu-tab-admin extra-tab';
+      tab.dataset.extraIndex = i;
+      tab.innerHTML = `${escHtml(cat.label)}<span class="tab-close" onclick="deleteCategory(${i});event.stopPropagation()">×</span>`;
+      tab.onclick = function() { switchMenuTab(this, `extra-${i}`); };
+      tabsContainer.insertBefore(tab, addBtn);
+
+      // パネル
+      const panel = document.createElement('div');
+      panel.className = 'menu-panel-admin';
+      panel.id = `admin-tab-extra-${i}`;
+      panel.innerHTML = `
+        <div id="menu-items-extra-${i}"></div>
+        <button class="btn-add" onclick="addMenuItemExtra(${i})">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          ${escHtml(cat.label)}を追加
+        </button>`;
+      panelContainer.appendChild(panel);
+
+      renderExtraMenuItems(i, cat.items);
+    });
+  }
+
+  function toggleAddCatForm() {
+    const form = document.getElementById('add-cat-form');
+    const visible = form.style.display === 'flex';
+    form.style.display = visible ? 'none' : 'flex';
+    if (!visible) document.getElementById('new-cat-label').focus();
+  }
+
+  function addCategory() {
+    const label = document.getElementById('new-cat-label').value.trim();
+    if (!label) { alert('カテゴリ名を入力してください。'); return; }
+
+    if (!currentData.menu.extraCategories) currentData.menu.extraCategories = [];
+    currentData.menu.extraCategories.push({ label, items: [] });
+    renderExtraCategoryTabs(currentData.menu.extraCategories);
+
+    document.getElementById('new-cat-label').value = '';
+    toggleAddCatForm();
+
+    // 新しいタブに切替
+    const i = currentData.menu.extraCategories.length - 1;
+    const newTab = document.querySelector(`.extra-tab[data-extra-index="${i}"]`);
+    if (newTab) switchMenuTab(newTab, `extra-${i}`);
+  }
+
+  function deleteCategory(i) {
+    const label = currentData.menu.extraCategories[i].label;
+    if (!confirm(`「${label}」カテゴリを削除しますか？\nこの操作は保存するまで元に戻せます。`)) return;
+    currentData.menu.extraCategories.splice(i, 1);
+    renderExtraCategoryTabs(currentData.menu.extraCategories);
+    // ドリンクタブに戻す
+    const drinksTab = document.querySelector('.menu-tab-admin:first-child');
+    if (drinksTab) switchMenuTab(drinksTab, 'drinks');
+  }
+
+  function renderExtraMenuItems(catIndex, items) {
+    const container = document.getElementById(`menu-items-extra-${catIndex}`);
+    if (!container) return;
+    container.innerHTML = '';
+    items.forEach((item, j) => container.appendChild(buildExtraMenuItemCard(catIndex, j, item)));
+  }
+
+  function buildExtraMenuItemCard(catIndex, j, item) {
+    const card = document.createElement('div');
+    card.className = 'menu-item-card';
+    card.id = `menu-card-extra-${catIndex}-${j}`;
+    card.innerHTML = `
+      <div class="menu-item-header">
+        <span class="menu-item-num">Item ${j + 1}</span>
+        <button class="btn-delete" onclick="deleteMenuItemExtra(${catIndex},${j})">削除</button>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>商品名</label>
+          <input type="text" id="menu-extra-${catIndex}-${j}-name" value="${escHtml(item.name)}" />
+        </div>
+        <div class="form-group">
+          <label>価格</label>
+          <input type="text" id="menu-extra-${catIndex}-${j}-price" value="${escHtml(item.price)}" placeholder="¥000" />
+        </div>
+        <div class="form-group form-full">
+          <label>説明文</label>
+          <textarea id="menu-extra-${catIndex}-${j}-desc" class="short">${escHtml(item.desc)}</textarea>
+        </div>
+        <div class="form-group form-full">
+          <label>画像</label>
+          <div class="img-input-row">
+            <input type="url" id="menu-extra-${catIndex}-${j}-image" value="${escHtml(item.image)}" placeholder="https://（画像URL）…"
+                   oninput="previewImg('menu-extra-${catIndex}-${j}-image','menu-preview-extra-${catIndex}-${j}')" />
+            <label class="btn-file-upload" for="menu-extra-${catIndex}-${j}-file">
+              <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              写真を追加
+            </label>
+            <input type="file" id="menu-extra-${catIndex}-${j}-file" accept="image/*" style="display:none"
+                   onchange="handleFileUpload(this,'menu-extra-${catIndex}-${j}-image','menu-preview-extra-${catIndex}-${j}')" />
+          </div>
+        </div>
+        <div class="img-preview-wrap form-full">
+          <img class="img-preview ${item.image ? 'loaded' : ''}" id="menu-preview-extra-${catIndex}-${j}" src="${escHtml(item.image)}" alt="" />
+        </div>
+      </div>`;
+    return card;
+  }
+
+  function addMenuItemExtra(catIndex) {
+    if (!currentData.menu.extraCategories[catIndex].items) currentData.menu.extraCategories[catIndex].items = [];
+    currentData.menu.extraCategories[catIndex].items.push({ name: '新しいメニュー', desc: '説明を入力してください。', price: '¥000', image: '' });
+    renderExtraMenuItems(catIndex, currentData.menu.extraCategories[catIndex].items);
+  }
+
+  function deleteMenuItemExtra(catIndex, j) {
+    if (!confirm('このメニューを削除しますか？')) return;
+    currentData.menu.extraCategories[catIndex].items.splice(j, 1);
+    renderExtraMenuItems(catIndex, currentData.menu.extraCategories[catIndex].items);
+  }
+
   // ===== FAQ ITEMS =====
   function renderFaqItems(faqs) {
     const container = document.getElementById('faq-items-container');
@@ -1264,7 +1435,7 @@
       text:  v(`concept-text-${i}`,  '')
     }));
 
-    // Menu
+    // Menu (固定3カテゴリ)
     ['drinks','food','sweets'].forEach(cat => {
       data.menu[cat] = data.menu[cat].map((item, i) => ({
         name: v(`menu-${cat}-${i}-name`, item.name),
@@ -1273,6 +1444,17 @@
         image: v(`menu-${cat}-${i}-image`, item.image)
       }));
     });
+
+    // Menu (追加カテゴリ)
+    data.menu.extraCategories = (currentData.menu.extraCategories || []).map((cat, i) => ({
+      label: cat.label,
+      items: cat.items.map((item, j) => ({
+        name:  v(`menu-extra-${i}-${j}-name`,  item.name),
+        price: v(`menu-extra-${i}-${j}-price`, item.price),
+        desc:  v(`menu-extra-${i}-${j}-desc`,  item.desc),
+        image: v(`menu-extra-${i}-${j}-image`, item.image)
+      }))
+    }));
 
     // Chat
     data.chat.welcome = document.getElementById('chat-welcome').value;

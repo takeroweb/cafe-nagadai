@@ -47,6 +47,7 @@ const DEFAULT_DATA = {
     }
   ],
   menu: {
+    extraCategories: [],
     drinks: [
       { name: 'ハンドドリップコーヒー', desc: '本日の豆を丁寧にドリップ。豆の産地・焙煎度はお好みでお選びいただけます。', price: '¥550〜', image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600&q=80' },
       { name: 'カフェラテ', desc: 'なめらかなスチームミルクとエスプレッソのコントラスト。ホット・アイス選択可。', price: '¥620', image: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=600&q=80' },
