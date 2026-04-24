@@ -1287,6 +1287,8 @@
     collectConceptsIntoData();
     currentData.concepts.splice(i, 1);
     renderConceptItems(currentData.concepts);
+    saveData(currentData);
+    showToast('削除しました。', 'success');
   }
 
   function collectConceptsIntoData() {
@@ -1378,6 +1380,8 @@
     syncMenuCat(cat);
     currentData.menu[cat].splice(index, 1);
     renderMenuItems(cat, currentData.menu[cat]);
+    saveData(currentData);
+    showToast('削除しました。', 'success');
   }
 
   // ===== 追加カテゴリ =====
@@ -1528,6 +1532,8 @@
     syncExtraCat(catIndex);
     currentData.menu.extraCategories[catIndex].items.splice(j, 1);
     renderExtraMenuItems(catIndex, currentData.menu.extraCategories[catIndex].items);
+    saveData(currentData);
+    showToast('削除しました。', 'success');
   }
 
   // ===== FAQ ITEMS =====
@@ -1577,6 +1583,8 @@
     if (!confirm('このFAQを削除しますか？')) return;
     currentData.chat.faq.splice(index, 1);
     renderFaqItems(currentData.chat.faq);
+    saveData(currentData);
+    showToast('削除しました。', 'success');
   }
 
   // ===== GALLERY ITEMS =====
@@ -1653,6 +1661,8 @@
     collectGalleryIntoData();
     currentData.gallery.splice(i, 1);
     renderGalleryItems(currentData.gallery);
+    saveData(currentData);
+    showToast('削除しました。', 'success');
   }
 
   // ===== COLLECT DATA FROM FORMS =====
