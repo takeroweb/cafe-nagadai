@@ -64,6 +64,16 @@ const DEFAULT_DATA = {
       { name: 'くず餅パフェ', desc: '和素材を組み合わせた坂の上オリジナルパフェ。抹茶・黒蜜・きなこが層になって。', price: '¥820', image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=600&q=80' }
     ]
   },
+  gallery: [
+    { url: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&q=80', alt: 'カフェ外観' },
+    { url: 'https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?w=600&q=80', alt: 'コーヒー' },
+    { url: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=80', alt: '店内' },
+    { url: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80', alt: 'ドリンク' },
+    { url: 'https://images.unsplash.com/photo-1464983953574-0892a716854b?w=600&q=80', alt: 'テーブル席' }
+  ],
+  map: {
+    customUrl: ''
+  },
   chat: {
     welcome: 'こんにちは！坂の上珈琲へようこそ☕\nご質問があればお気軽にどうぞ。\n\n以下のボタンからよくある質問を選べます👇',
     fallback: 'ご質問ありがとうございます😊\n申し訳ありませんが、その内容はスタッフに直接確認させてください。\n\nお電話：095-000-0000\nInstagram DM：@sakanouecoffee\n\nお気軽にご連絡ください！',

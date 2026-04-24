@@ -560,6 +560,53 @@
     /* ===== HOURS GRID ===== */
     .hours-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
 
+    /* ===== TOP ADD BUTTON (card title内) ===== */
+    .btn-add-top {
+      margin-left: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      background: var(--brown);
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 12px;
+      font-family: 'Noto Sans JP', sans-serif;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .btn-add-top:hover { background: var(--brown-dark); }
+    .btn-add-top svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+
+    /* ===== GALLERY ITEMS ===== */
+    .gallery-admin-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+    .gallery-admin-item {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .gallery-admin-thumb {
+      width: 100%; height: 130px;
+      object-fit: cover;
+      display: block;
+    }
+    .gallery-admin-footer {
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .gallery-admin-footer input { flex: 1; font-size: 12px; padding: 5px 8px; }
+
     /* ===== SIDEBAR OVERLAY (mobile) ===== */
     .sidebar-overlay {
       display: none;
@@ -681,6 +728,10 @@
       <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
       メニュー
     </div>
+    <div class="nav-item" data-target="gallery">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      ギャラリー
+    </div>
     <div class="nav-item" data-target="faq">
       <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
       チャット FAQ
@@ -765,6 +816,11 @@
         <div class="form-group">
           <label>電話番号</label>
           <input type="text" id="shop-tel" placeholder="095-000-0000" />
+        </div>
+        <div class="form-group form-full">
+          <label>Googleマップ埋め込みURL（任意）</label>
+          <input type="url" id="map-customUrl" placeholder="https://www.google.com/maps/embed?pb=..." />
+          <span class="form-hint">住所からマップが自動表示されます。ピンの位置が合わない場合は、Googleマップで場所を開き「共有」→「地図を埋め込む」→「HTMLをコピー」でsrc="..."の中のURLを貼り付けてください。</span>
         </div>
       </div>
     </div>
@@ -928,6 +984,10 @@
       <div class="card-title">
         <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         コンセプトカード
+        <button class="btn-add-top" onclick="addConceptItem()">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          追加
+        </button>
       </div>
       <div class="concept-items-grid" id="concept-items-container"></div>
       <button class="btn-add" onclick="addConceptItem()">
@@ -961,6 +1021,10 @@
       </div>
 
       <div class="menu-panel-admin active" id="admin-tab-drinks">
+        <button class="btn-add" onclick="addMenuItem('drinks')" style="margin-bottom:12px;">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          ドリンクを追加
+        </button>
         <div id="menu-items-drinks"></div>
         <button class="btn-add" onclick="addMenuItem('drinks')">
           <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -969,6 +1033,10 @@
       </div>
 
       <div class="menu-panel-admin" id="admin-tab-food">
+        <button class="btn-add" onclick="addMenuItem('food')" style="margin-bottom:12px;">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          フードを追加
+        </button>
         <div id="menu-items-food"></div>
         <button class="btn-add" onclick="addMenuItem('food')">
           <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -977,6 +1045,10 @@
       </div>
 
       <div class="menu-panel-admin" id="admin-tab-sweets">
+        <button class="btn-add" onclick="addMenuItem('sweets')" style="margin-bottom:12px;">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          スイーツを追加
+        </button>
         <div id="menu-items-sweets"></div>
         <button class="btn-add" onclick="addMenuItem('sweets')">
           <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -986,6 +1058,28 @@
 
       <!-- 追加カテゴリのパネルはここに動的挿入 -->
       <div id="admin-extra-panels"></div>
+    </div>
+  </div>
+
+  <!-- ギャラリー -->
+  <div class="section-panel" id="panel-gallery">
+    <h2 class="panel-heading">ギャラリー</h2>
+    <p class="panel-subheading">「店内の様子」セクションに表示する写真を管理します。</p>
+
+    <div class="card">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        ギャラリー写真
+        <button class="btn-add-top" onclick="addGalleryItem()">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          追加
+        </button>
+      </div>
+      <div class="gallery-admin-grid" id="gallery-items-container"></div>
+      <button class="btn-add" onclick="addGalleryItem()">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        写真を追加
+      </button>
     </div>
   </div>
 
@@ -1015,6 +1109,10 @@
       <div class="card-title">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         FAQ一覧
+        <button class="btn-add-top" onclick="addFaqItem()">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          追加
+        </button>
       </div>
       <div id="faq-items-container"></div>
       <button class="btn-add" onclick="addFaqItem()">
@@ -1060,6 +1158,7 @@
     hero: 'ヒーロー',
     about: 'About・コンセプト',
     menu: 'メニュー',
+    gallery: 'ギャラリー',
     faq: 'チャット FAQ',
     contact: 'お問い合わせ'
   };
@@ -1134,6 +1233,13 @@
     // Menu
     ['drinks', 'food', 'sweets'].forEach(cat => renderMenuItems(cat, data.menu[cat]));
     renderExtraCategoryTabs(data.menu.extraCategories || []);
+
+    // Gallery
+    renderGalleryItems(data.gallery || []);
+
+    // Map
+    const mapEl = document.getElementById('map-customUrl');
+    if (mapEl) mapEl.value = (data.map && data.map.customUrl) ? data.map.customUrl : '';
 
     // Chat
     document.getElementById('chat-welcome').value = data.chat.welcome;
@@ -1298,6 +1404,10 @@
       panel.className = 'menu-panel-admin';
       panel.id = `admin-tab-extra-${i}`;
       panel.innerHTML = `
+        <button class="btn-add" onclick="addMenuItemExtra(${i})" style="margin-bottom:12px;">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          ${escHtml(cat.label)}を追加
+        </button>
         <div id="menu-items-extra-${i}"></div>
         <button class="btn-add" onclick="addMenuItemExtra(${i})">
           <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -1469,6 +1579,82 @@
     renderFaqItems(currentData.chat.faq);
   }
 
+  // ===== GALLERY ITEMS =====
+  function renderGalleryItems(items) {
+    const container = document.getElementById('gallery-items-container');
+    if (!container) return;
+    container.innerHTML = '';
+    items.forEach((item, i) => {
+      const div = document.createElement('div');
+      div.className = 'gallery-admin-item';
+      div.id = `gallery-item-${i}`;
+      div.innerHTML = `
+        <img class="gallery-admin-thumb" src="${escHtml(item.url)}" alt="${escHtml(item.alt)}" onerror="this.style.background='#eee'" />
+        <div style="padding:8px 10px 4px;">
+          <div class="img-input-row">
+            <input type="url" id="gallery-${i}-url" value="${escHtml(item.url)}" placeholder="https://（画像URL）…" oninput="updateGalleryThumb(${i})" />
+            <label class="btn-file-upload" for="gallery-${i}-file">
+              <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              追加
+            </label>
+            <input type="file" id="gallery-${i}-file" accept="image/*" style="display:none" onchange="handleGalleryFileUpload(this,${i})" />
+          </div>
+        </div>
+        <div class="gallery-admin-footer">
+          <input type="text" id="gallery-${i}-alt" value="${escHtml(item.alt)}" placeholder="説明文（任意）" />
+          <button class="btn-delete" onclick="deleteGalleryItem(${i})" style="white-space:nowrap;flex-shrink:0;">削除</button>
+        </div>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  function updateGalleryThumb(i) {
+    const url = document.getElementById(`gallery-${i}-url`).value;
+    const thumb = document.querySelector(`#gallery-item-${i} .gallery-admin-thumb`);
+    if (thumb) thumb.src = url;
+  }
+
+  function handleGalleryFileUpload(input, i) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const dataUrl = e.target.result;
+      document.getElementById(`gallery-${i}-url`).value = dataUrl;
+      const thumb = document.querySelector(`#gallery-item-${i} .gallery-admin-thumb`);
+      if (thumb) thumb.src = dataUrl;
+    };
+    reader.readAsDataURL(file);
+    input.value = '';
+  }
+
+  function collectGalleryIntoData() {
+    const count = document.querySelectorAll('.gallery-admin-item').length;
+    currentData.gallery = Array.from({ length: count }, (_, i) => ({
+      url: v(`gallery-${i}-url`, ''),
+      alt: v(`gallery-${i}-alt`, '')
+    }));
+  }
+
+  function addGalleryItem() {
+    collectGalleryIntoData();
+    if (!currentData.gallery) currentData.gallery = [];
+    currentData.gallery.push({ url: '', alt: '' });
+    renderGalleryItems(currentData.gallery);
+    setTimeout(() => {
+      const lastItem = document.getElementById(`gallery-item-${currentData.gallery.length - 1}`);
+      if (lastItem) lastItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 50);
+  }
+
+  function deleteGalleryItem(i) {
+    if (!confirm('この写真を削除しますか？')) return;
+    collectGalleryIntoData();
+    currentData.gallery.splice(i, 1);
+    renderGalleryItems(currentData.gallery);
+  }
+
   // ===== COLLECT DATA FROM FORMS =====
   function collectData() {
     const data = JSON.parse(JSON.stringify(currentData));
@@ -1518,6 +1704,17 @@
         image: v(`menu-extra-${i}-${j}-image`, item.image)
       }))
     }));
+
+    // Gallery
+    const galleryCount = document.querySelectorAll('.gallery-admin-item').length;
+    data.gallery = Array.from({ length: galleryCount }, (_, i) => ({
+      url: v(`gallery-${i}-url`, ''),
+      alt: v(`gallery-${i}-alt`, '')
+    }));
+
+    // Map
+    if (!data.map) data.map = {};
+    data.map.customUrl = v('map-customUrl', '');
 
     // Chat
     data.chat.welcome = document.getElementById('chat-welcome').value;

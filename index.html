@@ -1469,23 +1469,7 @@
     <h2 class="section-title">店内の様子</h2>
     <div class="section-divider"></div>
   </div>
-  <div class="gallery-grid">
-    <div class="gallery-item">
-      <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&q=80" alt="カフェ外観" loading="lazy" />
-    </div>
-    <div class="gallery-item">
-      <img src="https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?w=600&q=80" alt="コーヒー" loading="lazy" />
-    </div>
-    <div class="gallery-item">
-      <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=80" alt="店内" loading="lazy" />
-    </div>
-    <div class="gallery-item">
-      <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80" alt="ドリンク" loading="lazy" />
-    </div>
-    <div class="gallery-item">
-      <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?w=600&q=80" alt="テーブル席" loading="lazy" />
-    </div>
-  </div>
+  <div class="gallery-grid" id="d-gallery-grid"></div>
 </section>
 
 <!-- ===== ACCESS ===== -->
@@ -1537,12 +1521,12 @@
         </table>
       </div>
       <div class="map-wrap">
-        <iframe
-          src="https://maps.google.co.jp/maps?q=長崎大学文教キャンパス&output=embed&hl=ja&z=16"
+        <iframe id="d-map-iframe"
+          src=""
           allowfullscreen
           loading="lazy"
           referrerpolicy="no-referrer-when-downgrade"
-          title="坂の上珈琲 地図（長崎大学文教キャンパス周辺）"
+          title="坂の上珈琲 地図"
         ></iframe>
         <p class="map-caption">長崎大学文教キャンパス周辺</p>
       </div>
@@ -1908,6 +1892,24 @@
     );
     setHtml('d-info-access', nl2br(d.shop.access) + `<br /><span class="info-note">${d.shop.parking_note}</span>`);
     setHtml('d-info-sns', `Instagram: <strong>${d.shop.instagram}</strong><br />Twitter/X: <strong>${d.shop.twitter}</strong>`);
+
+    // Gallery
+    const galleryGrid = document.getElementById('d-gallery-grid');
+    if (galleryGrid) {
+      const items = (d.gallery && d.gallery.length) ? d.gallery : [];
+      galleryGrid.innerHTML = items.map(g =>
+        `<div class="gallery-item"><img src="${g.url || ''}" alt="${g.alt || ''}" loading="lazy" /></div>`
+      ).join('');
+    }
+
+    // Map
+    const mapIframe = document.getElementById('d-map-iframe');
+    if (mapIframe) {
+      const mapSrc = (d.map && d.map.customUrl)
+        ? d.map.customUrl
+        : 'https://maps.google.co.jp/maps?q=' + encodeURIComponent(d.shop.address) + '&output=embed&hl=ja&z=16';
+      mapIframe.src = mapSrc;
+    }
 
     // Contact lead
     setHtml('d-contact-lead', nl2br(d.contact.lead));
