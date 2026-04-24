@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ログイン | 坂の上珈琲 管理画面</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Serif+JP:wght@700&family=Playfair+Display:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #FDF8F2;
+      --beige: #F0E8DA;
+      --brown-light: #C4956A;
+      --brown: #8B5E3C;
+      --brown-dark: #4A2F1A;
+      --text: #2C1A0E;
+      --text-muted: #7A6755;
+      --border: #E8DFD5;
+      --danger: #C0392B;
+      --success: #27AE60;
+    }
+
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      background: var(--cream);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        linear-gradient(160deg, rgba(74,47,26,0.07) 0%, rgba(92,122,92,0.05) 100%);
+      pointer-events: none;
+    }
+
+    .login-wrap {
+      width: 100%;
+      max-width: 420px;
+      position: relative;
+    }
+
+    /* ロゴ */
+    .login-logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .login-logo-icon {
+      font-size: 36px;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .login-logo-jp {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--brown-dark);
+      letter-spacing: 0.1em;
+    }
+
+    .login-logo-sub {
+      font-family: 'Playfair Display', serif;
+      font-size: 11px;
+      color: var(--brown-light);
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    /* カード */
+    .login-card {
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 40px rgba(74,47,26,0.10);
+      padding: 36px 32px;
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--brown-dark);
+      margin-bottom: 6px;
+    }
+
+    .card-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+
+    /* フォーム */
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+
+    input[type="email"],
+    input[type="password"],
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: 'Noto Sans JP', sans-serif;
+      color: var(--text);
+      background: #FDFAF7;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input:focus {
+      border-color: var(--brown-light);
+      box-shadow: 0 0 0 3px rgba(196,149,106,0.12);
+    }
+
+    input.error-input {
+      border-color: var(--danger);
+    }
+
+    .input-hint {
+      font-size: 11px;
+      color: #aaa;
+      margin-top: 4px;
+    }
+
+    /* ボタン */
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      background: var(--brown);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      font-family: 'Noto Sans JP', sans-serif;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      transition: background 0.2s, transform 0.1s;
+      margin-top: 4px;
+    }
+
+    .btn-primary:hover { background: var(--brown-dark); }
+    .btn-primary:active { transform: scale(0.99); }
+    .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
+
+    /* エラー・成功メッセージ */
+    .msg {
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 20px;
+      display: none;
+      align-items: flex-start;
+      gap: 8px;
+      line-height: 1.5;
+    }
+
+    .msg.show { display: flex; }
+    .msg.error { background: #fef0f0; color: var(--danger); border: 1px solid #f5c6c6; }
+    .msg.success { background: #edfaf3; color: var(--success); border: 1px solid #a8e6c3; }
+
+    /* 区切り線 */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 24px 0;
+    }
+
+    /* リンク */
+    .link-btn {
+      background: none;
+      border: none;
+      color: var(--brown);
+      font-size: 13px;
+      cursor: pointer;
+      font-family: 'Noto Sans JP', sans-serif;
+      text-decoration: underline;
+      padding: 0;
+    }
+
+    .link-btn:hover { color: var(--brown-dark); }
+
+    .link-row {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* パスワード強度 */
+    .pw-strength {
+      height: 4px;
+      border-radius: 2px;
+      background: var(--border);
+      margin-top: 6px;
+      overflow: hidden;
+    }
+
+    .pw-strength-bar {
+      height: 100%;
+      border-radius: 2px;
+      width: 0;
+      transition: width 0.3s, background 0.3s;
+    }
+
+    .pw-strength-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* ローディング */
+    .btn-primary .spinner {
+      display: none;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    .btn-primary.loading .spinner { display: inline-block; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* パネル切替 */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* フッター */
+    .login-footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* モバイル */
+    @media (max-width: 480px) {
+      .login-card { padding: 28px 20px; }
+      .card-title { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-wrap">
+
+  <div class="login-logo">
+    <span class="login-logo-icon">☕</span>
+    <div class="login-logo-jp">坂の上珈琲</div>
+    <div class="login-logo-sub">Admin Panel</div>
+  </div>
+
+  <div class="login-card">
+
+    <!-- ===== ログインパネル ===== -->
+    <div class="panel active" id="panel-login">
+      <h2 class="card-title">ログイン</h2>
+      <p class="card-subtitle">管理画面にアクセスするにはログインが必要です。</p>
+
+      <div class="msg" id="login-msg"></div>
+
+      <div class="form-group">
+        <label>メールアドレス</label>
+        <input type="email" id="login-email" placeholder="example@email.com" autocomplete="email" />
+      </div>
+
+      <div class="form-group">
+        <label>パスワード</label>
+        <input type="password" id="login-password" placeholder="パスワードを入力" autocomplete="current-password" />
+      </div>
+
+      <button class="btn-primary" id="btn-login" onclick="doLogin()">
+        <span class="spinner"></span>
+        ログイン
+      </button>
+
+      <div class="divider"></div>
+
+      <div style="text-align:center; font-size:13px; color:var(--text-muted);">
+        パスワードを忘れた場合は
+        <button class="link-btn" onclick="showPanel('panel-forgot')">こちら</button>
+      </div>
+    </div>
+
+    <!-- ===== 初回登録パネル ===== -->
+    <div class="panel" id="panel-register">
+      <h2 class="card-title">アカウント登録</h2>
+      <p class="card-subtitle">初めてご利用の方は、メールアドレスとパスワードを登録してください。</p>
+
+      <div class="msg" id="register-msg"></div>
+
+      <div class="form-group">
+        <label>メールアドレス</label>
+        <input type="email" id="reg-email" placeholder="example@email.com" autocomplete="email" />
+      </div>
+
+      <div class="form-group">
+        <label>パスワード</label>
+        <input type="password" id="reg-password" placeholder="8文字以上" autocomplete="new-password"
+               oninput="checkPwStrength(this.value)" />
+        <div class="pw-strength"><div class="pw-strength-bar" id="pw-bar"></div></div>
+        <div class="pw-strength-label" id="pw-label"></div>
+        <div class="input-hint">英字・数字を含む8文字以上を推奨します。</div>
+      </div>
+
+      <div class="form-group">
+        <label>パスワード（確認）</label>
+        <input type="password" id="reg-password2" placeholder="もう一度入力" autocomplete="new-password" />
+      </div>
+
+      <button class="btn-primary" id="btn-register" onclick="doRegister()">
+        <span class="spinner"></span>
+        登録する
+      </button>
+
+      <div class="link-row">
+        すでにアカウントをお持ちの方は
+        <button class="link-btn" onclick="showPanel('panel-login')">ログイン</button>
+      </div>
+    </div>
+
+    <!-- ===== パスワードリセットパネル ===== -->
+    <div class="panel" id="panel-forgot">
+      <h2 class="card-title">パスワードをリセット</h2>
+      <p class="card-subtitle">登録済みのメールアドレスを入力してください。アカウント情報をリセットして再登録できます。</p>
+
+      <div class="msg" id="forgot-msg"></div>
+
+      <div class="form-group">
+        <label>登録済みメールアドレス</label>
+        <input type="email" id="forgot-email" placeholder="example@email.com" />
+      </div>
+
+      <button class="btn-primary" id="btn-forgot" onclick="doForgot()">
+        <span class="spinner"></span>
+        リセットして再登録へ
+      </button>
+
+      <div class="link-row">
+        <button class="link-btn" onclick="showPanel('panel-login')">← ログインに戻る</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="login-footer">
+    &copy; 2020 坂の上珈琲 — 管理者専用ページ
+  </div>
+
+</div>
+
+<script>
+  const AUTH_KEY = 'sakanoueCafe_auth';
+  const SESSION_KEY = 'sakanoueCafe_session';
+
+  // ===== 初期表示: 登録済みかどうかで画面を切り替え =====
+  window.addEventListener('DOMContentLoaded', () => {
+    const stored = localStorage.getItem(AUTH_KEY);
+    if (!stored) {
+      showPanel('panel-register');
+    } else {
+      showPanel('panel-login');
+    }
+
+    // Enterキーでも送信
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Enter') return;
+      const activePanel = document.querySelector('.panel.active');
+      if (!activePanel) return;
+      const id = activePanel.id;
+      if (id === 'panel-login') doLogin();
+      else if (id === 'panel-register') doRegister();
+      else if (id === 'panel-forgot') doForgot();
+    });
+  });
+
+  function showPanel(id) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    clearMsgs();
+  }
+
+  function clearMsgs() {
+    document.querySelectorAll('.msg').forEach(m => { m.classList.remove('show'); m.textContent = ''; });
+  }
+
+  function showMsg(id, text, type) {
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.className = 'msg show ' + type;
+  }
+
+  // ===== パスワードハッシュ (SHA-256 + salt) =====
+  async function hashPassword(pw) {
+    const salt = 'sakanoueCafe_v1';
+    const encoder = new TextEncoder();
+    const data = encoder.encode(pw + salt);
+    const buf = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  // ===== ボタンのローディング状態 =====
+  function setLoading(btnId, loading) {
+    const btn = document.getElementById(btnId);
+    btn.classList.toggle('loading', loading);
+    btn.disabled = loading;
+  }
+
+  // ===== ログイン処理 =====
+  async function doLogin() {
+    const email = document.getElementById('login-email').value.trim();
+    const pw = document.getElementById('login-password').value;
+
+    if (!email || !pw) {
+      showMsg('login-msg', 'メールアドレスとパスワードを入力してください。', 'error');
+      return;
+    }
+
+    setLoading('btn-login', true);
+
+    try {
+      const stored = JSON.parse(localStorage.getItem(AUTH_KEY));
+      if (!stored) {
+        showMsg('login-msg', 'アカウントが登録されていません。', 'error');
+        return;
+      }
+
+      const hash = await hashPassword(pw);
+
+      if (stored.email !== email || stored.passwordHash !== hash) {
+        showMsg('login-msg', 'メールアドレスまたはパスワードが違います。', 'error');
+        return;
+      }
+
+      sessionStorage.setItem(SESSION_KEY, '1');
+      window.location.href = 'admin.html';
+
+    } finally {
+      setLoading('btn-login', false);
+    }
+  }
+
+  // ===== 新規登録処理 =====
+  async function doRegister() {
+    const email = document.getElementById('reg-email').value.trim();
+    const pw = document.getElementById('reg-password').value;
+    const pw2 = document.getElementById('reg-password2').value;
+
+    if (!email) {
+      showMsg('register-msg', 'メールアドレスを入力してください。', 'error');
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showMsg('register-msg', '正しいメールアドレス形式で入力してください。', 'error');
+      return;
+    }
+
+    if (pw.length < 8) {
+      showMsg('register-msg', 'パスワードは8文字以上で入力してください。', 'error');
+      return;
+    }
+
+    if (pw !== pw2) {
+      showMsg('register-msg', 'パスワードが一致しません。確認用のパスワードをもう一度入力してください。', 'error');
+      return;
+    }
+
+    setLoading('btn-register', true);
+
+    try {
+      const hash = await hashPassword(pw);
+      localStorage.setItem(AUTH_KEY, JSON.stringify({ email, passwordHash: hash }));
+      sessionStorage.setItem(SESSION_KEY, '1');
+      window.location.href = 'admin.html';
+    } finally {
+      setLoading('btn-register', false);
+    }
+  }
+
+  // ===== パスワードリセット処理 =====
+  async function doForgot() {
+    const email = document.getElementById('forgot-email').value.trim();
+    if (!email) {
+      showMsg('forgot-msg', 'メールアドレスを入力してください。', 'error');
+      return;
+    }
+
+    const stored = JSON.parse(localStorage.getItem(AUTH_KEY));
+    if (!stored || stored.email !== email) {
+      showMsg('forgot-msg', 'そのメールアドレスは登録されていません。', 'error');
+      return;
+    }
+
+    if (!confirm(`${email} のアカウント情報をリセットします。\nリセット後、新しいパスワードを登録してください。`)) return;
+
+    localStorage.removeItem(AUTH_KEY);
+    showMsg('forgot-msg', 'リセットしました。新しいパスワードを登録してください。', 'success');
+    setTimeout(() => showPanel('panel-register'), 1500);
+  }
+
+  // ===== パスワード強度チェック =====
+  function checkPwStrength(pw) {
+    const bar = document.getElementById('pw-bar');
+    const label = document.getElementById('pw-label');
+    let score = 0;
+    if (pw.length >= 8) score++;
+    if (pw.length >= 12) score++;
+    if (/[A-Za-z]/.test(pw)) score++;
+    if (/[0-9]/.test(pw)) score++;
+    if (/[^A-Za-z0-9]/.test(pw)) score++;
+
+    const levels = [
+      { w: '0%',   bg: 'transparent', text: '' },
+      { w: '25%',  bg: '#e74c3c', text: '弱い' },
+      { w: '50%',  bg: '#e67e22', text: 'やや弱い' },
+      { w: '75%',  bg: '#f1c40f', text: 'まあまあ' },
+      { w: '90%',  bg: '#27ae60', text: '強い' },
+      { w: '100%', bg: '#2ecc71', text: 'とても強い' },
+    ];
+    const lv = levels[Math.min(score, 5)];
+    bar.style.width = lv.w;
+    bar.style.background = lv.bg;
+    label.textContent = lv.text;
+    label.style.color = lv.bg;
+  }
+</script>
+</body>
+</html>
