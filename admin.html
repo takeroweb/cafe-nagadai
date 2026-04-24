@@ -1272,6 +1272,7 @@
     collectConceptsIntoData();
     currentData.concepts.push({ title: '新しいコンセプト', text: '説明を入力してください。' });
     renderConceptItems(currentData.concepts);
+    scrollToLast('concept-items-container');
   }
 
   function deleteConceptItem(i) {
@@ -1372,6 +1373,7 @@
     syncMenuCat(cat);
     currentData.menu[cat].push({ name: '新しいメニュー', desc: '説明を入力してください。', price: '¥000', image: '' });
     renderMenuItems(cat, currentData.menu[cat]);
+    scrollToLast('menu-items-' + cat);
   }
 
   function deleteMenuItem(cat, index) {
@@ -1527,6 +1529,7 @@
     if (!currentData.menu.extraCategories[catIndex].items) currentData.menu.extraCategories[catIndex].items = [];
     currentData.menu.extraCategories[catIndex].items.push({ name: '新しいメニュー', desc: '説明を入力してください。', price: '¥000', image: '' });
     renderExtraMenuItems(catIndex, currentData.menu.extraCategories[catIndex].items);
+    scrollToLast(`menu-items-extra-${catIndex}`);
   }
 
   function deleteMenuItemExtra(catIndex, j) {
@@ -1578,6 +1581,7 @@
     const newFaq = { label: '新しいFAQ', keywords: 'キーワード1,キーワード2', answer: '回答を入力してください。' };
     currentData.chat.faq.push(newFaq);
     renderFaqItems(currentData.chat.faq);
+    scrollToLast('faq-items-container');
   }
 
   function deleteFaqItem(index) {
@@ -1648,10 +1652,7 @@
     if (!currentData.gallery) currentData.gallery = [];
     currentData.gallery.push({ url: '', alt: '' });
     renderGalleryItems(currentData.gallery);
-    setTimeout(() => {
-      const lastItem = document.getElementById(`gallery-item-${currentData.gallery.length - 1}`);
-      if (lastItem) lastItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 50);
+    scrollToLast('gallery-items-container');
   }
 
   function deleteGalleryItem(i) {
@@ -1738,6 +1739,15 @@
     data.contact.lead = document.getElementById('contact-lead').value;
 
     return data;
+  }
+
+  function scrollToLast(containerId) {
+    setTimeout(() => {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      const last = container.lastElementChild;
+      if (last) last.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 50);
   }
 
   function v(id, fallback) {
