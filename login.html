@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Serif+JP:wght@700&family=Playfair+Display:ital@0;1&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -254,6 +255,47 @@
       font-size: 12px;
     }
 
+    /* OR区切り */
+    .or-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0;
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+    .or-divider::before, .or-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* Googleボタン */
+    .btn-google {
+      width: 100%;
+      padding: 12px 16px;
+      background: #fff;
+      color: #3c4043;
+      border: 1.5px solid #dadce0;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: 'Noto Sans JP', sans-serif;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: background 0.15s, box-shadow 0.15s;
+      letter-spacing: 0.01em;
+    }
+    .btn-google:hover {
+      background: #f8f9fa;
+      box-shadow: 0 1px 6px rgba(60,64,67,0.12);
+    }
+    .btn-google svg { width: 18px; height: 18px; flex-shrink: 0; }
+
     /* フッター */
     .login-footer { text-align: center; margin-top: 24px; font-size: 12px; color: var(--text-muted); }
 
@@ -312,6 +354,13 @@
         <span class="spinner"></span>ログイン
       </button>
 
+      <div class="or-divider">または</div>
+
+      <button class="btn-google" onclick="triggerGoogleSignIn()">
+        <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.19 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.69-13.45-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
+        Googleでサインイン
+      </button>
+
       <div class="divider"></div>
       <div style="text-align:center;font-size:13px;color:var(--text-muted);">
         パスワードを忘れた場合は
@@ -362,6 +411,13 @@
 
       <button class="btn-primary" id="btn-send-code" onclick="sendVerifyCode()">
         <span class="spinner"></span>認証コードをメールに送信
+      </button>
+
+      <div class="or-divider">またはGoogleアカウントで登録</div>
+
+      <button class="btn-google" onclick="triggerGoogleSignIn()">
+        <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.19 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.69-13.45-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
+        Googleで登録・サインイン
       </button>
 
       <div class="link-row">
@@ -451,12 +507,18 @@
 
 <script>
   // =====================================================
-  // EmailJS 設定
-  // emailjs.com で無料アカウントを作成し、以下の3つを設定してください
+  // EmailJS 設定（設定済み）
   // =====================================================
   const EMAILJS_PUBLIC_KEY  = 'NgQz8G_8yww3yXF8e';
   const EMAILJS_SERVICE_ID  = 'service_q929rhr';
   const EMAILJS_TEMPLATE_ID = 'template_58qq9gp';
+
+  // =====================================================
+  // Google サインイン設定
+  // 取得方法: console.cloud.google.com でOAuth クライアントIDを作成
+  // 承認済みJavaScriptオリジンに https://torin-take.github.io を追加
+  // =====================================================
+  const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID';
   // =====================================================
 
   const AUTH_KEY    = 'sakanoueCafe_auth';
@@ -470,10 +532,23 @@
     EMAILJS_TEMPLATE_ID !== 'YOUR_TEMPLATE_ID'
   );
 
+  const googleReady = GOOGLE_CLIENT_ID !== 'YOUR_GOOGLE_CLIENT_ID';
+
   // EmailJS 初期化
   if (emailjsReady) {
     emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
   }
+
+  // Google GIS 初期化（ライブラリロード後に呼ばれる）
+  window.onGoogleLibraryLoad = function() {
+    if (!googleReady) return;
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleGoogleCredential,
+      auto_select: false,
+      cancel_on_tap_outside: true,
+    });
+  };
 
   // ===== 初期表示 =====
   window.addEventListener('DOMContentLoaded', () => {
@@ -496,12 +571,52 @@
       const active = document.querySelector('.panel.active');
       if (!active) return;
       const id = active.id;
-      if (id === 'panel-login')    doLogin();
+      if (id === 'panel-login')         doLogin();
       else if (id === 'panel-register') sendVerifyCode();
       else if (id === 'panel-verify')   doVerify();
       else if (id === 'panel-forgot')   doForgot();
     });
   });
+
+  // ===== Google サインイン =====
+  function triggerGoogleSignIn() {
+    if (!googleReady) {
+      alert('Googleサインインを使うには、Google Cloud ConsoleでOAuthクライアントIDを取得し、login.html の GOOGLE_CLIENT_ID に設定してください。');
+      return;
+    }
+    google.accounts.id.prompt();
+  }
+
+  async function handleGoogleCredential(response) {
+    try {
+      // JWTのペイロードをデコードしてメールアドレスを取得
+      const payload = JSON.parse(atob(response.credential.split('.')[1]));
+      const email   = payload.email;
+      const name    = payload.name || '';
+
+      const stored = JSON.parse(localStorage.getItem(AUTH_KEY));
+
+      if (!stored) {
+        // 未登録 → Googleアカウントで新規登録
+        localStorage.setItem(AUTH_KEY, JSON.stringify({ email, authType: 'google', name }));
+        sessionStorage.setItem(SESSION_KEY, '1');
+        window.location.href = 'admin.html';
+
+      } else if (stored.email === email) {
+        // 登録済みの同じメール → ログイン
+        sessionStorage.setItem(SESSION_KEY, '1');
+        window.location.href = 'admin.html';
+
+      } else {
+        // 別のメールアドレス
+        const activePanel = document.querySelector('.panel.active');
+        const msgId = activePanel ? activePanel.id.replace('panel-', '') + '-msg' : 'login-msg';
+        showMsg(msgId, `このGoogleアカウント（${email}）は登録されていません。登録済みのアカウント（${stored.email}）でサインインしてください。`, 'error');
+      }
+    } catch(e) {
+      showMsg('login-msg', 'Googleサインインに失敗しました。もう一度お試しください。', 'error');
+    }
+  }
 
   // ===== パネル切替 =====
   function showPanel(id) {
