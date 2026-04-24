@@ -6,12 +6,12 @@
   <title>ログイン | 坂の上珈琲 管理画面</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Serif+JP:wght@700&family=Playfair+Display:ital@0;1&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
       --cream: #FDF8F2;
-      --beige: #F0E8DA;
       --brown-light: #C4956A;
       --brown: #8B5E3C;
       --brown-dark: #4A2F1A;
@@ -37,44 +37,24 @@
       content: '';
       position: fixed;
       inset: 0;
-      background:
-        linear-gradient(160deg, rgba(74,47,26,0.07) 0%, rgba(92,122,92,0.05) 100%);
+      background: linear-gradient(160deg, rgba(74,47,26,0.07) 0%, rgba(92,122,92,0.05) 100%);
       pointer-events: none;
     }
 
-    .login-wrap {
-      width: 100%;
-      max-width: 420px;
-      position: relative;
-    }
+    .login-wrap { width: 100%; max-width: 420px; }
 
     /* ロゴ */
-    .login-logo {
-      text-align: center;
-      margin-bottom: 32px;
-    }
-
-    .login-logo-icon {
-      font-size: 36px;
-      display: block;
-      margin-bottom: 8px;
-    }
-
+    .login-logo { text-align: center; margin-bottom: 32px; }
+    .login-logo-icon { font-size: 36px; display: block; margin-bottom: 8px; }
     .login-logo-jp {
       font-family: 'Noto Serif JP', serif;
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--brown-dark);
-      letter-spacing: 0.1em;
+      font-size: 22px; font-weight: 700;
+      color: var(--brown-dark); letter-spacing: 0.1em;
     }
-
     .login-logo-sub {
       font-family: 'Playfair Display', serif;
-      font-size: 11px;
-      color: var(--brown-light);
-      letter-spacing: 0.3em;
-      text-transform: uppercase;
-      margin-top: 4px;
+      font-size: 11px; color: var(--brown-light);
+      letter-spacing: 0.3em; text-transform: uppercase; margin-top: 4px;
     }
 
     /* カード */
@@ -86,37 +66,52 @@
       padding: 36px 32px;
     }
 
-    .card-title {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--brown-dark);
-      margin-bottom: 6px;
-    }
+    .card-title { font-size: 20px; font-weight: 700; color: var(--brown-dark); margin-bottom: 6px; }
+    .card-subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 28px; line-height: 1.7; }
 
-    .card-subtitle {
-      font-size: 13px;
-      color: var(--text-muted);
+    /* ステップ表示 */
+    .steps {
+      display: flex;
+      align-items: center;
+      gap: 0;
       margin-bottom: 28px;
-      line-height: 1.6;
     }
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .step-num {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700;
+      color: var(--text-muted);
+    }
+    .step.active .step-num {
+      background: var(--brown);
+      border-color: var(--brown);
+      color: #fff;
+    }
+    .step.done .step-num {
+      background: var(--success);
+      border-color: var(--success);
+      color: #fff;
+    }
+    .step.done .step-num::after { content: '✓'; }
+    .step.done .step-num span { display: none; }
+    .step-line { flex: 1; height: 1px; background: var(--border); margin: 0 8px; }
 
     /* フォーム */
-    .form-group {
-      margin-bottom: 18px;
-    }
-
+    .form-group { margin-bottom: 18px; }
     label {
-      display: block;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text-muted);
-      letter-spacing: 0.05em;
-      margin-bottom: 6px;
+      display: block; font-size: 12px; font-weight: 500;
+      color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 6px;
     }
-
-    input[type="email"],
-    input[type="password"],
-    input[type="text"] {
+    input[type="email"], input[type="password"], input[type="text"], input[type="number"] {
       width: 100%;
       padding: 12px 16px;
       border: 1.5px solid var(--border);
@@ -128,21 +123,30 @@
       outline: none;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
-
     input:focus {
       border-color: var(--brown-light);
       box-shadow: 0 0 0 3px rgba(196,149,106,0.12);
     }
+    .input-hint { font-size: 11px; color: #aaa; margin-top: 4px; }
 
-    input.error-input {
-      border-color: var(--danger);
+    /* 認証コード入力（6桁） */
+    .code-wrap {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin: 8px 0 20px;
     }
-
-    .input-hint {
-      font-size: 11px;
-      color: #aaa;
-      margin-top: 4px;
+    .code-digit {
+      width: 44px !important;
+      height: 52px;
+      padding: 0 !important;
+      text-align: center;
+      font-size: 22px !important;
+      font-weight: 700;
+      border-radius: 10px !important;
+      letter-spacing: 0;
     }
+    .code-digit:focus { border-color: var(--brown-light); }
 
     /* ボタン */
     .btn-primary {
@@ -159,110 +163,105 @@
       letter-spacing: 0.05em;
       transition: background 0.2s, transform 0.1s;
       margin-top: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
-
     .btn-primary:hover { background: var(--brown-dark); }
     .btn-primary:active { transform: scale(0.99); }
     .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
 
-    /* エラー・成功メッセージ */
-    .msg {
-      padding: 12px 16px;
-      border-radius: 8px;
-      font-size: 13px;
-      margin-bottom: 20px;
-      display: none;
-      align-items: flex-start;
-      gap: 8px;
-      line-height: 1.5;
-    }
-
-    .msg.show { display: flex; }
-    .msg.error { background: #fef0f0; color: var(--danger); border: 1px solid #f5c6c6; }
-    .msg.success { background: #edfaf3; color: var(--success); border: 1px solid #a8e6c3; }
-
-    /* 区切り線 */
-    .divider {
-      height: 1px;
-      background: var(--border);
-      margin: 24px 0;
-    }
-
-    /* リンク */
-    .link-btn {
-      background: none;
-      border: none;
-      color: var(--brown);
-      font-size: 13px;
-      cursor: pointer;
-      font-family: 'Noto Sans JP', sans-serif;
-      text-decoration: underline;
-      padding: 0;
-    }
-
-    .link-btn:hover { color: var(--brown-dark); }
-
-    .link-row {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-
-    /* パスワード強度 */
-    .pw-strength {
-      height: 4px;
-      border-radius: 2px;
-      background: var(--border);
-      margin-top: 6px;
-      overflow: hidden;
-    }
-
-    .pw-strength-bar {
-      height: 100%;
-      border-radius: 2px;
-      width: 0;
-      transition: width 0.3s, background 0.3s;
-    }
-
-    .pw-strength-label {
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
-
-    /* ローディング */
-    .btn-primary .spinner {
+    .spinner {
       display: none;
       width: 16px; height: 16px;
       border: 2px solid rgba(255,255,255,0.4);
       border-top-color: #fff;
       border-radius: 50%;
       animation: spin 0.6s linear infinite;
-      vertical-align: middle;
-      margin-right: 6px;
     }
-
-    .btn-primary.loading .spinner { display: inline-block; }
-
+    .loading .spinner { display: block; }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* メッセージ */
+    .msg {
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 20px;
+      display: none;
+      line-height: 1.6;
+    }
+    .msg.show { display: block; }
+    .msg.error { background: #fef0f0; color: var(--danger); border: 1px solid #f5c6c6; }
+    .msg.success { background: #edfaf3; color: var(--success); border: 1px solid #a8e6c3; }
+    .msg.info { background: #f0f4ff; color: #2c5282; border: 1px solid #bee3f8; }
+
+    /* パスワード強度 */
+    .pw-strength { height: 4px; border-radius: 2px; background: var(--border); margin-top: 6px; overflow: hidden; }
+    .pw-strength-bar { height: 100%; border-radius: 2px; width: 0; transition: width 0.3s, background 0.3s; }
+    .pw-strength-label { font-size: 11px; margin-top: 4px; }
+
+    /* 区切り線 */
+    .divider { height: 1px; background: var(--border); margin: 24px 0; }
+
+    /* リンクボタン */
+    .link-btn {
+      background: none; border: none;
+      color: var(--brown); font-size: 13px;
+      cursor: pointer; font-family: 'Noto Sans JP', sans-serif;
+      text-decoration: underline; padding: 0;
+    }
+    .link-btn:hover { color: var(--brown-dark); }
+
+    .link-row { text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-muted); }
+
+    /* 再送信カウントダウン */
+    .resend-row {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    #btn-resend { font-size: 13px; }
+    #btn-resend:disabled { color: #bbb; text-decoration: none; cursor: default; }
 
     /* パネル切替 */
     .panel { display: none; }
     .panel.active { display: block; }
 
-    /* フッター */
-    .login-footer {
-      text-align: center;
-      margin-top: 24px;
+    /* EmailJS未設定バナー */
+    .setup-banner {
+      background: #fffbeb;
+      border: 1px solid #fcd34d;
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #92400e;
+      display: none;
+    }
+    .setup-banner.show { display: block; }
+    .setup-banner strong { display: block; margin-bottom: 4px; font-size: 14px; }
+    .setup-banner ol { padding-left: 18px; margin-top: 6px; }
+    .setup-banner li { margin-bottom: 3px; }
+    .setup-banner code {
+      background: rgba(0,0,0,0.07);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-family: monospace;
       font-size: 12px;
-      color: var(--text-muted);
     }
 
-    /* モバイル */
+    /* フッター */
+    .login-footer { text-align: center; margin-top: 24px; font-size: 12px; color: var(--text-muted); }
+
     @media (max-width: 480px) {
       .login-card { padding: 28px 20px; }
       .card-title { font-size: 18px; }
+      .code-digit { width: 38px !important; height: 46px; font-size: 20px !important; }
+      .code-wrap { gap: 6px; }
     }
   </style>
 </head>
@@ -278,6 +277,21 @@
 
   <div class="login-card">
 
+    <!-- ===== EmailJS未設定バナー ===== -->
+    <div class="setup-banner" id="setup-banner">
+      <strong>⚙️ メール送信の初期設定が必要です</strong>
+      メール認証を使うには <strong>EmailJS</strong>（無料）の設定が必要です。
+      <ol>
+        <li><a href="https://emailjs.com" target="_blank" style="color:var(--brown)">emailjs.com</a> で無料アカウントを作成</li>
+        <li>「Email Services」からGmailなどを追加</li>
+        <li>「Email Templates」で新テンプレートを作成<br>
+          件名: <code>【坂の上珈琲】認証コード: {{code}}</code><br>
+          本文: <code>認証コード：{{code}}（10分間有効）</code></li>
+        <li>login.html の先頭3つの定数を書き換える</li>
+      </ol>
+      設定が完了するまでは<button class="link-btn" onclick="skipEmailVerify()" style="font-size:13px;">メール認証をスキップして登録</button>もできます。
+    </div>
+
     <!-- ===== ログインパネル ===== -->
     <div class="panel active" id="panel-login">
       <h2 class="card-title">ログイン</h2>
@@ -289,29 +303,43 @@
         <label>メールアドレス</label>
         <input type="email" id="login-email" placeholder="example@email.com" autocomplete="email" />
       </div>
-
       <div class="form-group">
         <label>パスワード</label>
         <input type="password" id="login-password" placeholder="パスワードを入力" autocomplete="current-password" />
       </div>
 
       <button class="btn-primary" id="btn-login" onclick="doLogin()">
-        <span class="spinner"></span>
-        ログイン
+        <span class="spinner"></span>ログイン
       </button>
 
       <div class="divider"></div>
-
-      <div style="text-align:center; font-size:13px; color:var(--text-muted);">
+      <div style="text-align:center;font-size:13px;color:var(--text-muted);">
         パスワードを忘れた場合は
         <button class="link-btn" onclick="showPanel('panel-forgot')">こちら</button>
       </div>
     </div>
 
-    <!-- ===== 初回登録パネル ===== -->
+    <!-- ===== 登録パネル Step1: 情報入力 ===== -->
     <div class="panel" id="panel-register">
       <h2 class="card-title">アカウント登録</h2>
-      <p class="card-subtitle">初めてご利用の方は、メールアドレスとパスワードを登録してください。</p>
+      <p class="card-subtitle">メールアドレスとパスワードを入力してください。<br>入力したメールアドレスに認証コードをお送りします。</p>
+
+      <div class="steps">
+        <div class="step active" id="step1">
+          <div class="step-num"><span>1</span></div>
+          <span>情報入力</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step" id="step2">
+          <div class="step-num"><span>2</span></div>
+          <span>メール認証</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step" id="step3">
+          <div class="step-num"><span>3</span></div>
+          <span>完了</span>
+        </div>
+      </div>
 
       <div class="msg" id="register-msg"></div>
 
@@ -319,7 +347,6 @@
         <label>メールアドレス</label>
         <input type="email" id="reg-email" placeholder="example@email.com" autocomplete="email" />
       </div>
-
       <div class="form-group">
         <label>パスワード</label>
         <input type="password" id="reg-password" placeholder="8文字以上" autocomplete="new-password"
@@ -328,15 +355,13 @@
         <div class="pw-strength-label" id="pw-label"></div>
         <div class="input-hint">英字・数字を含む8文字以上を推奨します。</div>
       </div>
-
       <div class="form-group">
         <label>パスワード（確認）</label>
         <input type="password" id="reg-password2" placeholder="もう一度入力" autocomplete="new-password" />
       </div>
 
-      <button class="btn-primary" id="btn-register" onclick="doRegister()">
-        <span class="spinner"></span>
-        登録する
+      <button class="btn-primary" id="btn-send-code" onclick="sendVerifyCode()">
+        <span class="spinner"></span>認証コードをメールに送信
       </button>
 
       <div class="link-row">
@@ -345,10 +370,60 @@
       </div>
     </div>
 
+    <!-- ===== 登録パネル Step2: コード入力 ===== -->
+    <div class="panel" id="panel-verify">
+      <h2 class="card-title">メール認証</h2>
+      <p class="card-subtitle" id="verify-subtitle">メールアドレスに6桁の認証コードを送信しました。<br>コードを入力して登録を完了してください。</p>
+
+      <div class="steps">
+        <div class="step done" id="vstep1">
+          <div class="step-num"><span>1</span></div>
+          <span>情報入力</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step active" id="vstep2">
+          <div class="step-num"><span>2</span></div>
+          <span>メール認証</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step" id="vstep3">
+          <div class="step-num"><span>3</span></div>
+          <span>完了</span>
+        </div>
+      </div>
+
+      <div class="msg" id="verify-msg"></div>
+
+      <label style="text-align:center;display:block;margin-bottom:12px;">認証コード（6桁）</label>
+      <div class="code-wrap">
+        <input type="text" inputmode="numeric" maxlength="1" class="code-digit" id="cd0" />
+        <input type="text" inputmode="numeric" maxlength="1" class="code-digit" id="cd1" />
+        <input type="text" inputmode="numeric" maxlength="1" class="code-digit" id="cd2" />
+        <input type="text" inputmode="numeric" maxlength="1" class="code-digit" id="cd3" />
+        <input type="text" inputmode="numeric" maxlength="1" class="code-digit" id="cd4" />
+        <input type="text" inputmode="numeric" maxlength="1" class="code-digit" id="cd5" />
+      </div>
+
+      <button class="btn-primary" id="btn-verify" onclick="doVerify()">
+        <span class="spinner"></span>認証して登録を完了する
+      </button>
+
+      <div class="resend-row">
+        コードが届かない場合：
+        <button class="link-btn" id="btn-resend" onclick="resendCode()" disabled>
+          再送信（<span id="resend-timer">60</span>秒）
+        </button>
+      </div>
+
+      <div class="link-row">
+        <button class="link-btn" onclick="showPanel('panel-register')">← 入力内容を修正する</button>
+      </div>
+    </div>
+
     <!-- ===== パスワードリセットパネル ===== -->
     <div class="panel" id="panel-forgot">
       <h2 class="card-title">パスワードをリセット</h2>
-      <p class="card-subtitle">登録済みのメールアドレスを入力してください。アカウント情報をリセットして再登録できます。</p>
+      <p class="card-subtitle">登録済みのメールアドレスを入力してください。<br>認証コードを送信してリセットします。</p>
 
       <div class="msg" id="forgot-msg"></div>
 
@@ -358,8 +433,7 @@
       </div>
 
       <button class="btn-primary" id="btn-forgot" onclick="doForgot()">
-        <span class="spinner"></span>
-        リセットして再登録へ
+        <span class="spinner"></span>リセットして再登録へ
       </button>
 
       <div class="link-row">
@@ -376,34 +450,69 @@
 </div>
 
 <script>
-  const AUTH_KEY = 'sakanoueCafe_auth';
-  const SESSION_KEY = 'sakanoueCafe_session';
+  // =====================================================
+  // EmailJS 設定
+  // emailjs.com で無料アカウントを作成し、以下の3つを設定してください
+  // =====================================================
+  const EMAILJS_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY';   // Account > API Keys
+  const EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID';   // Email Services のID
+  const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';  // Email Templates のID
+  // =====================================================
 
-  // ===== 初期表示: 登録済みかどうかで画面を切り替え =====
+  const AUTH_KEY    = 'sakanoueCafe_auth';
+  const SESSION_KEY = 'sakanoueCafe_session';
+  const VERIFY_KEY  = 'sakanoueCafe_pending_verify';
+
+  // EmailJS が設定済みか確認
+  const emailjsReady = (
+    EMAILJS_PUBLIC_KEY  !== 'YOUR_PUBLIC_KEY' &&
+    EMAILJS_SERVICE_ID  !== 'YOUR_SERVICE_ID' &&
+    EMAILJS_TEMPLATE_ID !== 'YOUR_TEMPLATE_ID'
+  );
+
+  // EmailJS 初期化
+  if (emailjsReady) {
+    emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+  }
+
+  // ===== 初期表示 =====
   window.addEventListener('DOMContentLoaded', () => {
     const stored = localStorage.getItem(AUTH_KEY);
     if (!stored) {
       showPanel('panel-register');
+      if (!emailjsReady) {
+        document.getElementById('setup-banner').classList.add('show');
+      }
     } else {
       showPanel('panel-login');
     }
 
-    // Enterキーでも送信
+    // 認証コード入力：自動フォーカス
+    setupCodeInputs();
+
+    // Enterキー送信
     document.addEventListener('keydown', e => {
       if (e.key !== 'Enter') return;
-      const activePanel = document.querySelector('.panel.active');
-      if (!activePanel) return;
-      const id = activePanel.id;
-      if (id === 'panel-login') doLogin();
-      else if (id === 'panel-register') doRegister();
-      else if (id === 'panel-forgot') doForgot();
+      const active = document.querySelector('.panel.active');
+      if (!active) return;
+      const id = active.id;
+      if (id === 'panel-login')    doLogin();
+      else if (id === 'panel-register') sendVerifyCode();
+      else if (id === 'panel-verify')   doVerify();
+      else if (id === 'panel-forgot')   doForgot();
     });
   });
 
+  // ===== パネル切替 =====
   function showPanel(id) {
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     clearMsgs();
+    if (id === 'panel-register' && !emailjsReady && !localStorage.getItem(AUTH_KEY)) {
+      document.getElementById('setup-banner').classList.add('show');
+    } else {
+      document.getElementById('setup-banner').classList.remove('show');
+    }
   }
 
   function clearMsgs() {
@@ -416,30 +525,204 @@
     el.className = 'msg show ' + type;
   }
 
-  // ===== パスワードハッシュ (SHA-256 + salt) =====
+  // ===== パスワードハッシュ (SHA-256) =====
   async function hashPassword(pw) {
-    const salt = 'sakanoueCafe_v1';
     const encoder = new TextEncoder();
-    const data = encoder.encode(pw + salt);
+    const data = encoder.encode(pw + 'sakanoueCafe_v1');
     const buf = await crypto.subtle.digest('SHA-256', data);
     return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
-  // ===== ボタンのローディング状態 =====
+  // ===== ローディング =====
   function setLoading(btnId, loading) {
     const btn = document.getElementById(btnId);
     btn.classList.toggle('loading', loading);
     btn.disabled = loading;
   }
 
-  // ===== ログイン処理 =====
+  // ===== 認証コード生成 =====
+  function generateCode() {
+    return String(Math.floor(100000 + Math.random() * 900000));
+  }
+
+  // ===== メール送信 =====
+  async function sendEmail(toEmail, code) {
+    return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      to_email: toEmail,
+      code: code,
+    });
+  }
+
+  // =====================================================
+  // 登録 Step1: 認証コード送信
+  // =====================================================
+  async function sendVerifyCode() {
+    const email = document.getElementById('reg-email').value.trim();
+    const pw    = document.getElementById('reg-password').value;
+    const pw2   = document.getElementById('reg-password2').value;
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showMsg('register-msg', '正しいメールアドレスを入力してください。', 'error'); return;
+    }
+    if (pw.length < 8) {
+      showMsg('register-msg', 'パスワードは8文字以上で入力してください。', 'error'); return;
+    }
+    if (pw !== pw2) {
+      showMsg('register-msg', 'パスワードが一致しません。', 'error'); return;
+    }
+
+    if (!emailjsReady) {
+      showMsg('register-msg', 'EmailJSが未設定です。バナーの手順を参考に設定してください。', 'error');
+      return;
+    }
+
+    setLoading('btn-send-code', true);
+
+    try {
+      const code    = generateCode();
+      const hash    = await hashPassword(pw);
+      const expires = Date.now() + 10 * 60 * 1000; // 10分
+
+      // 送信前にpendingとして保存
+      sessionStorage.setItem(VERIFY_KEY, JSON.stringify({ email, passwordHash: hash, code, expires }));
+
+      await sendEmail(email, code);
+
+      // サブタイトルを更新してコード入力画面へ
+      document.getElementById('verify-subtitle').innerHTML =
+        `<strong>${email}</strong> に6桁の認証コードを送信しました。<br>メールを確認してコードを入力してください。`;
+
+      showPanel('panel-verify');
+      clearCodeInputs();
+      document.getElementById('cd0').focus();
+      startResendTimer();
+
+    } catch(err) {
+      showMsg('register-msg', 'メールの送信に失敗しました。メールアドレスを確認してもう一度お試しください。', 'error');
+      sessionStorage.removeItem(VERIFY_KEY);
+    } finally {
+      setLoading('btn-send-code', false);
+    }
+  }
+
+  // EmailJS未設定時のスキップ登録
+  async function skipEmailVerify() {
+    const email = document.getElementById('reg-email').value.trim();
+    const pw    = document.getElementById('reg-password').value;
+    const pw2   = document.getElementById('reg-password2').value;
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showMsg('register-msg', '正しいメールアドレスを入力してください。', 'error'); return;
+    }
+    if (pw.length < 8) {
+      showMsg('register-msg', 'パスワードは8文字以上で入力してください。', 'error'); return;
+    }
+    if (pw !== pw2) {
+      showMsg('register-msg', 'パスワードが一致しません。', 'error'); return;
+    }
+
+    const hash = await hashPassword(pw);
+    localStorage.setItem(AUTH_KEY, JSON.stringify({ email, passwordHash: hash }));
+    sessionStorage.setItem(SESSION_KEY, '1');
+    window.location.href = 'admin.html';
+  }
+
+  // =====================================================
+  // 登録 Step2: 認証コード確認
+  // =====================================================
+  async function doVerify() {
+    const entered = [0,1,2,3,4,5].map(i => document.getElementById('cd'+i).value).join('');
+
+    if (entered.length < 6) {
+      showMsg('verify-msg', '6桁の認証コードをすべて入力してください。', 'error'); return;
+    }
+
+    const pending = JSON.parse(sessionStorage.getItem(VERIFY_KEY));
+    if (!pending) {
+      showMsg('verify-msg', 'セッションが切れました。最初からやり直してください。', 'error'); return;
+    }
+
+    if (Date.now() > pending.expires) {
+      showMsg('verify-msg', '認証コードの有効期限が切れました。再送信してください。', 'error');
+      sessionStorage.removeItem(VERIFY_KEY);
+      return;
+    }
+
+    if (entered !== pending.code) {
+      showMsg('verify-msg', '認証コードが違います。もう一度確認してください。', 'error'); return;
+    }
+
+    setLoading('btn-verify', true);
+
+    try {
+      localStorage.setItem(AUTH_KEY, JSON.stringify({
+        email: pending.email,
+        passwordHash: pending.passwordHash
+      }));
+      sessionStorage.removeItem(VERIFY_KEY);
+      sessionStorage.setItem(SESSION_KEY, '1');
+      window.location.href = 'admin.html';
+    } finally {
+      setLoading('btn-verify', false);
+    }
+  }
+
+  // =====================================================
+  // 認証コード再送信
+  // =====================================================
+  async function resendCode() {
+    const pending = JSON.parse(sessionStorage.getItem(VERIFY_KEY));
+    if (!pending) { showPanel('panel-register'); return; }
+
+    const btn = document.getElementById('btn-resend');
+    btn.disabled = true;
+
+    const code    = generateCode();
+    const expires = Date.now() + 10 * 60 * 1000;
+    sessionStorage.setItem(VERIFY_KEY, JSON.stringify({ ...pending, code, expires }));
+
+    try {
+      await sendEmail(pending.email, code);
+      showMsg('verify-msg', 'コードを再送信しました。メールをご確認ください。', 'success');
+    } catch(err) {
+      showMsg('verify-msg', '再送信に失敗しました。しばらくしてからお試しください。', 'error');
+    }
+
+    clearCodeInputs();
+    document.getElementById('cd0').focus();
+    startResendTimer();
+  }
+
+  let resendInterval = null;
+
+  function startResendTimer() {
+    const btn = document.getElementById('btn-resend');
+    const timerEl = document.getElementById('resend-timer');
+    btn.disabled = true;
+    let sec = 60;
+    timerEl.textContent = sec;
+
+    clearInterval(resendInterval);
+    resendInterval = setInterval(() => {
+      sec--;
+      timerEl.textContent = sec;
+      if (sec <= 0) {
+        clearInterval(resendInterval);
+        btn.disabled = false;
+        btn.textContent = '再送信する';
+      }
+    }, 1000);
+  }
+
+  // =====================================================
+  // ログイン
+  // =====================================================
   async function doLogin() {
     const email = document.getElementById('login-email').value.trim();
-    const pw = document.getElementById('login-password').value;
+    const pw    = document.getElementById('login-password').value;
 
     if (!email || !pw) {
-      showMsg('login-msg', 'メールアドレスとパスワードを入力してください。', 'error');
-      return;
+      showMsg('login-msg', 'メールアドレスとパスワードを入力してください。', 'error'); return;
     }
 
     setLoading('btn-login', true);
@@ -447,93 +730,93 @@
     try {
       const stored = JSON.parse(localStorage.getItem(AUTH_KEY));
       if (!stored) {
-        showMsg('login-msg', 'アカウントが登録されていません。', 'error');
-        return;
+        showMsg('login-msg', 'アカウントが登録されていません。', 'error'); return;
       }
 
       const hash = await hashPassword(pw);
-
       if (stored.email !== email || stored.passwordHash !== hash) {
-        showMsg('login-msg', 'メールアドレスまたはパスワードが違います。', 'error');
-        return;
+        showMsg('login-msg', 'メールアドレスまたはパスワードが違います。', 'error'); return;
       }
 
       sessionStorage.setItem(SESSION_KEY, '1');
       window.location.href = 'admin.html';
-
     } finally {
       setLoading('btn-login', false);
     }
   }
 
-  // ===== 新規登録処理 =====
-  async function doRegister() {
-    const email = document.getElementById('reg-email').value.trim();
-    const pw = document.getElementById('reg-password').value;
-    const pw2 = document.getElementById('reg-password2').value;
-
-    if (!email) {
-      showMsg('register-msg', 'メールアドレスを入力してください。', 'error');
-      return;
-    }
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      showMsg('register-msg', '正しいメールアドレス形式で入力してください。', 'error');
-      return;
-    }
-
-    if (pw.length < 8) {
-      showMsg('register-msg', 'パスワードは8文字以上で入力してください。', 'error');
-      return;
-    }
-
-    if (pw !== pw2) {
-      showMsg('register-msg', 'パスワードが一致しません。確認用のパスワードをもう一度入力してください。', 'error');
-      return;
-    }
-
-    setLoading('btn-register', true);
-
-    try {
-      const hash = await hashPassword(pw);
-      localStorage.setItem(AUTH_KEY, JSON.stringify({ email, passwordHash: hash }));
-      sessionStorage.setItem(SESSION_KEY, '1');
-      window.location.href = 'admin.html';
-    } finally {
-      setLoading('btn-register', false);
-    }
-  }
-
-  // ===== パスワードリセット処理 =====
+  // =====================================================
+  // パスワードリセット
+  // =====================================================
   async function doForgot() {
     const email = document.getElementById('forgot-email').value.trim();
     if (!email) {
-      showMsg('forgot-msg', 'メールアドレスを入力してください。', 'error');
-      return;
+      showMsg('forgot-msg', 'メールアドレスを入力してください。', 'error'); return;
     }
 
     const stored = JSON.parse(localStorage.getItem(AUTH_KEY));
     if (!stored || stored.email !== email) {
-      showMsg('forgot-msg', 'そのメールアドレスは登録されていません。', 'error');
-      return;
+      showMsg('forgot-msg', 'そのメールアドレスは登録されていません。', 'error'); return;
     }
 
-    if (!confirm(`${email} のアカウント情報をリセットします。\nリセット後、新しいパスワードを登録してください。`)) return;
+    if (!confirm(`${email} のアカウントをリセットします。\nリセット後、新しいパスワードを登録してください。`)) return;
 
     localStorage.removeItem(AUTH_KEY);
     showMsg('forgot-msg', 'リセットしました。新しいパスワードを登録してください。', 'success');
     setTimeout(() => showPanel('panel-register'), 1500);
   }
 
-  // ===== パスワード強度チェック =====
+  // =====================================================
+  // 認証コード入力UI
+  // =====================================================
+  function setupCodeInputs() {
+    const inputs = document.querySelectorAll('.code-digit');
+    inputs.forEach((input, i) => {
+      input.addEventListener('input', () => {
+        // 数字以外を除去
+        input.value = input.value.replace(/[^0-9]/g, '').slice(-1);
+        if (input.value && i < inputs.length - 1) {
+          inputs[i + 1].focus();
+        }
+        // 6桁揃ったら自動送信
+        const all = [...inputs].map(el => el.value).join('');
+        if (all.length === 6) doVerify();
+      });
+
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Backspace' && !input.value && i > 0) {
+          inputs[i - 1].focus();
+        }
+      });
+
+      // ペースト対応（最初のboxにペーストすると全桁埋まる）
+      input.addEventListener('paste', e => {
+        e.preventDefault();
+        const pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
+        pasted.split('').forEach((ch, j) => {
+          if (inputs[j]) inputs[j].value = ch;
+        });
+        if (inputs[Math.min(pasted.length, 5)]) inputs[Math.min(pasted.length, 5)].focus();
+        if (pasted.length === 6) doVerify();
+      });
+    });
+  }
+
+  function clearCodeInputs() {
+    document.querySelectorAll('.code-digit').forEach(el => el.value = '');
+  }
+
+  // =====================================================
+  // パスワード強度
+  // =====================================================
   function checkPwStrength(pw) {
     const bar = document.getElementById('pw-bar');
     const label = document.getElementById('pw-label');
     let score = 0;
-    if (pw.length >= 8) score++;
+    if (pw.length >= 8)  score++;
     if (pw.length >= 12) score++;
     if (/[A-Za-z]/.test(pw)) score++;
-    if (/[0-9]/.test(pw)) score++;
+    if (/[0-9]/.test(pw))    score++;
     if (/[^A-Za-z0-9]/.test(pw)) score++;
 
     const levels = [
