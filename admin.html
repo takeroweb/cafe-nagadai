@@ -1283,7 +1283,6 @@
 
   function deleteConceptItem(i) {
     if (currentData.concepts.length <= 1) { showToast('最低1枚のカードが必要です。', 'error'); return; }
-    if (!confirm('このカードを削除しますか？')) return;
     collectConceptsIntoData();
     currentData.concepts.splice(i, 1);
     renderConceptItems(currentData.concepts);
@@ -1376,7 +1375,6 @@
   }
 
   function deleteMenuItem(cat, index) {
-    if (!confirm('このメニューを削除しますか？')) return;
     syncMenuCat(cat);
     currentData.menu[cat].splice(index, 1);
     renderMenuItems(cat, currentData.menu[cat]);
@@ -1462,11 +1460,10 @@
   }
 
   function deleteCategory(i) {
-    const label = currentData.menu.extraCategories[i].label;
-    if (!confirm(`「${label}」カテゴリを削除しますか？\nこの操作は保存するまで元に戻せます。`)) return;
     currentData.menu.extraCategories.splice(i, 1);
     renderExtraCategoryTabs(currentData.menu.extraCategories);
-    // ドリンクタブに戻す
+    saveData(currentData);
+    showToast('カテゴリを削除しました。', 'success');
     const drinksTab = document.querySelector('.menu-tab-admin:first-child');
     if (drinksTab) switchMenuTab(drinksTab, 'drinks');
   }
@@ -1528,7 +1525,6 @@
   }
 
   function deleteMenuItemExtra(catIndex, j) {
-    if (!confirm('このメニューを削除しますか？')) return;
     syncExtraCat(catIndex);
     currentData.menu.extraCategories[catIndex].items.splice(j, 1);
     renderExtraMenuItems(catIndex, currentData.menu.extraCategories[catIndex].items);
@@ -1580,7 +1576,6 @@
   }
 
   function deleteFaqItem(index) {
-    if (!confirm('このFAQを削除しますか？')) return;
     currentData.chat.faq.splice(index, 1);
     renderFaqItems(currentData.chat.faq);
     saveData(currentData);
@@ -1657,7 +1652,6 @@
   }
 
   function deleteGalleryItem(i) {
-    if (!confirm('この写真を削除しますか？')) return;
     collectGalleryIntoData();
     currentData.gallery.splice(i, 1);
     renderGalleryItems(currentData.gallery);
