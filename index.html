@@ -250,6 +250,92 @@
       padding: 0 40px;
     }
 
+    /* ===== MENU MODAL ===== */
+    .menu-modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background: rgba(44,26,14,0.72);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.28s ease;
+    }
+
+    .menu-modal-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .menu-modal-card {
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      max-width: 440px;
+      width: 100%;
+      transform: scale(0.88) translateY(24px);
+      transition: transform 0.28s ease;
+      position: relative;
+    }
+
+    .menu-modal-overlay.open .menu-modal-card {
+      transform: scale(1) translateY(0);
+    }
+
+    .menu-modal-close {
+      position: absolute;
+      top: 12px; right: 12px;
+      width: 36px; height: 36px;
+      background: rgba(44,26,14,0.5);
+      border: none;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1;
+      line-height: 1;
+      transition: background 0.15s;
+    }
+
+    .menu-modal-close:hover { background: rgba(44,26,14,0.8); }
+
+    .menu-modal-img {
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .menu-modal-body { padding: 24px; }
+
+    .menu-modal-name {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--brown-dark);
+      margin-bottom: 10px;
+      letter-spacing: 0.05em;
+    }
+
+    .menu-modal-desc {
+      font-size: 14px;
+      color: var(--text-light);
+      font-weight: 300;
+      line-height: 1.9;
+      margin-bottom: 16px;
+    }
+
+    .menu-modal-price {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      color: var(--brown);
+    }
+
     .section-header {
       text-align: center;
       margin-bottom: 64px;
@@ -389,51 +475,59 @@
     .menu-card {
       background: var(--white);
       overflow: hidden;
-      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+      transition: transform 0.25s, box-shadow 0.25s;
+      border-radius: 4px;
     }
 
     .menu-card:hover {
-      transform: translateY(-6px);
+      transform: translateY(-5px);
       box-shadow: var(--shadow);
     }
 
+    .menu-card:active { transform: scale(0.97); }
+
     .menu-card-img {
       width: 100%;
-      height: 220px;
+      height: 160px;
       object-fit: cover;
       display: block;
     }
 
-    .menu-card-body { padding: 24px; }
+    .menu-card-body { padding: 14px 16px 16px; }
 
     .menu-card-name {
       font-family: 'Noto Serif JP', serif;
-      font-size: 18px;
+      font-size: 15px;
       font-weight: 600;
       color: var(--brown-dark);
-      margin-bottom: 8px;
-      letter-spacing: 0.05em;
-    }
-
-    .menu-card-desc {
-      font-size: 13px;
-      color: var(--text-light);
-      font-weight: 300;
-      line-height: 1.8;
-      margin-bottom: 16px;
+      margin-bottom: 6px;
+      letter-spacing: 0.03em;
+      line-height: 1.4;
     }
 
     .menu-card-price {
       font-family: 'Playfair Display', serif;
-      font-size: 18px;
+      font-size: 16px;
       color: var(--brown);
     }
 
-    .menu-card-price span {
-      font-size: 12px;
-      font-family: 'Noto Sans JP', sans-serif;
-      color: var(--text-light);
-      margin-left: 4px;
+    .menu-card-hint {
+      font-size: 11px;
+      color: var(--brown-light);
+      margin-top: 8px;
+      letter-spacing: 0.08em;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .menu-card-hint::before {
+      content: '';
+      display: inline-block;
+      width: 14px; height: 14px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23C4956A' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") center/contain no-repeat;
+      flex-shrink: 0;
     }
 
     /* ===== GALLERY ===== */
@@ -1044,57 +1138,162 @@
     .chat-popup-close:hover { background: rgba(255,255,255,0.35); }
     .chat-popup-close svg { width: 14px; height: 14px; stroke: #fff; fill: none; stroke-width: 2; }
 
-    @media (max-width: 900px) {
-      .contact-grid { grid-template-columns: 1fr; }
-      .chat-widget { height: 480px; }
-      .chat-popup { width: calc(100vw - 32px); right: 16px; bottom: 90px; }
-    }
-
-    /* ===== MOBILE ===== */
+    /* ===== HAMBURGER ===== */
     .hamburger {
       display: none;
       flex-direction: column;
       gap: 5px;
       cursor: pointer;
-      padding: 4px;
+      padding: 6px;
+      z-index: 110;
     }
-    .hamburger span { width: 24px; height: 1.5px; background: var(--brown-dark); display: block; transition: 0.3s; }
 
+    .hamburger span {
+      width: 24px; height: 1.5px;
+      background: var(--brown-dark);
+      display: block;
+      transition: transform 0.3s, opacity 0.3s;
+      transform-origin: center;
+    }
+
+    .hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+    /* ===== TABLET (≤900px) ===== */
     @media (max-width: 900px) {
-      header { padding: 16px 24px; }
+      header { padding: 14px 20px; }
 
-      nav { display: none; }
+      nav {
+        display: none;
+        flex-direction: column;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(253,248,242,0.97);
+        backdrop-filter: blur(12px);
+        padding: 100px 32px 40px;
+        gap: 8px;
+        z-index: 105;
+        overflow-y: auto;
+      }
+
+      nav.open { display: flex; }
+
+      nav a {
+        font-size: 22px;
+        font-weight: 500;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(196,149,106,0.15);
+        letter-spacing: 0.1em;
+      }
+
+      nav a::after { display: none; }
+
+      .nav-cta {
+        margin-top: 16px;
+        text-align: center;
+        font-size: 15px !important;
+        padding: 14px 28px;
+      }
 
       .hamburger { display: flex; }
 
-      .about-grid,
-      .access-grid { grid-template-columns: 1fr; gap: 40px; }
+      section { padding: 70px 0; }
 
+      .section-inner { padding: 0 20px; }
+
+      .section-header { margin-bottom: 40px; }
+
+      /* Hero */
+      #hero { min-height: 100svh; }
+      .hero-content { padding: 0 24px; max-width: 100%; }
+      .hero-sub { font-size: 14px; margin-bottom: 32px; }
+      .hero-btns { gap: 12px; }
+      .btn { padding: 12px 28px; font-size: 12px; }
+
+      /* About */
+      .about-grid { grid-template-columns: 1fr; gap: 36px; }
       .about-img { order: -1; }
-      .about-img img { height: 300px; }
+      .about-img img { height: 260px; }
+      .about-img-deco { display: none; }
 
-      .menu-grid { grid-template-columns: 1fr 1fr; }
+      /* Concept */
+      .concept-grid { grid-template-columns: 1fr; gap: 16px; }
+      .concept-card { padding: 32px 24px; }
 
+      /* Menu */
+      .menu-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .menu-tabs { gap: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .menu-tab { padding: 12px 20px; font-size: 13px; flex-shrink: 0; }
+
+      /* Gallery */
       .gallery-grid {
         grid-template-columns: 1fr 1fr;
         grid-template-rows: auto;
       }
       .gallery-item:first-child { grid-row: auto; }
 
-      .concept-grid { grid-template-columns: 1fr; }
+      /* Access */
+      .access-grid { grid-template-columns: 1fr; gap: 36px; }
+      .map-wrap { position: static; }
+      .map-wrap iframe { height: 300px; }
+      .info-table th { font-size: 11px; width: 80px; }
+      .info-table td { font-size: 13px; }
 
+      /* Contact */
+      .contact-grid { grid-template-columns: 1fr; gap: 32px; }
+      .chat-widget { height: 460px; }
+
+      /* SNS */
       .sns-grid { grid-template-columns: repeat(3, 1fr); }
+      #sns { padding: 60px 0; }
 
-      .footer-top { grid-template-columns: 1fr; gap: 32px; }
+      /* Footer */
+      footer { padding: 48px 20px 24px; }
+      .footer-top { grid-template-columns: 1fr; gap: 28px; padding-bottom: 32px; }
+      .footer-bottom { flex-direction: column; gap: 16px; text-align: center; }
 
-      .section-inner { padding: 0 24px; }
+      /* Chat popup */
+      .chat-popup { width: calc(100vw - 24px); right: 12px; bottom: 84px; }
+      .chat-fab { bottom: 20px; right: 20px; width: 52px; height: 52px; }
     }
 
-    @media (max-width: 600px) {
-      .menu-grid { grid-template-columns: 1fr; }
+    /* ===== MOBILE (≤480px) ===== */
+    @media (max-width: 480px) {
+      section { padding: 56px 0; }
+      .section-inner { padding: 0 16px; }
+
+      /* Hero */
+      .hero-eyebrow { font-size: 10px; letter-spacing: 0.25em; margin-bottom: 14px; }
+      .hero-sub { font-size: 13px; line-height: 1.9; }
+      .hero-scroll { display: none; }
+
+      /* Menu - 2列コンパクト */
+      .menu-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .menu-card-img { height: 120px; }
+      .menu-card-body { padding: 10px 12px 12px; }
+      .menu-card-name { font-size: 13px; }
+      .menu-card-price { font-size: 14px; }
+      .menu-card-hint { font-size: 10px; }
+
+      /* Menu modal */
+      .menu-modal-img { height: 200px; }
+      .menu-modal-body { padding: 20px; }
+      .menu-modal-name { font-size: 18px; }
+
+      /* Gallery */
+      .gallery-grid { grid-template-columns: 1fr; }
+
+      /* SNS */
       .sns-grid { grid-template-columns: repeat(2, 1fr); }
-      .hero-content { padding: 0 24px; }
-      .footer-bottom { flex-direction: column; gap: 16px; text-align: center; }
+
+      /* Access table */
+      .info-table th { width: 70px; padding: 14px 0; }
+      .info-table td { padding: 14px 0; }
+
+      /* Footer */
+      footer { padding: 40px 16px 20px; }
+      .footer-logo .logo-jp { font-size: 18px; }
     }
   </style>
 </head>
@@ -1113,7 +1312,7 @@
     <a href="#access">アクセス</a>
     <a href="#contact" class="nav-cta">お問い合わせ</a>
   </nav>
-  <div class="hamburger" onclick="toggleMenu()">
+  <div class="hamburger" onclick="toggleMenu()" aria-label="メニューを開く">
     <span></span><span></span><span></span>
   </div>
 </header>
@@ -1450,6 +1649,19 @@
   </div>
 </div>
 
+<!-- ===== MENU MODAL ===== -->
+<div class="menu-modal-overlay" id="menu-modal" onclick="closeMenuModal()">
+  <div class="menu-modal-card" onclick="event.stopPropagation()">
+    <button class="menu-modal-close" onclick="closeMenuModal()">✕</button>
+    <img class="menu-modal-img" id="modal-img" alt="" />
+    <div class="menu-modal-body">
+      <p class="menu-modal-name" id="modal-name"></p>
+      <p class="menu-modal-desc" id="modal-desc"></p>
+      <p class="menu-modal-price" id="modal-price"></p>
+    </div>
+  </div>
+</div>
+
 <!-- ===== FOOTER ===== -->
 <footer>
   <div class="footer-inner">
@@ -1521,20 +1733,41 @@
     if (el) el.innerHTML = val;
   }
 
+  function esc(str) {
+    return String(str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+  }
+
   function renderMenuGrid(containerId, items) {
     const grid = document.getElementById(containerId);
     if (!grid) return;
     grid.innerHTML = items.map(item => `
-      <div class="menu-card">
+      <div class="menu-card" onclick="openMenuModal('${esc(item.name)}','${esc(item.desc)}','${esc(item.price)}','${esc(item.image)}')" role="button" tabindex="0">
         <img class="menu-card-img" src="${item.image}" alt="${item.name}" loading="lazy" />
         <div class="menu-card-body">
           <p class="menu-card-name">${item.name}</p>
-          <p class="menu-card-desc">${item.desc}</p>
           <p class="menu-card-price">${item.price}</p>
+          <p class="menu-card-hint">タップして詳細を見る</p>
         </div>
       </div>
     `).join('');
   }
+
+  // ===== MENU MODAL =====
+  function openMenuModal(name, desc, price, image) {
+    document.getElementById('modal-img').src = image;
+    document.getElementById('modal-name').textContent = name;
+    document.getElementById('modal-desc').textContent = desc;
+    document.getElementById('modal-price').textContent = price;
+    document.getElementById('menu-modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeMenuModal() {
+    document.getElementById('menu-modal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenuModal(); });
 
   function applyData() {
     const d = loadData();
@@ -1630,23 +1863,19 @@
   }
 
   // ハンバーガーメニュー
+  const hamburger = document.querySelector('.hamburger');
+  const navEl = document.getElementById('nav');
+
   function toggleMenu() {
-    const nav = document.getElementById('nav');
-    if (nav.style.display === 'flex') {
-      nav.style.display = 'none';
-    } else {
-      Object.assign(nav.style, {
-        display: 'flex',
-        flexDirection: 'column',
-        position: 'fixed',
-        top: '64px', left: '0', right: '0',
-        background: '#FDF8F2',
-        padding: '24px 32px 32px',
-        gap: '20px',
-        borderBottom: '1px solid rgba(196,149,106,0.2)',
-        boxShadow: '0 8px 24px rgba(44,26,14,0.10)'
-      });
-    }
+    const isOpen = navEl.classList.toggle('open');
+    hamburger.classList.toggle('open', isOpen);
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+  }
+
+  function closeMenu() {
+    navEl.classList.remove('open');
+    hamburger.classList.remove('open');
+    document.body.style.overflow = '';
   }
 
   // スムーズスクロール（ヘッダー分オフセット）
@@ -1655,10 +1884,9 @@
       const target = document.querySelector(a.getAttribute('href'));
       if (!target) return;
       e.preventDefault();
-      const top = target.getBoundingClientRect().top + window.scrollY - 80;
+      const top = target.getBoundingClientRect().top + window.scrollY - 72;
       window.scrollTo({ top, behavior: 'smooth' });
-      const nav = document.getElementById('nav');
-      if (window.innerWidth < 900) nav.style.display = 'none';
+      closeMenu();
     });
   });
 
