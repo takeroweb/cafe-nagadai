@@ -278,12 +278,36 @@
     }
 
     /* ===== MENU ITEMS ===== */
+    .menu-tabs-admin-wrap {
+      position: relative;
+      margin-bottom: 24px;
+    }
+
+    .menu-tabs-admin-wrap::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 0; bottom: 1px;
+      width: 56px;
+      background: linear-gradient(to right, transparent, var(--card-bg));
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .menu-tabs-admin-wrap.has-overflow::after { opacity: 1; }
+
     .menu-tabs-admin {
       display: flex;
       gap: 0;
       border-bottom: 1px solid var(--border);
-      margin-bottom: 24px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      scroll-behavior: smooth;
     }
+
+    .menu-tabs-admin::-webkit-scrollbar { display: none; }
 
     .menu-tab-admin {
       padding: 10px 24px;
@@ -618,8 +642,8 @@
       .panel-heading { font-size: 18px; }
 
       /* メニュータブ */
-      .menu-tabs-admin { overflow-x: auto; }
       .menu-tab-admin { white-space: nowrap; padding: 10px 16px; font-size: 12px; }
+      .menu-tab-add-btn { white-space: nowrap; }
 
       /* 画像入力 */
       .img-input-row { flex-direction: column; }
@@ -919,12 +943,14 @@
     <p class="panel-subheading">メニューのアイテムを追加・編集・削除できます。カテゴリも自由に追加できます。</p>
 
     <div class="card">
-      <div class="menu-tabs-admin" id="admin-menu-tabs">
-        <button class="menu-tab-admin active" onclick="switchMenuTab(this,'drinks')">ドリンク</button>
-        <button class="menu-tab-admin" onclick="switchMenuTab(this,'food')">フード</button>
-        <button class="menu-tab-admin" onclick="switchMenuTab(this,'sweets')">スイーツ</button>
-        <!-- extra tabs here -->
-        <button class="menu-tab-add-btn" onclick="toggleAddCatForm()">＋ カテゴリを追加</button>
+      <div class="menu-tabs-admin-wrap" id="admin-menu-tabs-wrap">
+        <div class="menu-tabs-admin" id="admin-menu-tabs">
+          <button class="menu-tab-admin active" onclick="switchMenuTab(this,'drinks')">ドリンク</button>
+          <button class="menu-tab-admin" onclick="switchMenuTab(this,'food')">フード</button>
+          <button class="menu-tab-admin" onclick="switchMenuTab(this,'sweets')">スイーツ</button>
+          <!-- extra tabs here -->
+          <button class="menu-tab-add-btn" onclick="toggleAddCatForm()">＋ カテゴリを追加</button>
+        </div>
       </div>
 
       <!-- カテゴリ追加フォーム -->
@@ -1215,14 +1241,35 @@
     return card;
   }
 
+  function syncMenuCat(cat) {
+    currentData.menu[cat] = currentData.menu[cat].map((item, i) => ({
+      name:  v(`menu-${cat}-${i}-name`,  item.name),
+      price: v(`menu-${cat}-${i}-price`, item.price),
+      desc:  v(`menu-${cat}-${i}-desc`,  item.desc),
+      image: v(`menu-${cat}-${i}-image`, item.image),
+    }));
+  }
+
+  function syncExtraCat(catIndex) {
+    const cat = currentData.menu.extraCategories[catIndex];
+    if (!cat) return;
+    cat.items = cat.items.map((item, j) => ({
+      name:  v(`menu-extra-${catIndex}-${j}-name`,  item.name),
+      price: v(`menu-extra-${catIndex}-${j}-price`, item.price),
+      desc:  v(`menu-extra-${catIndex}-${j}-desc`,  item.desc),
+      image: v(`menu-extra-${catIndex}-${j}-image`, item.image),
+    }));
+  }
+
   function addMenuItem(cat) {
-    const newItem = { name: '新しいメニュー', desc: '説明を入力してください。', price: '¥000', image: '' };
-    currentData.menu[cat].push(newItem);
+    syncMenuCat(cat);
+    currentData.menu[cat].push({ name: '新しいメニュー', desc: '説明を入力してください。', price: '¥000', image: '' });
     renderMenuItems(cat, currentData.menu[cat]);
   }
 
   function deleteMenuItem(cat, index) {
     if (!confirm('このメニューを削除しますか？')) return;
+    syncMenuCat(cat);
     currentData.menu[cat].splice(index, 1);
     renderMenuItems(cat, currentData.menu[cat]);
   }
@@ -1260,6 +1307,20 @@
 
       renderExtraMenuItems(i, cat.items);
     });
+
+    setTimeout(updateMenuTabsOverflow, 50);
+  }
+
+  function updateMenuTabsOverflow() {
+    const tabs = document.getElementById('admin-menu-tabs');
+    const wrap = document.getElementById('admin-menu-tabs-wrap');
+    if (!tabs || !wrap) return;
+    const hasOverflow = tabs.scrollWidth > tabs.clientWidth;
+    wrap.classList.toggle('has-overflow', hasOverflow);
+    tabs.onscroll = () => {
+      const atEnd = tabs.scrollLeft + tabs.clientWidth >= tabs.scrollWidth - 4;
+      wrap.classList.toggle('has-overflow', !atEnd);
+    };
   }
 
   function toggleAddCatForm() {
@@ -1346,6 +1407,7 @@
   }
 
   function addMenuItemExtra(catIndex) {
+    syncExtraCat(catIndex);
     if (!currentData.menu.extraCategories[catIndex].items) currentData.menu.extraCategories[catIndex].items = [];
     currentData.menu.extraCategories[catIndex].items.push({ name: '新しいメニュー', desc: '説明を入力してください。', price: '¥000', image: '' });
     renderExtraMenuItems(catIndex, currentData.menu.extraCategories[catIndex].items);
@@ -1353,6 +1415,7 @@
 
   function deleteMenuItemExtra(catIndex, j) {
     if (!confirm('このメニューを削除しますか？')) return;
+    syncExtraCat(catIndex);
     currentData.menu.extraCategories[catIndex].items.splice(j, 1);
     renderExtraMenuItems(catIndex, currentData.menu.extraCategories[catIndex].items);
   }

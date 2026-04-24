@@ -431,13 +431,37 @@
     /* ===== MENU ===== */
     #menu { background: var(--cream); }
 
+    .menu-tabs-wrap {
+      position: relative;
+      margin-bottom: 56px;
+    }
+
+    .menu-tabs-wrap::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 0; bottom: 1px;
+      width: 60px;
+      background: linear-gradient(to right, transparent, var(--cream));
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .menu-tabs-wrap.has-overflow::after { opacity: 1; }
+
     .menu-tabs {
       display: flex;
       justify-content: center;
       gap: 0;
-      margin-bottom: 56px;
       border-bottom: 1px solid rgba(196,149,106,0.3);
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      scroll-behavior: smooth;
     }
+
+    .menu-tabs::-webkit-scrollbar { display: none; }
 
     .menu-tab {
       padding: 14px 36px;
@@ -1235,7 +1259,7 @@
 
       /* Menu */
       .menu-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-      .menu-tabs { gap: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .menu-tabs { justify-content: flex-start; -webkit-overflow-scrolling: touch; }
       .menu-tab { padding: 12px 20px; font-size: 13px; flex-shrink: 0; }
 
       /* Gallery */
@@ -1431,7 +1455,9 @@
       <div class="section-divider"></div>
     </div>
 
-    <div class="menu-tabs" id="d-menu-tabs"></div>
+    <div class="menu-tabs-wrap" id="d-menu-tabs-wrap">
+      <div class="menu-tabs" id="d-menu-tabs"></div>
+    </div>
     <div id="d-menu-panels"></div>
   </div>
 </section>
@@ -1836,6 +1862,16 @@
 
       renderMenuGrid(`d-menu-${cat.key}`, cat.items);
     });
+
+    // タブがはみ出している場合にフェードを表示
+    const wrap = document.getElementById('d-menu-tabs-wrap');
+    if (tabsEl.scrollWidth > tabsEl.clientWidth) {
+      wrap.classList.add('has-overflow');
+      tabsEl.addEventListener('scroll', () => {
+        const atEnd = tabsEl.scrollLeft + tabsEl.clientWidth >= tabsEl.scrollWidth - 4;
+        wrap.classList.toggle('has-overflow', !atEnd);
+      }, { passive: true });
+    }
 
     // Access info
     setHtml('d-info-name', `${d.shop.name_jp}<br /><span class="info-note">${d.shop.name_en}</span>`);
