@@ -1764,41 +1764,92 @@
     if (el) el.innerHTML = val;
   }
 
-  function renderMenuGrid(containerId, items) {
-    const grid = document.getElementById(containerId);
-    if (!grid) return;
-    grid.innerHTML = '';
-    items.forEach(item => {
-      const card = document.createElement('div');
-      card.className = 'menu-card';
-      card.setAttribute('role', 'button');
-      card.setAttribute('tabindex', '0');
-      card.innerHTML = `
-        <img class="menu-card-img" src="${item.image || ''}" alt="${escAttr(item.name)}" loading="lazy" />
-        <div class="menu-card-body">
-          <p class="menu-card-name">${escHtml(item.name)}</p>
-          <p class="menu-card-price">${escHtml(item.price)}</p>
-          <p class="menu-card-hint">タップして詳細を見る</p>
-        </div>`;
-      card.addEventListener('click', () => openMenuModal(item.name, item.desc, item.price, item.image));
-      card.addEventListener('keydown', e => { if (e.key === 'Enter') openMenuModal(item.name, item.desc, item.price, item.image); });
-      grid.appendChild(card);
-    });
-  }
+  // ===== MENU =====
+  function buildMenuTabs(d) {
+    const allCats = [
+      { key: 'drinks', label: 'ドリンク', items: d.menu.drinks  || [] },
+      { key: 'food',   label: 'フード',   items: d.menu.food    || [] },
+      { key: 'sweets', label: 'スイーツ', items: d.menu.sweets  || [] },
+      ...(d.menu.extraCategories || []).map((c, i) => ({
+        key: 'extra-' + i, label: c.label, items: c.items || []
+      }))
+    ];
 
-  function escHtml(str) {
-    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
-  function escAttr(str) {
-    return String(str || '').replace(/"/g,'&quot;');
+    const tabsEl   = document.getElementById('d-menu-tabs');
+    const panelsEl = document.getElementById('d-menu-panels');
+    tabsEl.innerHTML   = '';
+    panelsEl.innerHTML = '';
+
+    allCats.forEach((cat, idx) => {
+      // タブボタン
+      const btn = document.createElement('button');
+      btn.className   = 'menu-tab' + (idx === 0 ? ' active' : '');
+      btn.textContent = cat.label;
+      btn.dataset.target = 'mpanel-' + cat.key;
+      tabsEl.appendChild(btn);
+
+      // パネル
+      const panel = document.createElement('div');
+      panel.className = 'menu-panel' + (idx === 0 ? ' active' : '');
+      panel.id = 'mpanel-' + cat.key;
+      panelsEl.appendChild(panel);
+
+      // カードを描画
+      cat.items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'menu-card';
+        card.dataset.name  = item.name  || '';
+        card.dataset.desc  = item.desc  || '';
+        card.dataset.price = item.price || '';
+        card.dataset.image = item.image || '';
+        card.innerHTML =
+          '<img class="menu-card-img" src="' + (item.image || '') + '" alt="" loading="lazy" />' +
+          '<div class="menu-card-body">' +
+            '<p class="menu-card-name">'  + (item.name  || '') + '</p>' +
+            '<p class="menu-card-price">' + (item.price || '') + '</p>' +
+            '<p class="menu-card-hint">タップして詳細を見る</p>' +
+          '</div>';
+        panel.appendChild(card);
+      });
+    });
+
+    // タブクリック（イベント委譲）
+    tabsEl.addEventListener('click', e => {
+      const btn = e.target.closest('.menu-tab');
+      if (!btn) return;
+      tabsEl.querySelectorAll('.menu-tab').forEach(t => t.classList.remove('active'));
+      panelsEl.querySelectorAll('.menu-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      const target = document.getElementById(btn.dataset.target);
+      if (target) target.classList.add('active');
+    });
+
+    // カードクリック（イベント委譲）
+    panelsEl.addEventListener('click', e => {
+      const card = e.target.closest('.menu-card');
+      if (!card) return;
+      openMenuModal(card.dataset.name, card.dataset.desc, card.dataset.price, card.dataset.image);
+    });
+
+    // フェード表示
+    const wrap = document.getElementById('d-menu-tabs-wrap');
+    setTimeout(() => {
+      if (tabsEl.scrollWidth > tabsEl.clientWidth) {
+        wrap.classList.add('has-overflow');
+        tabsEl.addEventListener('scroll', () => {
+          const atEnd = tabsEl.scrollLeft + tabsEl.clientWidth >= tabsEl.scrollWidth - 4;
+          wrap.classList.toggle('has-overflow', !atEnd);
+        }, { passive: true });
+      }
+    }, 100);
   }
 
   // ===== MENU MODAL =====
   function openMenuModal(name, desc, price, image) {
-    document.getElementById('modal-img').src = image;
-    document.getElementById('modal-name').textContent = name;
-    document.getElementById('modal-desc').textContent = desc;
-    document.getElementById('modal-price').textContent = price;
+    document.getElementById('modal-img').src     = image || '';
+    document.getElementById('modal-name').textContent  = name  || '';
+    document.getElementById('modal-desc').textContent  = desc  || '';
+    document.getElementById('modal-price').textContent = price || '';
     document.getElementById('menu-modal').classList.add('open');
     document.body.style.overflow = 'hidden';
   }
@@ -1844,44 +1895,7 @@
     });
 
     // Menu（固定＋追加カテゴリを動的レンダリング）
-    const allCats = [
-      { key: 'drinks', label: 'ドリンク', items: d.menu.drinks },
-      { key: 'food',   label: 'フード',   items: d.menu.food   },
-      { key: 'sweets', label: 'スイーツ', items: d.menu.sweets },
-      ...(d.menu.extraCategories || []).map((c, i) => ({ key: `extra-${i}`, label: c.label, items: c.items || [] }))
-    ];
-    const tabsEl   = document.getElementById('d-menu-tabs');
-    const panelsEl = document.getElementById('d-menu-panels');
-    tabsEl.innerHTML   = '';
-    panelsEl.innerHTML = '';
-    allCats.forEach((cat, idx) => {
-      const btn = document.createElement('button');
-      btn.className = 'menu-tab' + (idx === 0 ? ' active' : '');
-      btn.textContent = cat.label;
-      btn.onclick = () => switchTab(btn, `tab-${cat.key}`);
-      tabsEl.appendChild(btn);
-
-      const panel = document.createElement('div');
-      panel.className = 'menu-panel' + (idx === 0 ? ' active' : '');
-      panel.id = `tab-${cat.key}`;
-      const grid = document.createElement('div');
-      grid.className = 'menu-grid';
-      grid.id = `d-menu-${cat.key}`;
-      panel.appendChild(grid);
-      panelsEl.appendChild(panel);
-
-      renderMenuGrid(`d-menu-${cat.key}`, cat.items);
-    });
-
-    // タブがはみ出している場合にフェードを表示
-    const wrap = document.getElementById('d-menu-tabs-wrap');
-    if (tabsEl.scrollWidth > tabsEl.clientWidth) {
-      wrap.classList.add('has-overflow');
-      tabsEl.addEventListener('scroll', () => {
-        const atEnd = tabsEl.scrollLeft + tabsEl.clientWidth >= tabsEl.scrollWidth - 4;
-        wrap.classList.toggle('has-overflow', !atEnd);
-      }, { passive: true });
-    }
+    buildMenuTabs(d);
 
     // Access info
     setHtml('d-info-name', `${d.shop.name_jp}<br /><span class="info-note">${d.shop.name_en}</span>`);
@@ -1931,12 +1945,6 @@
   });
 
   // メニュータブ切り替え
-  function switchTab(btn, panelId) {
-    document.querySelectorAll('.menu-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.menu-panel').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById(panelId).classList.add('active');
-  }
 
   // ハンバーガーメニュー
   const hamburger = document.querySelector('.hamburger');
