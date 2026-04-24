@@ -1,0 +1,1808 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>坂の上珈琲 | 長崎大学前カフェ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600;700&family=Noto+Sans+JP:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #FDF8F2;
+      --beige: #F0E8DA;
+      --brown-light: #C4956A;
+      --brown: #8B5E3C;
+      --brown-dark: #4A2F1A;
+      --green: #5C7A5C;
+      --green-light: #7A9E7A;
+      --white: #FFFFFF;
+      --text: #2C1A0E;
+      --text-light: #6B4C3B;
+      --shadow: 0 4px 24px rgba(44,26,14,0.10);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      color: var(--text);
+      background: var(--cream);
+      line-height: 1.8;
+    }
+
+    /* ===== HEADER / NAV ===== */
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 48px;
+      background: rgba(253, 248, 242, 0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(196, 149, 106, 0.2);
+      transition: box-shadow 0.3s;
+    }
+
+    header.scrolled { box-shadow: var(--shadow); }
+
+    .logo {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+
+    .logo-jp {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--brown-dark);
+      letter-spacing: 0.1em;
+    }
+
+    .logo-en {
+      font-family: 'Playfair Display', serif;
+      font-size: 11px;
+      color: var(--brown-light);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+    }
+
+    nav {
+      display: flex;
+      gap: 36px;
+      list-style: none;
+      align-items: center;
+    }
+
+    nav a {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-light);
+      text-decoration: none;
+      letter-spacing: 0.1em;
+      position: relative;
+      transition: color 0.3s;
+    }
+
+    nav a::after {
+      content: '';
+      position: absolute;
+      bottom: -3px; left: 0; right: 100%;
+      height: 1px;
+      background: var(--brown-light);
+      transition: right 0.3s ease;
+    }
+
+    nav a:hover { color: var(--brown); }
+    nav a:hover::after { right: 0; }
+
+    .nav-cta {
+      background: var(--brown);
+      color: var(--white) !important;
+      padding: 9px 22px;
+      border-radius: 2px;
+      font-size: 12px !important;
+      letter-spacing: 0.15em;
+    }
+
+    .nav-cta::after { display: none !important; }
+    .nav-cta:hover { background: var(--brown-dark) !important; color: var(--white) !important; }
+
+    /* ===== HERO ===== */
+    #hero {
+      height: 100vh;
+      min-height: 640px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(160deg, rgba(74,47,26,0.45) 0%, rgba(44,26,14,0.20) 60%, rgba(92,122,92,0.30) 100%),
+        url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1920&q=80') center/cover no-repeat;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      padding: 0 10vw;
+      color: var(--white);
+      max-width: 700px;
+    }
+
+    .hero-eyebrow {
+      font-family: 'Playfair Display', serif;
+      font-size: 13px;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.75);
+      margin-bottom: 20px;
+    }
+
+    .hero-title {
+      font-family: 'Noto Serif JP', serif;
+      font-size: clamp(40px, 6vw, 72px);
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+    }
+
+    .hero-title span {
+      display: block;
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: clamp(22px, 3.5vw, 40px);
+      font-weight: 400;
+      color: rgba(255,255,255,0.88);
+    }
+
+    .hero-sub {
+      font-size: 15px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.82);
+      letter-spacing: 0.08em;
+      margin-bottom: 44px;
+      line-height: 2;
+    }
+
+    .hero-btns {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 14px 36px;
+      font-size: 13px;
+      letter-spacing: 0.2em;
+      text-decoration: none;
+      border-radius: 2px;
+      transition: all 0.3s;
+      font-weight: 500;
+    }
+
+    .btn-primary {
+      background: var(--white);
+      color: var(--brown-dark);
+    }
+
+    .btn-primary:hover {
+      background: var(--cream);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    }
+
+    .btn-outline {
+      border: 1px solid rgba(255,255,255,0.6);
+      color: var(--white);
+    }
+
+    .btn-outline:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: var(--white);
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255,255,255,0.6);
+      font-size: 10px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+    }
+
+    .hero-scroll-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.6), transparent);
+      animation: scrollDown 2s ease-in-out infinite;
+    }
+
+    @keyframes scrollDown {
+      0%, 100% { transform: scaleY(1); opacity: 1; }
+      50% { transform: scaleY(0.6); opacity: 0.5; }
+    }
+
+    /* ===== SECTION COMMON ===== */
+    section { padding: 100px 0; }
+
+    .section-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 40px;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    .section-eyebrow {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 14px;
+      color: var(--brown-light);
+      letter-spacing: 0.2em;
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-family: 'Noto Serif JP', serif;
+      font-size: clamp(26px, 3.5vw, 36px);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--brown-dark);
+      line-height: 1.4;
+    }
+
+    .section-divider {
+      width: 48px;
+      height: 1px;
+      background: var(--brown-light);
+      margin: 20px auto 0;
+    }
+
+    /* ===== ABOUT ===== */
+    #about { background: var(--white); }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .about-img {
+      position: relative;
+    }
+
+    .about-img img {
+      width: 100%;
+      height: 520px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .about-img-deco {
+      position: absolute;
+      top: -20px;
+      left: -20px;
+      width: 200px;
+      height: 200px;
+      border: 2px solid var(--brown-light);
+      z-index: -1;
+      opacity: 0.4;
+    }
+
+    .about-text .section-header { text-align: left; }
+    .about-text .section-divider { margin-left: 0; }
+
+    .about-body {
+      font-size: 15px;
+      font-weight: 300;
+      line-height: 2.2;
+      color: var(--text-light);
+      margin-top: 28px;
+    }
+
+    .about-body p + p { margin-top: 20px; }
+
+    .about-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 36px;
+    }
+
+    .tag {
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      padding: 6px 18px;
+      border: 1px solid var(--brown-light);
+      color: var(--brown);
+      border-radius: 20px;
+    }
+
+    /* ===== MENU ===== */
+    #menu { background: var(--cream); }
+
+    .menu-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      margin-bottom: 56px;
+      border-bottom: 1px solid rgba(196,149,106,0.3);
+    }
+
+    .menu-tab {
+      padding: 14px 36px;
+      font-size: 13px;
+      letter-spacing: 0.15em;
+      color: var(--text-light);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all 0.3s;
+      background: none;
+      border-left: none;
+      border-right: none;
+      border-top: none;
+      font-family: 'Noto Sans JP', sans-serif;
+    }
+
+    .menu-tab.active {
+      color: var(--brown);
+      border-bottom-color: var(--brown);
+      font-weight: 500;
+    }
+
+    .menu-tab:hover { color: var(--brown); }
+
+    .menu-panel { display: none; }
+    .menu-panel.active { display: block; }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+
+    .menu-card {
+      background: var(--white);
+      overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .menu-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow);
+    }
+
+    .menu-card-img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .menu-card-body { padding: 24px; }
+
+    .menu-card-name {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--brown-dark);
+      margin-bottom: 8px;
+      letter-spacing: 0.05em;
+    }
+
+    .menu-card-desc {
+      font-size: 13px;
+      color: var(--text-light);
+      font-weight: 300;
+      line-height: 1.8;
+      margin-bottom: 16px;
+    }
+
+    .menu-card-price {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      color: var(--brown);
+    }
+
+    .menu-card-price span {
+      font-size: 12px;
+      font-family: 'Noto Sans JP', sans-serif;
+      color: var(--text-light);
+      margin-left: 4px;
+    }
+
+    /* ===== GALLERY ===== */
+    #gallery { background: var(--brown-dark); padding: 80px 0; }
+
+    .gallery-title {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .gallery-title .section-eyebrow { color: rgba(196,149,106,0.9); }
+    .gallery-title .section-title { color: var(--white); }
+    .gallery-title .section-divider { background: var(--brown-light); }
+
+    .gallery-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      grid-template-rows: 240px 240px;
+      gap: 8px;
+    }
+
+    .gallery-item {
+      overflow: hidden;
+      position: relative;
+    }
+
+    .gallery-item:first-child { grid-row: 1 / 3; }
+
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+
+    .gallery-item:hover img { transform: scale(1.05); }
+
+    /* ===== CONCEPT ===== */
+    #concept { background: var(--beige); }
+
+    .concept-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+    }
+
+    .concept-card {
+      text-align: center;
+      padding: 48px 32px;
+      background: var(--white);
+    }
+
+    .concept-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--brown-light);
+      border-radius: 50%;
+    }
+
+    .concept-icon svg { width: 28px; height: 28px; stroke: var(--brown); fill: none; stroke-width: 1.5; }
+
+    .concept-title {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--brown-dark);
+      margin-bottom: 16px;
+      letter-spacing: 0.05em;
+    }
+
+    .concept-text {
+      font-size: 14px;
+      color: var(--text-light);
+      font-weight: 300;
+      line-height: 2;
+    }
+
+    /* ===== INFO / ACCESS ===== */
+    #access { background: var(--white); }
+
+    .access-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: start;
+    }
+
+    .info-table { width: 100%; border-collapse: collapse; }
+
+    .info-table tr { border-bottom: 1px solid var(--beige); }
+
+    .info-table th {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      color: var(--brown-light);
+      text-align: left;
+      padding: 18px 0;
+      width: 100px;
+      vertical-align: top;
+    }
+
+    .info-table td {
+      font-size: 14px;
+      color: var(--text);
+      font-weight: 300;
+      padding: 18px 0;
+      line-height: 1.9;
+    }
+
+    .info-note {
+      font-size: 12px;
+      color: var(--text-light);
+      margin-top: 6px;
+      display: block;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      font-size: 11px;
+      border-radius: 2px;
+      margin-right: 6px;
+    }
+
+    .badge-open { background: var(--green); color: var(--white); }
+    .badge-closed { background: #ccc; color: #666; }
+
+    .map-wrap {
+      position: sticky;
+      top: 100px;
+    }
+
+    .map-wrap iframe {
+      width: 100%;
+      height: 400px;
+      border: none;
+      display: block;
+    }
+
+    .map-caption {
+      font-size: 12px;
+      color: var(--text-light);
+      margin-top: 12px;
+      text-align: center;
+      letter-spacing: 0.05em;
+    }
+
+    /* ===== INSTAGRAM / SNS ===== */
+    #sns { background: var(--cream); padding: 80px 0; }
+
+    .sns-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      margin-top: 48px;
+    }
+
+    .sns-item {
+      aspect-ratio: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .sns-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    .sns-item:hover img { transform: scale(1.08); }
+
+    .sns-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(74,47,26,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .sns-overlay svg { width: 28px; height: 28px; stroke: white; fill: none; }
+    .sns-item:hover .sns-overlay { opacity: 1; }
+
+    /* ===== FOOTER ===== */
+    footer {
+      background: var(--brown-dark);
+      color: var(--white);
+      padding: 64px 40px 32px;
+    }
+
+    .footer-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .footer-top {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr;
+      gap: 60px;
+      padding-bottom: 48px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .footer-logo .logo-jp { color: var(--white); font-size: 22px; }
+    .footer-logo .logo-en { color: rgba(255,255,255,0.5); }
+
+    .footer-desc {
+      font-size: 13px;
+      color: rgba(255,255,255,0.6);
+      font-weight: 300;
+      line-height: 2;
+      margin-top: 16px;
+    }
+
+    .footer-heading {
+      font-size: 11px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--brown-light);
+      margin-bottom: 20px;
+    }
+
+    .footer-links { list-style: none; }
+    .footer-links li { margin-bottom: 12px; }
+    .footer-links a {
+      font-size: 13px;
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--white); }
+
+    .footer-info p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.65);
+      font-weight: 300;
+      line-height: 2;
+    }
+
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 28px;
+    }
+
+    .footer-copy {
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 0.1em;
+    }
+
+    .footer-sns {
+      display: flex;
+      gap: 16px;
+    }
+
+    .footer-sns a {
+      width: 36px; height: 36px;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+      text-decoration: none;
+    }
+
+    .footer-sns a:hover {
+      border-color: var(--brown-light);
+      background: rgba(196,149,106,0.1);
+    }
+
+    .footer-sns svg { width: 16px; height: 16px; stroke: rgba(255,255,255,0.6); fill: none; }
+
+    /* ===== CONTACT / CHAT ===== */
+    #contact { background: var(--beige); }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 64px;
+      align-items: start;
+    }
+
+    .contact-lead {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--text-light);
+      line-height: 2.2;
+      margin-top: 28px;
+    }
+
+    .contact-links {
+      margin-top: 36px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .contact-link-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 14px;
+      color: var(--text-light);
+    }
+
+    .contact-link-icon {
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--brown-light);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .contact-link-icon svg { width: 18px; height: 18px; stroke: var(--brown); fill: none; stroke-width: 1.5; }
+
+    .contact-link-label { font-size: 11px; color: var(--brown-light); letter-spacing: 0.1em; display: block; }
+    .contact-link-value { font-size: 15px; color: var(--text); font-weight: 400; }
+
+    /* Chat widget */
+    .chat-widget {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 8px 40px rgba(74,47,26,0.13);
+      display: flex;
+      flex-direction: column;
+      height: 540px;
+      overflow: hidden;
+    }
+
+    .chat-widget-header {
+      background: linear-gradient(135deg, var(--brown-dark), var(--brown));
+      color: #fff;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .chat-widget-avatar {
+      width: 44px;
+      height: 44px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .chat-widget-info h3 { font-size: 15px; font-weight: 700; letter-spacing: 0.05em; }
+    .chat-widget-info p { font-size: 12px; opacity: 0.8; margin-top: 2px; }
+
+    .chat-online-dot {
+      width: 8px; height: 8px;
+      background: #6fcf6f;
+      border-radius: 50%;
+      margin-left: auto;
+      box-shadow: 0 0 6px rgba(111,207,111,0.6);
+      animation: pulse-dot 2s infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: #f8f4ef;
+    }
+
+    .chat-messages::-webkit-scrollbar { width: 4px; }
+    .chat-messages::-webkit-scrollbar-thumb { background: var(--brown-light); border-radius: 4px; opacity: 0.4; }
+
+    .chat-msg {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      animation: chatFade 0.28s ease;
+    }
+
+    @keyframes chatFade {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .chat-msg.bot { flex-direction: row; }
+    .chat-msg.user { flex-direction: row-reverse; }
+
+    .chat-bot-av {
+      width: 30px; height: 30px;
+      background: var(--brown);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    .chat-bubble {
+      max-width: 76%;
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-size: 13.5px;
+      line-height: 1.65;
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+
+    .chat-msg.bot .chat-bubble {
+      background: #fff;
+      color: var(--text);
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 1px 4px rgba(74,47,26,0.08);
+    }
+
+    .chat-msg.user .chat-bubble {
+      background: var(--brown);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+
+    .chat-quick-replies {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-left: 38px;
+      animation: chatFade 0.28s ease;
+    }
+
+    .chat-qbtn {
+      background: #fff;
+      border: 1.5px solid var(--brown-light);
+      color: var(--brown);
+      border-radius: 20px;
+      padding: 5px 13px;
+      font-size: 12.5px;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: 'Noto Sans JP', sans-serif;
+      white-space: nowrap;
+    }
+
+    .chat-qbtn:hover { background: var(--brown); color: #fff; border-color: var(--brown); }
+
+    .chat-typing {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 10px 14px;
+      background: #fff;
+      border-radius: 16px;
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 1px 4px rgba(74,47,26,0.08);
+      width: fit-content;
+    }
+
+    .chat-typing span {
+      width: 7px; height: 7px;
+      background: var(--brown-light);
+      border-radius: 50%;
+      animation: typingBounce 1.2s infinite;
+    }
+    .chat-typing span:nth-child(2) { animation-delay: 0.2s; }
+    .chat-typing span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typingBounce {
+      0%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-6px); }
+    }
+
+    .chat-input-row {
+      padding: 12px 14px;
+      background: #fff;
+      border-top: 1px solid var(--beige);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .chat-input-row input {
+      flex: 1;
+      border: 1.5px solid #e0d8d0;
+      border-radius: 24px;
+      padding: 9px 16px;
+      font-size: 13.5px;
+      outline: none;
+      font-family: 'Noto Sans JP', sans-serif;
+      color: var(--text);
+      background: var(--cream);
+      transition: border 0.15s;
+    }
+
+    .chat-input-row input:focus { border-color: var(--brown-light); }
+    .chat-input-row input::placeholder { color: #bbb; }
+
+    .chat-send-btn {
+      width: 40px; height: 40px;
+      background: var(--brown);
+      border: none;
+      border-radius: 50%;
+      color: #fff;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+
+    .chat-send-btn:hover { background: var(--brown-dark); }
+    .chat-send-btn svg { width: 17px; height: 17px; fill: none; stroke: #fff; stroke-width: 2; }
+
+    /* Floating chat button */
+    .chat-fab {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      z-index: 200;
+      width: 58px; height: 58px;
+      background: linear-gradient(135deg, var(--brown-dark), var(--brown));
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(74,47,26,0.35);
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: none;
+    }
+
+    .chat-fab:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(74,47,26,0.45); }
+    .chat-fab svg { width: 26px; height: 26px; fill: none; stroke: #fff; stroke-width: 1.8; }
+    .chat-fab .fab-badge {
+      position: absolute;
+      top: 4px; right: 4px;
+      width: 14px; height: 14px;
+      background: #e05c5c;
+      border-radius: 50%;
+      border: 2px solid #fff;
+    }
+
+    /* Floating chat popup */
+    .chat-popup {
+      position: fixed;
+      bottom: 104px;
+      right: 32px;
+      z-index: 200;
+      width: 360px;
+      height: 520px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 12px 48px rgba(74,47,26,0.22);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transform: scale(0.85) translateY(20px);
+      transform-origin: bottom right;
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.25s ease, opacity 0.25s ease;
+    }
+
+    .chat-popup.open {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .chat-popup .chat-widget-header { border-radius: 0; }
+
+    .chat-popup-close {
+      position: absolute;
+      top: 14px; right: 14px;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      border-radius: 50%;
+      width: 28px; height: 28px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+      z-index: 1;
+    }
+
+    .chat-popup-close:hover { background: rgba(255,255,255,0.35); }
+    .chat-popup-close svg { width: 14px; height: 14px; stroke: #fff; fill: none; stroke-width: 2; }
+
+    @media (max-width: 900px) {
+      .contact-grid { grid-template-columns: 1fr; }
+      .chat-widget { height: 480px; }
+      .chat-popup { width: calc(100vw - 32px); right: 16px; bottom: 90px; }
+    }
+
+    /* ===== MOBILE ===== */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .hamburger span { width: 24px; height: 1.5px; background: var(--brown-dark); display: block; transition: 0.3s; }
+
+    @media (max-width: 900px) {
+      header { padding: 16px 24px; }
+
+      nav { display: none; }
+
+      .hamburger { display: flex; }
+
+      .about-grid,
+      .access-grid { grid-template-columns: 1fr; gap: 40px; }
+
+      .about-img { order: -1; }
+      .about-img img { height: 300px; }
+
+      .menu-grid { grid-template-columns: 1fr 1fr; }
+
+      .gallery-grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto;
+      }
+      .gallery-item:first-child { grid-row: auto; }
+
+      .concept-grid { grid-template-columns: 1fr; }
+
+      .sns-grid { grid-template-columns: repeat(3, 1fr); }
+
+      .footer-top { grid-template-columns: 1fr; gap: 32px; }
+
+      .section-inner { padding: 0 24px; }
+    }
+
+    @media (max-width: 600px) {
+      .menu-grid { grid-template-columns: 1fr; }
+      .sns-grid { grid-template-columns: repeat(2, 1fr); }
+      .hero-content { padding: 0 24px; }
+      .footer-bottom { flex-direction: column; gap: 16px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header id="header">
+  <div class="logo">
+    <span class="logo-jp">坂の上珈琲</span>
+    <span class="logo-en">Saka no Ue Coffee</span>
+  </div>
+  <nav id="nav">
+    <a href="#about">コンセプト</a>
+    <a href="#menu">メニュー</a>
+    <a href="#gallery">ギャラリー</a>
+    <a href="#access">アクセス</a>
+    <a href="#contact" class="nav-cta">お問い合わせ</a>
+  </nav>
+  <div class="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</header>
+
+<!-- ===== HERO ===== -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <p class="hero-eyebrow" id="d-hero-eyebrow">Nagasaki University · Since 2020</p>
+    <h1 class="hero-title">
+      <span id="d-hero-title-jp">坂の上珈琲</span>
+      <span id="d-hero-title-en">Coffee &amp; the Hill</span>
+    </h1>
+    <p class="hero-sub" id="d-hero-sub">
+      長崎大学のそばで、ゆっくり流れる時間を。<br />
+      丘の風と、本物の一杯をあなたへ。
+    </p>
+    <div class="hero-btns">
+      <a href="#menu" class="btn btn-primary">メニューを見る</a>
+      <a href="#access" class="btn btn-outline">アクセス</a>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="hero-scroll-line"></div>
+    <span>Scroll</span>
+  </div>
+</section>
+
+<!-- ===== ABOUT ===== -->
+<section id="about">
+  <div class="section-inner">
+    <div class="about-grid">
+      <div class="about-img">
+        <div class="about-img-deco"></div>
+        <img
+          id="d-about-img"
+          src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800&q=80"
+          alt="カフェ内観"
+          loading="lazy"
+        />
+      </div>
+      <div class="about-text">
+        <div class="section-header">
+          <span class="section-eyebrow" id="d-about-eyebrow">Our Story</span>
+          <h2 class="section-title" id="d-about-title">長崎の丘で出会う、<br />小さな日常の豊かさ</h2>
+          <div class="section-divider"></div>
+        </div>
+        <div class="about-body">
+          <p id="d-about-p1">長崎大学のキャンパスに隣接する「坂の上珈琲」は、学生や教職員、地域の方々が気軽に立ち寄れる小さなカフェです。</p>
+          <p id="d-about-p2">丘の上から長崎の街並みが望めるこの場所で、スペシャルティコーヒーと手作りのスイーツをご用意してお待ちしています。</p>
+          <p id="d-about-p3">勉強の合間に、散歩の休憩に、大切な人との時間に。どんな瞬間にも寄り添う一杯を、心を込めてお届けします。</p>
+        </div>
+        <div class="about-tags" id="d-about-tags">
+          <span class="tag">スペシャルティコーヒー</span>
+          <span class="tag">手作りスイーツ</span>
+          <span class="tag">長崎大学前</span>
+          <span class="tag">居心地の良い空間</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CONCEPT ===== -->
+<section id="concept">
+  <div class="section-inner">
+    <div class="section-header">
+      <span class="section-eyebrow">Our Values</span>
+      <h2 class="section-title">大切にしていること</h2>
+      <div class="section-divider"></div>
+    </div>
+    <div class="concept-grid">
+      <div class="concept-card">
+        <div class="concept-icon">
+          <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+        </div>
+        <h3 class="concept-title" id="d-concept-title-0">本物の珈琲</h3>
+        <p class="concept-text" id="d-concept-text-0">世界各地から厳選したスペシャルティコーヒー豆を、その日の気候に合わせてハンドドリップ。一杯一杯に丁寧さを込めます。</p>
+      </div>
+      <div class="concept-card">
+        <div class="concept-icon">
+          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <h3 class="concept-title" id="d-concept-title-1">居場所としての空間</h3>
+        <p class="concept-text" id="d-concept-text-1">木のぬくもりと自然光が差し込む店内は、読書も勉強も、ただぼんやりするのも歓迎します。あなたの「ひだまり」へ。</p>
+      </div>
+      <div class="concept-card">
+        <div class="concept-icon">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <h3 class="concept-title" id="d-concept-title-2">地域とのつながり</h3>
+        <p class="concept-text" id="d-concept-text-2">長崎の農家と直接繋がり、地元の旬の食材をスイーツや軽食に活かします。この街で生まれ、この街へ還る味を。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MENU ===== -->
+<section id="menu">
+  <div class="section-inner">
+    <div class="section-header">
+      <span class="section-eyebrow">Menu</span>
+      <h2 class="section-title">メニュー</h2>
+      <div class="section-divider"></div>
+    </div>
+
+    <div class="menu-tabs">
+      <button class="menu-tab active" onclick="switchTab(this, 'drinks')">ドリンク</button>
+      <button class="menu-tab" onclick="switchTab(this, 'food')">フード</button>
+      <button class="menu-tab" onclick="switchTab(this, 'sweets')">スイーツ</button>
+    </div>
+
+    <div class="menu-panel active" id="tab-drinks"><div class="menu-grid" id="d-menu-drinks"></div></div>
+    <div class="menu-panel" id="tab-food"><div class="menu-grid" id="d-menu-food"></div></div>
+    <div class="menu-panel" id="tab-sweets"><div class="menu-grid" id="d-menu-sweets"></div></div>
+  </div>
+</section>
+
+<!-- ===== GALLERY ===== -->
+<section id="gallery">
+  <div class="gallery-title">
+    <span class="section-eyebrow">Gallery</span>
+    <h2 class="section-title">店内の様子</h2>
+    <div class="section-divider"></div>
+  </div>
+  <div class="gallery-grid">
+    <div class="gallery-item">
+      <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&q=80" alt="カフェ外観" loading="lazy" />
+    </div>
+    <div class="gallery-item">
+      <img src="https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?w=600&q=80" alt="コーヒー" loading="lazy" />
+    </div>
+    <div class="gallery-item">
+      <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=80" alt="店内" loading="lazy" />
+    </div>
+    <div class="gallery-item">
+      <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80" alt="ドリンク" loading="lazy" />
+    </div>
+    <div class="gallery-item">
+      <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?w=600&q=80" alt="テーブル席" loading="lazy" />
+    </div>
+  </div>
+</section>
+
+<!-- ===== ACCESS ===== -->
+<section id="access">
+  <div class="section-inner">
+    <div class="section-header">
+      <span class="section-eyebrow">Access &amp; Info</span>
+      <h2 class="section-title">アクセス・営業情報</h2>
+      <div class="section-divider"></div>
+    </div>
+    <div class="access-grid">
+      <div>
+        <table class="info-table">
+          <tr>
+            <th>店名</th>
+            <td id="d-info-name">坂の上珈琲<br /><span class="info-note">Saka no Ue Coffee</span></td>
+          </tr>
+          <tr>
+            <th>住所</th>
+            <td id="d-info-address">〒852-8521<br />長崎県長崎市文教町1-14<br />長崎大学文教キャンパス前</td>
+          </tr>
+          <tr>
+            <th>電話</th>
+            <td id="d-info-tel">095-000-0000</td>
+          </tr>
+          <tr>
+            <th>営業時間</th>
+            <td id="d-info-hours">
+              <span class="badge badge-open">平日</span> 8:00 – 20:00<br />
+              <span class="badge badge-open">土曜</span> 9:00 – 18:00<br />
+              <span class="badge badge-closed">日祝</span> 定休日
+            </td>
+          </tr>
+          <tr>
+            <th>アクセス</th>
+            <td id="d-info-access">
+              長崎電気軌道「長大前」電停より徒歩1分<br />
+              長崎バス「文教町」停留所より徒歩2分<br />
+              <span class="info-note">※駐車場はございません。公共交通機関をご利用ください。</span>
+            </td>
+          </tr>
+          <tr>
+            <th>SNS</th>
+            <td id="d-info-sns">
+              Instagram: <strong>@sakanouecoffee</strong><br />
+              Twitter/X: <strong>@sakanouecoffee</strong>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="map-wrap">
+        <iframe
+          src="https://maps.google.co.jp/maps?q=長崎大学文教キャンパス&output=embed&hl=ja&z=16"
+          allowfullscreen
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          title="坂の上珈琲 地図（長崎大学文教キャンパス周辺）"
+        ></iframe>
+        <p class="map-caption">長崎大学文教キャンパス周辺</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SNS ===== -->
+<section id="sns">
+  <div class="section-inner">
+    <div class="section-header">
+      <span class="section-eyebrow">Instagram</span>
+      <h2 class="section-title">@sakanouecoffee</h2>
+      <div class="section-divider"></div>
+    </div>
+    <div class="sns-grid">
+      <div class="sns-item">
+        <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&q=80" alt="SNS1" loading="lazy" />
+        <div class="sns-overlay"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></div>
+      </div>
+      <div class="sns-item">
+        <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&q=80" alt="SNS2" loading="lazy" />
+        <div class="sns-overlay"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></div>
+      </div>
+      <div class="sns-item">
+        <img src="https://images.unsplash.com/photo-1601918774946-25832a4be0d6?w=400&q=80" alt="SNS3" loading="lazy" />
+        <div class="sns-overlay"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></div>
+      </div>
+      <div class="sns-item">
+        <img src="https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400&q=80" alt="SNS4" loading="lazy" />
+        <div class="sns-overlay"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></div>
+      </div>
+      <div class="sns-item">
+        <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400&q=80" alt="SNS5" loading="lazy" />
+        <div class="sns-overlay"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CONTACT ===== -->
+<section id="contact">
+  <div class="section-inner">
+    <div class="section-header">
+      <span class="section-eyebrow">Contact</span>
+      <h2 class="section-title">お問い合わせ</h2>
+      <div class="section-divider"></div>
+    </div>
+    <div class="contact-grid">
+      <!-- 左：説明 -->
+      <div>
+        <p class="contact-lead" id="d-contact-lead">
+          ご不明な点はチャットでお気軽にどうぞ。<br />
+          よくある質問をボタン一つで確認できます。<br /><br />
+          お電話やSNSのDMでもお気軽にご連絡ください。
+        </p>
+        <div class="contact-links">
+          <div class="contact-link-item">
+            <div class="contact-link-icon">
+              <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.23h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.8a16 16 0 0 0 6.29 6.29l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7a2 2 0 0 1 1.72 2.04z"/></svg>
+            </div>
+            <div>
+              <span class="contact-link-label">電話でのお問い合わせ</span>
+              <span class="contact-link-value">095-000-0000</span>
+            </div>
+          </div>
+          <div class="contact-link-item">
+            <div class="contact-link-icon">
+              <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </div>
+            <div>
+              <span class="contact-link-label">Instagram DM</span>
+              <span class="contact-link-value">@sakanouecoffee</span>
+            </div>
+          </div>
+          <div class="contact-link-item">
+            <div class="contact-link-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12c0 5.52 4.48 10 10 10s10-4.48 10-10c0-5.52-4.48-10-10-10zm1 17.93V18c0-.55-.45-1-1-1s-1 .45-1 1v1.93C7.06 19.44 4.56 16.94 4.07 13H6c.55 0 1-.45 1-1s-.45-1-1-1H4.07C4.56 7.06 7.06 4.56 11 4.07V6c0 .55.45 1 1 1s1-.45 1-1V4.07C16.94 4.56 19.44 7.06 19.93 11H18c-.55 0-1 .45-1 1s.45 1 1 1h1.93c-.49 3.94-2.99 6.44-6.93 6.93z"/></svg>
+            </div>
+            <div>
+              <span class="contact-link-label">営業時間</span>
+              <span class="contact-link-value">平日 8:00–20:00 ／ 土曜 9:00–18:00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右：チャットウィジェット -->
+      <div class="chat-widget" id="main-chat">
+        <div class="chat-widget-header">
+          <div class="chat-widget-avatar">☕</div>
+          <div class="chat-widget-info">
+            <h3>坂の上スタッフ</h3>
+            <p>よくある質問にお答えします</p>
+          </div>
+          <div class="chat-online-dot"></div>
+        </div>
+        <div class="chat-messages" id="main-chat-messages"></div>
+        <div class="chat-input-row">
+          <input type="text" id="main-chat-input" placeholder="質問を入力してください…" autocomplete="off" />
+          <button class="chat-send-btn" id="main-chat-send" aria-label="送信">
+            <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FLOATING CHAT BUTTON ===== -->
+<button class="chat-fab" id="chat-fab" aria-label="チャットを開く">
+  <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  <div class="fab-badge"></div>
+</button>
+
+<!-- ===== FLOATING CHAT POPUP ===== -->
+<div class="chat-popup" id="chat-popup">
+  <div class="chat-widget-header">
+    <div class="chat-widget-avatar">☕</div>
+    <div class="chat-widget-info">
+      <h3>坂の上スタッフ</h3>
+      <p>よくある質問にお答えします</p>
+    </div>
+    <div class="chat-online-dot" style="margin-right:36px;"></div>
+    <button class="chat-popup-close" id="chat-popup-close" aria-label="閉じる">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="chat-messages" id="popup-chat-messages"></div>
+  <div class="chat-input-row">
+    <input type="text" id="popup-chat-input" placeholder="質問を入力してください…" autocomplete="off" />
+    <button class="chat-send-btn" id="popup-chat-send" aria-label="送信">
+      <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-logo">
+          <div class="logo">
+            <span class="logo-jp">坂の上珈琲</span>
+            <span class="logo-en">Saka no Ue Coffee</span>
+          </div>
+        </div>
+        <p class="footer-desc">
+          長崎大学のそばで、<br />
+          丘の上からの景色と共に<br />
+          本物の一杯をお届けします。
+        </p>
+      </div>
+      <div>
+        <p class="footer-heading">Navigation</p>
+        <ul class="footer-links">
+          <li><a href="#about">コンセプト</a></li>
+          <li><a href="#menu">メニュー</a></li>
+          <li><a href="#gallery">ギャラリー</a></li>
+          <li><a href="#access">アクセス</a></li>
+          <li><a href="#contact">お問い合わせ</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="footer-heading">Info</p>
+        <div class="footer-info">
+          <p>〒852-8521<br />長崎県長崎市文教町1-14</p>
+          <p style="margin-top:12px;">TEL: 095-000-0000</p>
+          <p style="margin-top:12px;">
+            平日 8:00–20:00<br />
+            土曜 9:00–18:00<br />
+            日祝 定休
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-copy">© 2024 坂の上珈琲 All rights reserved.</p>
+      <div class="footer-sns">
+        <a href="#" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        </a>
+        <a href="#" aria-label="Twitter/X">
+          <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="data.js"></script>
+<script>
+  // ===== DATA APPLY =====
+  function nl2br(str) {
+    return String(str || '').replace(/\n/g, '<br />');
+  }
+
+  function setTxt(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  }
+
+  function setHtml(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = val;
+  }
+
+  function renderMenuGrid(containerId, items) {
+    const grid = document.getElementById(containerId);
+    if (!grid) return;
+    grid.innerHTML = items.map(item => `
+      <div class="menu-card">
+        <img class="menu-card-img" src="${item.image}" alt="${item.name}" loading="lazy" />
+        <div class="menu-card-body">
+          <p class="menu-card-name">${item.name}</p>
+          <p class="menu-card-desc">${item.desc}</p>
+          <p class="menu-card-price">${item.price}</p>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function applyData() {
+    const d = loadData();
+
+    // Logo / タイトル
+    document.querySelectorAll('.logo-jp').forEach(el => el.textContent = d.shop.name_jp);
+    document.querySelectorAll('.logo-en').forEach(el => el.textContent = d.shop.name_en);
+    document.title = d.shop.name_jp + ' | 長崎大学前カフェ';
+
+    // Hero
+    setTxt('d-hero-eyebrow', d.hero.eyebrow);
+    setTxt('d-hero-title-jp', d.hero.title_jp);
+    setTxt('d-hero-title-en', d.hero.title_en);
+    setHtml('d-hero-sub', nl2br(d.hero.description));
+    document.querySelector('.hero-bg').style.backgroundImage =
+      `linear-gradient(160deg,rgba(74,47,26,.45) 0%,rgba(44,26,14,.20) 60%,rgba(92,122,92,.30) 100%),url('${d.hero.bg_image}')`;
+
+    // About
+    setTxt('d-about-eyebrow', d.about.eyebrow);
+    setHtml('d-about-title', d.about.title.replace(/\\n/g, '<br />'));
+    setTxt('d-about-p1', d.about.p1);
+    setTxt('d-about-p2', d.about.p2);
+    setTxt('d-about-p3', d.about.p3);
+    const tagsEl = document.getElementById('d-about-tags');
+    if (tagsEl) tagsEl.innerHTML = d.about.tags.split(',').map(t => `<span class="tag">${t.trim()}</span>`).join('');
+    const aboutImg = document.getElementById('d-about-img');
+    if (aboutImg) aboutImg.src = d.about.image;
+
+    // Concepts
+    d.concepts.forEach((c, i) => {
+      setTxt(`d-concept-title-${i}`, c.title);
+      setTxt(`d-concept-text-${i}`, c.text);
+    });
+
+    // Menu
+    renderMenuGrid('d-menu-drinks', d.menu.drinks);
+    renderMenuGrid('d-menu-food', d.menu.food);
+    renderMenuGrid('d-menu-sweets', d.menu.sweets);
+
+    // Access info
+    setHtml('d-info-name', `${d.shop.name_jp}<br /><span class="info-note">${d.shop.name_en}</span>`);
+    setHtml('d-info-address', nl2br(d.shop.address));
+    setTxt('d-info-tel', d.shop.tel);
+    setHtml('d-info-hours',
+      `<span class="badge badge-open">平日</span> ${d.shop.hours_weekday}<br />` +
+      `<span class="badge badge-open">土曜</span> ${d.shop.hours_saturday}<br />` +
+      `<span class="badge badge-closed">${d.shop.closed}</span> 定休日`
+    );
+    setHtml('d-info-access', nl2br(d.shop.access) + `<br /><span class="info-note">${d.shop.parking_note}</span>`);
+    setHtml('d-info-sns', `Instagram: <strong>${d.shop.instagram}</strong><br />Twitter/X: <strong>${d.shop.twitter}</strong>`);
+
+    // Contact lead
+    setHtml('d-contact-lead', nl2br(d.contact.lead));
+
+    // SNS section handle
+    const snsTitle = document.querySelector('#sns .section-title');
+    if (snsTitle) snsTitle.textContent = d.shop.instagram;
+
+    // Footer info
+    const footerInfo = document.querySelector('.footer-info');
+    if (footerInfo) {
+      footerInfo.innerHTML = `
+        <p>${nl2br(d.shop.address)}</p>
+        <p style="margin-top:12px;">TEL: ${d.shop.tel}</p>
+        <p style="margin-top:12px;">平日 ${d.shop.hours_weekday}<br />土曜 ${d.shop.hours_saturday}<br />${d.shop.closed} 定休</p>
+      `;
+    }
+
+    // Chat FAQ override
+    window.__SITE_FAQ__ = d.chat.faq.map(f => ({
+      keywords: f.keywords.split(',').map(k => k.trim()),
+      answer: f.answer
+    }));
+    window.__SITE_WELCOME__ = d.chat.welcome;
+    window.__SITE_FALLBACK__ = d.chat.fallback;
+    window.__SITE_QUICK__ = d.chat.faq.map(f => f.label);
+  }
+
+  applyData();
+
+  // ヘッダースクロール
+  const header = document.getElementById('header');
+  window.addEventListener('scroll', () => {
+    header.classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  // メニュータブ切り替え
+  function switchTab(btn, panelId) {
+    document.querySelectorAll('.menu-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.menu-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + panelId).classList.add('active');
+  }
+
+  // ハンバーガーメニュー
+  function toggleMenu() {
+    const nav = document.getElementById('nav');
+    if (nav.style.display === 'flex') {
+      nav.style.display = 'none';
+    } else {
+      Object.assign(nav.style, {
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'fixed',
+        top: '64px', left: '0', right: '0',
+        background: '#FDF8F2',
+        padding: '24px 32px 32px',
+        gap: '20px',
+        borderBottom: '1px solid rgba(196,149,106,0.2)',
+        boxShadow: '0 8px 24px rgba(44,26,14,0.10)'
+      });
+    }
+  }
+
+  // スムーズスクロール（ヘッダー分オフセット）
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (!target) return;
+      e.preventDefault();
+      const top = target.getBoundingClientRect().top + window.scrollY - 80;
+      window.scrollTo({ top, behavior: 'smooth' });
+      const nav = document.getElementById('nav');
+      if (window.innerWidth < 900) nav.style.display = 'none';
+    });
+  });
+
+  // フェードインアニメーション（IntersectionObserver）
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  // ===== CHAT ENGINE =====
+  const FAQ         = window.__SITE_FAQ__;
+  const FALLBACK    = window.__SITE_FALLBACK__;
+  const WELCOME     = window.__SITE_WELCOME__;
+  const QUICK_LABELS = window.__SITE_QUICK__;
+
+  function getAnswer(text) {
+    const lower = text.toLowerCase();
+    for (const faq of FAQ) {
+      if (faq.keywords.some(k => lower.includes(k))) return faq.answer;
+    }
+    return FALLBACK;
+  }
+
+  function createChat(messagesEl, inputEl, sendBtnEl) {
+    function scrollBottom() { messagesEl.scrollTop = messagesEl.scrollHeight; }
+
+    function addMsg(text, type) {
+      const wrap = document.createElement('div');
+      wrap.className = 'chat-msg ' + type;
+      if (type === 'bot') {
+        const av = document.createElement('div');
+        av.className = 'chat-bot-av';
+        av.textContent = '☕';
+        wrap.appendChild(av);
+      }
+      const bubble = document.createElement('div');
+      bubble.className = 'chat-bubble';
+      bubble.textContent = text;
+      wrap.appendChild(bubble);
+      messagesEl.appendChild(wrap);
+      scrollBottom();
+    }
+
+    function addQuickReplies() {
+      const qr = document.createElement('div');
+      qr.className = 'chat-quick-replies';
+      QUICK_LABELS.forEach(label => {
+        const btn = document.createElement('button');
+        btn.className = 'chat-qbtn';
+        btn.textContent = label;
+        btn.onclick = () => handleMsg(label);
+        qr.appendChild(btn);
+      });
+      messagesEl.appendChild(qr);
+      scrollBottom();
+    }
+
+    function showTyping() {
+      const wrap = document.createElement('div');
+      wrap.className = 'chat-msg bot';
+      wrap.id = messagesEl.id + '-typing';
+      const av = document.createElement('div');
+      av.className = 'chat-bot-av';
+      av.textContent = '☕';
+      const t = document.createElement('div');
+      t.className = 'chat-typing';
+      t.innerHTML = '<span></span><span></span><span></span>';
+      wrap.appendChild(av);
+      wrap.appendChild(t);
+      messagesEl.appendChild(wrap);
+      scrollBottom();
+    }
+
+    function removeTyping() {
+      const el = document.getElementById(messagesEl.id + '-typing');
+      if (el) el.remove();
+    }
+
+    function handleMsg(text) {
+      if (!text.trim()) return;
+      addMsg(text, 'user');
+      inputEl.value = '';
+      showTyping();
+      setTimeout(() => {
+        removeTyping();
+        addMsg(getAnswer(text), 'bot');
+      }, 650);
+    }
+
+    sendBtnEl.addEventListener('click', () => handleMsg(inputEl.value));
+    inputEl.addEventListener('keydown', e => { if (e.key === 'Enter') handleMsg(inputEl.value); });
+
+    setTimeout(() => { addMsg(WELCOME, 'bot'); addQuickReplies(); }, 500);
+  }
+
+  // メインチャット初期化
+  createChat(
+    document.getElementById('main-chat-messages'),
+    document.getElementById('main-chat-input'),
+    document.getElementById('main-chat-send')
+  );
+
+  // フローティングチャット
+  let popupInited = false;
+  const fab = document.getElementById('chat-fab');
+  const popup = document.getElementById('chat-popup');
+  const popupClose = document.getElementById('chat-popup-close');
+
+  fab.addEventListener('click', () => {
+    const isOpen = popup.classList.toggle('open');
+    if (isOpen) {
+      fab.querySelector('.fab-badge').style.display = 'none';
+      if (!popupInited) {
+        createChat(
+          document.getElementById('popup-chat-messages'),
+          document.getElementById('popup-chat-input'),
+          document.getElementById('popup-chat-send')
+        );
+        popupInited = true;
+      }
+    }
+  });
+
+  popupClose.addEventListener('click', () => popup.classList.remove('open'));
+
+  // スクロールでFABのバッジを表示
+  window.addEventListener('scroll', () => {
+    const badge = fab.querySelector('.fab-badge');
+    if (window.scrollY > 400 && !popupInited) {
+      badge.style.display = 'block';
+    }
+  });
+
+  document.querySelectorAll('.menu-card, .concept-card, .about-img, .about-text').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(24px)';
+    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(el);
+  });
+</script>
+
+</body>
+</html>
