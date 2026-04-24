@@ -496,24 +496,6 @@
     .btn-file-upload:hover { border-color: var(--brown-light); color: var(--brown); background: #fdf5ee; }
     .btn-file-upload svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; flex-shrink: 0; }
 
-    .btn-url-apply {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 10px 12px;
-      background: var(--input-bg);
-      border: 1.5px solid var(--border);
-      border-radius: 7px;
-      font-size: 12px;
-      color: var(--brown);
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.15s;
-      font-family: 'Noto Sans JP', sans-serif;
-      flex-shrink: 0;
-    }
-    .btn-url-apply:hover { border-color: var(--brown); background: #fdf5ee; }
-    .btn-url-apply svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2.5; }
 
     .img-preview-wrap {
       position: relative;
@@ -929,18 +911,11 @@
       </div>
       <div class="form-group">
         <label>背景画像</label>
-        <div class="img-input-row">
-          <input type="url" id="hero-bg_image" placeholder="https://（画像URL）…" onkeydown="if(event.key==='Enter'){applyUrlInput('hero-bg_image','hero-img-preview');event.preventDefault()}" />
-          <button type="button" class="btn-url-apply" onclick="applyUrlInput('hero-bg_image','hero-img-preview')">
-            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>確定
-          </button>
-          <label class="btn-file-upload" for="hero-bg_file">
-            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            写真を追加
-          </label>
-          <input type="file" id="hero-bg_file" accept="image/*" style="display:none" onchange="handleFileUpload(this,'hero-bg_image','hero-img-preview')" />
-        </div>
-        <span class="form-hint">URLを入力するか、PCの画像ファイルを選択してください。</span>
+        <label class="btn-file-upload" for="hero-bg_file">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          写真を追加
+        </label>
+        <input type="file" id="hero-bg_file" accept="image/*" style="display:none" onchange="handleFileUpload(this,'hero-bg_image','hero-img-preview')" />
       </div>
       <div class="img-preview-wrap">
         <img class="img-preview" id="hero-img-preview" alt="ヒーロー背景プレビュー" />
@@ -986,18 +961,11 @@
         </div>
         <div class="form-group form-full">
           <label>About画像</label>
-          <div class="img-input-row">
-            <input type="url" id="about-image" placeholder="https://（画像URL）…" onkeydown="if(event.key==='Enter'){applyUrlInput('about-image','about-img-preview');event.preventDefault()}" />
-            <button type="button" class="btn-url-apply" onclick="applyUrlInput('about-image','about-img-preview')">
-              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>確定
-            </button>
-            <label class="btn-file-upload" for="about-image-file">
-              <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              写真を追加
-            </label>
-            <input type="file" id="about-image-file" accept="image/*" style="display:none" onchange="handleFileUpload(this,'about-image','about-img-preview')" />
-          </div>
-          <span class="form-hint">URLを入力するか、PCの画像ファイルを選択してください。</span>
+          <label class="btn-file-upload" for="about-image-file">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            写真を追加
+          </label>
+          <input type="file" id="about-image-file" accept="image/*" style="display:none" onchange="handleFileUpload(this,'about-image','about-img-preview')" />
         </div>
         <div class="img-preview-wrap form-full">
           <img class="img-preview" id="about-img-preview" alt="About画像プレビュー" />
@@ -1203,8 +1171,7 @@
   });
 
   // ===== IMAGE PREVIEW =====
-  function previewImg(inputId, previewId) {
-    const url = getImgValue(inputId, '');
+  function previewImg(previewId, url) {
     const preview = document.getElementById(previewId);
     if (!preview) return;
     if (url) {
@@ -1212,23 +1179,6 @@
       preview.onload = () => preview.classList.add('loaded');
       preview.onerror = () => preview.classList.remove('loaded');
     } else {
-      preview.classList.remove('loaded');
-    }
-  }
-
-  function applyUrlInput(inputId, previewId) {
-    delete fileUploads[inputId];
-    const el = document.getElementById(inputId);
-    if (!el) return;
-    const url = el.value.trim();
-    const preview = document.getElementById(previewId);
-    if (!preview) return;
-    if (url) {
-      preview.src = url;
-      preview.onload = () => preview.classList.add('loaded');
-      preview.onerror = () => preview.classList.remove('loaded');
-    } else {
-      preview.src = '';
       preview.classList.remove('loaded');
     }
   }
@@ -1255,30 +1205,20 @@
     });
 
     // Hero
-    Object.keys(data.hero).forEach(key => {
+    ['eyebrow','title_jp','title_en','description'].forEach(key => {
       const el = document.getElementById('hero-' + key);
-      if (!el) return;
-      if (key === 'bg_image' && data.hero.bg_image && data.hero.bg_image.startsWith('data:')) {
-        fileUploads['hero-bg_image'] = data.hero.bg_image;
-        el.value = '';
-      } else {
-        el.value = data.hero[key];
-      }
+      if (el) el.value = data.hero[key];
     });
-    previewImg('hero-bg_image', 'hero-img-preview');
+    if (data.hero.bg_image) fileUploads['hero-bg_image'] = data.hero.bg_image;
+    previewImg('hero-img-preview', data.hero.bg_image);
 
     // About
-    Object.keys(data.about).forEach(key => {
+    ['eyebrow','title','p1','p2','p3','tags'].forEach(key => {
       const el = document.getElementById('about-' + key);
-      if (!el) return;
-      if (key === 'image' && data.about.image && data.about.image.startsWith('data:')) {
-        fileUploads['about-image'] = data.about.image;
-        el.value = '';
-      } else {
-        el.value = data.about[key];
-      }
+      if (el) el.value = data.about[key];
     });
-    previewImg('about-image', 'about-img-preview');
+    if (data.about.image) fileUploads['about-image'] = data.about.image;
+    previewImg('about-img-preview', data.about.image);
 
     // Concepts
     renderConceptItems(data.concepts);
@@ -1389,17 +1329,11 @@
         </div>
         <div class="form-group form-full">
           <label>画像</label>
-          <div class="img-input-row">
-            <input type="url" id="${imgId}" value="${urlVal}" placeholder="https://（画像URL）…" onkeydown="if(event.key==='Enter'){applyUrlInput('${imgId}','${prevId}');event.preventDefault()}" />
-            <button type="button" class="btn-url-apply" onclick="applyUrlInput('${imgId}','${prevId}')">
-              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>確定
-            </button>
-            <label class="btn-file-upload" for="menu-${cat}-${i}-file">
-              <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              写真を追加
-            </label>
-            <input type="file" id="menu-${cat}-${i}-file" accept="image/*" style="display:none" onchange="handleFileUpload(this,'${imgId}','${prevId}')" />
-          </div>
+          <label class="btn-file-upload" for="menu-${cat}-${i}-file">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            写真を追加
+          </label>
+          <input type="file" id="menu-${cat}-${i}-file" accept="image/*" style="display:none" onchange="handleFileUpload(this,'${imgId}','${prevId}')" />
         </div>
         <div class="img-preview-wrap form-full">
           <img class="img-preview" id="${prevId}" alt="" />
@@ -1432,6 +1366,7 @@
       image: getImgValue(`menu-extra-${catIndex}-${j}-image`, item.image),
     }));
   }
+
 
   function addMenuItem(cat) {
     syncMenuCat(cat);
@@ -1569,19 +1504,12 @@
         </div>
         <div class="form-group form-full">
           <label>画像</label>
-          <div class="img-input-row">
-            <input type="url" id="${imgId}" value="${urlVal}" placeholder="https://（画像URL）…"
-                   onkeydown="if(event.key==='Enter'){applyUrlInput('${imgId}','${prevId}');event.preventDefault()}" />
-            <button type="button" class="btn-url-apply" onclick="applyUrlInput('${imgId}','${prevId}')">
-              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>確定
-            </button>
-            <label class="btn-file-upload" for="menu-extra-${catIndex}-${j}-file">
-              <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              写真を追加
-            </label>
-            <input type="file" id="menu-extra-${catIndex}-${j}-file" accept="image/*" style="display:none"
-                   onchange="handleFileUpload(this,'${imgId}','${prevId}')" />
-          </div>
+          <label class="btn-file-upload" for="menu-extra-${catIndex}-${j}-file">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            写真を追加
+          </label>
+          <input type="file" id="menu-extra-${catIndex}-${j}-file" accept="image/*" style="display:none"
+                 onchange="handleFileUpload(this,'${imgId}','${prevId}')" />
         </div>
         <div class="img-preview-wrap form-full">
           <img class="img-preview" id="${prevId}" alt="" />
@@ -1675,18 +1603,11 @@
       div.innerHTML = `
         <img class="gallery-admin-thumb" alt="${escHtml(item.alt)}" onerror="this.style.background='#eee'" />
         <div style="padding:8px 10px 4px;">
-          <div class="img-input-row">
-            <input type="url" id="${urlId}" value="${urlVal}" placeholder="https://（画像URL）…"
-                   onkeydown="if(event.key==='Enter'){applyGalleryUrl(${i});event.preventDefault()}" />
-            <button type="button" class="btn-url-apply" onclick="applyGalleryUrl(${i})">
-              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>確定
-            </button>
-            <label class="btn-file-upload" for="gallery-${i}-file">
-              <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              追加
-            </label>
-            <input type="file" id="gallery-${i}-file" accept="image/*" style="display:none" onchange="handleGalleryFileUpload(this,${i})" />
-          </div>
+          <label class="btn-file-upload" for="gallery-${i}-file" style="width:100%;justify-content:center;">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            写真を変更
+          </label>
+          <input type="file" id="gallery-${i}-file" accept="image/*" style="display:none" onchange="handleGalleryFileUpload(this,${i})" />
         </div>
         <div class="gallery-admin-footer">
           <input type="text" id="gallery-${i}-alt" value="${escHtml(item.alt)}" placeholder="説明文（任意）" />
@@ -1701,14 +1622,6 @@
     });
   }
 
-  function applyGalleryUrl(i) {
-    const id = `gallery-${i}-url`;
-    delete fileUploads[id];
-    const el = document.getElementById(id);
-    if (!el) return;
-    const thumb = document.querySelector(`#gallery-item-${i} .gallery-admin-thumb`);
-    if (thumb) thumb.src = el.value.trim();
-  }
 
   function handleGalleryFileUpload(input, i) {
     const file = input.files[0];
@@ -1724,10 +1637,9 @@
   }
 
   function collectGalleryIntoData() {
-    const count = document.querySelectorAll('.gallery-admin-item').length;
-    currentData.gallery = Array.from({ length: count }, (_, i) => ({
-      url: getImgValue(`gallery-${i}-url`, ''),
-      alt: v(`gallery-${i}-alt`, '')
+    currentData.gallery = (currentData.gallery || []).map((item, i) => ({
+      url: getImgValue(`gallery-${i}-url`, item.url),
+      alt: v(`gallery-${i}-alt`, item.alt || '')
     }));
   }
 
@@ -1774,6 +1686,7 @@
     });
     data.about.image = getImgValue('about-image', data.about.image);
 
+
     // Concepts - DOM から動的にカウント
     const conceptCount = document.querySelectorAll('.concept-item-card').length;
     data.concepts = Array.from({ length: conceptCount }, (_, i) => ({
@@ -1803,10 +1716,9 @@
     }));
 
     // Gallery
-    const galleryCount = document.querySelectorAll('.gallery-admin-item').length;
-    data.gallery = Array.from({ length: galleryCount }, (_, i) => ({
-      url: getImgValue(`gallery-${i}-url`, ''),
-      alt: v(`gallery-${i}-alt`, '')
+    data.gallery = (currentData.gallery || []).map((item, i) => ({
+      url: getImgValue(`gallery-${i}-url`, item.url),
+      alt: v(`gallery-${i}-alt`, item.alt || '')
     }));
 
     // Map
@@ -1834,9 +1746,7 @@
   }
 
   function getImgValue(id, fallback) {
-    const el = document.getElementById(id);
-    if (!el) return fallback || '';
-    return fileUploads[id] || el.value.trim() || fallback || '';
+    return fileUploads[id] || fallback || '';
   }
 
   // ===== SAVE =====
