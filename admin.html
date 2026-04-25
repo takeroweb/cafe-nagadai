@@ -764,6 +764,13 @@
   </nav>
 
   <div class="sidebar-footer">
+    <div id="sidebar-user" style="display:flex;align-items:center;gap:10px;padding:10px 4px 12px;border-bottom:1px solid rgba(255,255,255,0.07);margin-bottom:4px;">
+      <div id="sidebar-user-avatar" style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.15);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:14px;color:rgba(255,255,255,0.6);">?</div>
+      <div style="overflow:hidden;">
+        <div id="sidebar-user-name" style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">...</div>
+        <div id="sidebar-user-email" style="font-size:11px;color:rgba(255,255,255,0.4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">...</div>
+      </div>
+    </div>
     <a href="index.html" target="_blank" class="btn-preview">
       <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
       サイトを確認
@@ -1988,10 +1995,24 @@
 
   // ===== WHITELIST MANAGEMENT =====
   function showCurrentUser() {
+    const user = currentUser;
+    if (!user) return;
+
+    // サイドバー常時表示
+    const avatarEl = document.getElementById('sidebar-user-avatar');
+    const nameEl   = document.getElementById('sidebar-user-name');
+    const emailEl  = document.getElementById('sidebar-user-email');
+    if (avatarEl) {
+      avatarEl.innerHTML = user.photoURL
+        ? `<img src="${user.photoURL}" style="width:100%;height:100%;object-fit:cover;" />`
+        : '👤';
+    }
+    if (nameEl)  nameEl.textContent  = user.displayName || 'ユーザー';
+    if (emailEl) emailEl.textContent = user.email;
+
+    // メンバー管理パネル内
     const container = document.getElementById('current-user-info');
     if (!container) return;
-    const user = currentUser || auth.currentUser;
-    if (!user) { container.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">取得中...</p>'; return; }
     container.innerHTML = `
       <div style="display:flex;align-items:center;gap:14px;padding:8px 0;">
         ${user.photoURL
