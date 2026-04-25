@@ -756,11 +756,6 @@
       お問い合わせ
     </div>
 
-    <div class="sidebar-section-label" style="margin-top:8px;">システム</div>
-    <div class="nav-item" data-target="members">
-      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      メンバー管理
-    </div>
   </nav>
 
   <div class="sidebar-footer">
@@ -1152,28 +1147,6 @@
     </div>
   </div>
 
-  <!-- メンバー管理 -->
-  <div class="section-panel" id="panel-members">
-    <h2 class="panel-heading">メンバー管理</h2>
-    <p class="panel-subheading">現在のログイン状況とアクセス許可メンバーの確認。</p>
-
-    <div class="card">
-      <div class="card-title">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-        現在のログインユーザー
-      </div>
-      <div id="current-user-info"></div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">
-        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        アクセス許可メンバー
-      </div>
-      <div id="whitelist-items"></div>
-    </div>
-  </div>
-
   <!-- お問い合わせ -->
   <div class="section-panel" id="panel-contact">
     <h2 class="panel-heading">お問い合わせセクション</h2>
@@ -1213,8 +1186,7 @@
     menu: 'メニュー',
     gallery: 'ギャラリー',
     faq: 'チャット FAQ',
-    contact: 'お問い合わせ',
-    members: 'メンバー管理'
+    contact: 'お問い合わせ'
   };
 
   // ===== NAVIGATION =====
@@ -1227,7 +1199,6 @@
       document.getElementById('panel-' + target).classList.add('active');
       document.getElementById('topbar-title').textContent = SECTION_TITLES[target];
       currentSection = target;
-      if (target === 'members') { showCurrentUser(); loadWhitelist(); }
       if (target === 'basic') setTimeout(() => { if (adminMap) adminMap.invalidateSize(); else initAdminMapPicker(); }, 100);
     });
   });
@@ -2027,55 +1998,6 @@
     `;
   }
 
-  async function loadWhitelist() {
-    const container = document.getElementById('whitelist-items');
-    container.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:12px 0;">読み込み中...</p>';
-    try {
-      const snapshot = await db.collection('whitelist').get();
-      container.innerHTML = '';
-      if (snapshot.empty) {
-        container.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:12px 0;">ホワイトリストが空です。</p>';
-        return;
-      }
-      snapshot.forEach(doc => {
-        const div = document.createElement('div');
-        div.style.cssText = 'display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);gap:12px;';
-        div.innerHTML = `<span style="font-size:14px;">${escHtml(doc.id)}</span>`;
-        container.appendChild(div);
-      });
-    } catch(e) {
-      container.innerHTML = '<p style="color:var(--danger);font-size:13px;padding:12px 0;">読み込みに失敗しました。</p>';
-    }
-  }
-
-  async function addToWhitelist() {
-    const email = document.getElementById('new-member-email').value.trim().toLowerCase();
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      showToast('正しいメールアドレスを入力してください。', 'error');
-      return;
-    }
-    try {
-      await db.collection('whitelist').doc(email).set({
-        addedAt: firebase.firestore.FieldValue.serverTimestamp(),
-        addedBy: auth.currentUser?.email || ''
-      });
-      document.getElementById('new-member-email').value = '';
-      await loadWhitelist();
-      showToast('追加しました。', 'success');
-    } catch(e) {
-      showToast('追加に失敗しました。', 'error');
-    }
-  }
-
-  async function removeFromWhitelist(email) {
-    try {
-      await db.collection('whitelist').doc(email).delete();
-      await loadWhitelist();
-      showToast('削除しました。', 'success');
-    } catch(e) {
-      showToast('削除に失敗しました。', 'error');
-    }
-  }
 
   // ===== INIT =====
   populateForms(currentData);
