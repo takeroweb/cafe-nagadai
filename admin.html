@@ -913,6 +913,10 @@
           <label>駐車場・注記</label>
           <input type="text" id="shop-parking_note" placeholder="※駐車場はございません。公共交通機関をご利用ください。" />
         </div>
+        <div class="form-group form-full">
+          <label>フッター説明文</label>
+          <textarea id="shop-footer_desc" class="short" placeholder="長崎大学のそばで、&#10;丘の上からの景色と共に&#10;本物の一杯をお届けします。"></textarea>
+        </div>
         <div class="form-group">
           <label>Instagram</label>
           <input type="text" id="shop-instagram" placeholder="@sakanouecoffee" />
@@ -1769,7 +1773,7 @@
     const data = JSON.parse(JSON.stringify(currentData));
 
     // Shop
-    ['name_jp','name_en','since','address','tel','hours_weekday','hours_saturday','closed','access','parking_note','instagram','twitter'].forEach(k => {
+    ['name_jp','name_en','since','address','tel','hours_weekday','hours_saturday','closed','access','parking_note','footer_desc','instagram','twitter'].forEach(k => {
       const el = document.getElementById('shop-' + k);
       if (el) data.shop[k] = el.value;
     });

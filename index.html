@@ -1691,7 +1691,7 @@
             <span class="logo-en">Saka no Ue Coffee</span>
           </div>
         </div>
-        <p class="footer-desc">
+        <p class="footer-desc" id="d-footer-desc">
           長崎大学のそばで、<br />
           丘の上からの景色と共に<br />
           本物の一杯をお届けします。
@@ -1936,6 +1936,10 @@
     const igContactHandle = document.getElementById('d-ig-contact-handle');
     if (igContactLink) igContactLink.href = igUrl;
     if (igContactHandle) igContactHandle.textContent = igHandle || '@sakanouecoffee';
+
+    // Footer description
+    const footerDesc = document.getElementById('d-footer-desc');
+    if (footerDesc) footerDesc.innerHTML = nl2br(d.shop.footer_desc || '');
 
     // Footer Instagram link
     const footerIgLink = document.getElementById('d-footer-ig-link');
