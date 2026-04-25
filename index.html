@@ -1925,7 +1925,7 @@
     // SNSグリッドの各写真をタップするとInstagramへ
     document.querySelectorAll('.sns-item').forEach(item => {
       item.style.cursor = 'pointer';
-      item.addEventListener('click', () => window.open(igUrl, '_blank', 'noopener'));
+      item.onclick = () => window.open(igUrl, '_blank', 'noopener');
     });
 
     // Contact lead
@@ -1961,7 +1961,7 @@
     window.__SITE_QUICK__ = d.chat.faq.map(f => f.label);
   }
 
-  // Firebase 初期化 → Firestore からデータ取得 → ページに反映
+  // Firebase 初期化 → Firestore をリアルタイム購読 → 変更のたびにページ反映
   firebase.initializeApp({
     apiKey: "AIzaSyDv2glZjdgRkDiCPCQqAMo6fvDinBhbvrE",
     authDomain: "cafe-nagadai-35631.firebaseapp.com",
@@ -1971,9 +1971,7 @@
     appId: "1:851628794397:web:937940a83d3d5a732bdcf4"
   });
   const db = firebase.firestore();
-  loadData(db)
-    .then(applyData)
-    .catch(() => applyData(JSON.parse(JSON.stringify(DEFAULT_DATA))));
+  listenData(db, applyData);
 
   // ヘッダースクロール
   const header = document.getElementById('header');
