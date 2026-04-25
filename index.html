@@ -1911,6 +1911,22 @@
     const mapCapEl = document.getElementById('d-map-caption');
     if (mapCapEl && d.map && d.map.caption) mapCapEl.textContent = d.map.caption;
 
+    // Instagram URL生成（他より先に定義）
+    const igHandle = d.shop.instagram || '';
+    const igUser = igHandle.replace(/^@/, '');
+    const igUrl = igUser ? `https://www.instagram.com/${igUser}/` : '#';
+
+    // SNS section handle + リンク
+    const snsTitle = document.querySelector('#sns .section-title');
+    if (snsTitle) {
+      snsTitle.innerHTML = `<a href="${igUrl}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">${igHandle}</a>`;
+    }
+    // SNSグリッドの各写真をタップするとInstagramへ
+    document.querySelectorAll('.sns-item').forEach(item => {
+      item.style.cursor = 'pointer';
+      item.addEventListener('click', () => window.open(igUrl, '_blank', 'noopener'));
+    });
+
     // Contact lead
     setHtml('d-contact-lead', nl2br(d.contact.lead));
 
@@ -1919,26 +1935,6 @@
     const igContactHandle = document.getElementById('d-ig-contact-handle');
     if (igContactLink) igContactLink.href = igUrl;
     if (igContactHandle) igContactHandle.textContent = igHandle || '@sakanouecoffee';
-
-    // SNS section handle + リンク
-    const igHandle = d.shop.instagram || '';
-    const igUser = igHandle.replace(/^@/, '');
-    const igUrl = igUser ? `https://www.instagram.com/${igUser}/` : '#';
-    const snsTitle = document.querySelector('#sns .section-title');
-    if (snsTitle) {
-      snsTitle.innerHTML = `<a href="${igUrl}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">${igHandle}</a>`;
-    }
-    // SNSグリッドの各写真をInstagramへのリンクに
-    document.querySelectorAll('.sns-item').forEach(item => {
-      if (item.closest('a')) return;
-      const a = document.createElement('a');
-      a.href = igUrl;
-      a.target = '_blank';
-      a.rel = 'noopener';
-      a.style.cssText = 'display:contents';
-      item.parentNode.insertBefore(a, item);
-      a.appendChild(item);
-    });
 
     // Footer Instagram link
     const footerIgLink = document.getElementById('d-footer-ig-link');
