@@ -47,21 +47,31 @@ const DEFAULT_DATA = {
     }
   ],
   menu: {
-    extraCategories: [],
-    drinks: [
-      { name: 'ハンドドリップコーヒー', desc: '本日の豆を丁寧にドリップ。豆の産地・焙煎度はお好みでお選びいただけます。', price: '¥550〜', image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600&q=80' },
-      { name: 'カフェラテ', desc: 'なめらかなスチームミルクとエスプレッソのコントラスト。ホット・アイス選択可。', price: '¥620', image: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=600&q=80' },
-      { name: '長崎ほうじ茶ラテ', desc: '長崎産のほうじ茶を濃く抽出し、ミルクと合わせた香ばしい一杯。', price: '¥650', image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600&q=80' }
-    ],
-    food: [
-      { name: '厚切りトースト', desc: '地元パン屋から直送の食パンを厚切りに。バター・あんバター・はちみつからお選びを。', price: '¥480〜', image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=600&q=80' },
-      { name: 'フレンチトースト', desc: '一晩漬け込んだふわふわのフレンチトースト。季節のフルーツを添えて。', price: '¥780', image: 'https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=600&q=80' },
-      { name: '日替わりサンドイッチ', desc: 'その日の仕入れで変わる、旬の具材のサンドイッチ。ドリンクセットがお得。', price: '¥720〜', image: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=600&q=80' }
-    ],
-    sweets: [
-      { name: '長崎バスクチーズケーキ', desc: '表面を高温で焼き上げた濃厚なバスクチーズケーキ。長崎のクリームチーズ使用。', price: '¥580', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80' },
-      { name: '季節のシフォンケーキ', desc: 'ふわふわ軽やかな食感のシフォンケーキ。季節の素材を使った限定フレーバーが人気。', price: '¥520', image: 'https://images.unsplash.com/photo-1607478900766-efe13248b125?w=600&q=80' },
-      { name: 'くず餅パフェ', desc: '和素材を組み合わせた坂の上オリジナルパフェ。抹茶・黒蜜・きなこが層になって。', price: '¥820', image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=600&q=80' }
+    categories: [
+      {
+        label: 'ドリンク',
+        items: [
+          { name: 'ハンドドリップコーヒー', desc: '本日の豆を丁寧にドリップ。豆の産地・焙煎度はお好みでお選びいただけます。', price: '¥550〜', image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600&q=80' },
+          { name: 'カフェラテ', desc: 'なめらかなスチームミルクとエスプレッソのコントラスト。ホット・アイス選択可。', price: '¥620', image: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=600&q=80' },
+          { name: '長崎ほうじ茶ラテ', desc: '長崎産のほうじ茶を濃く抽出し、ミルクと合わせた香ばしい一杯。', price: '¥650', image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600&q=80' }
+        ]
+      },
+      {
+        label: 'フード',
+        items: [
+          { name: '厚切りトースト', desc: '地元パン屋から直送の食パンを厚切りに。バター・あんバター・はちみつからお選びを。', price: '¥480〜', image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=600&q=80' },
+          { name: 'フレンチトースト', desc: '一晩漬け込んだふわふわのフレンチトースト。季節のフルーツを添えて。', price: '¥780', image: 'https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=600&q=80' },
+          { name: '日替わりサンドイッチ', desc: 'その日の仕入れで変わる、旬の具材のサンドイッチ。ドリンクセットがお得。', price: '¥720〜', image: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=600&q=80' }
+        ]
+      },
+      {
+        label: 'スイーツ',
+        items: [
+          { name: '長崎バスクチーズケーキ', desc: '表面を高温で焼き上げた濃厚なバスクチーズケーキ。長崎のクリームチーズ使用。', price: '¥580', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80' },
+          { name: '季節のシフォンケーキ', desc: 'ふわふわ軽やかな食感のシフォンケーキ。季節の素材を使った限定フレーバーが人気。', price: '¥520', image: 'https://images.unsplash.com/photo-1607478900766-efe13248b125?w=600&q=80' },
+          { name: 'くず餅パフェ', desc: '和素材を組み合わせた坂の上オリジナルパフェ。抹茶・黒蜜・きなこが層になって。', price: '¥820', image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=600&q=80' }
+        ]
+      }
     ]
   },
   gallery: [
@@ -99,7 +109,14 @@ function loadData() {
     const saved = localStorage.getItem('sakanoueCafe');
     if (!saved) return JSON.parse(JSON.stringify(DEFAULT_DATA));
     const parsed = JSON.parse(saved);
-    // deep merge with defaults for safety
+    // 旧形式（drinks/food/sweets）→ categories に自動移行
+    if (parsed.menu && !parsed.menu.categories) {
+      parsed.menu.categories = [];
+      if (parsed.menu.drinks)           parsed.menu.categories.push({ label: 'ドリンク', items: parsed.menu.drinks });
+      if (parsed.menu.food)             parsed.menu.categories.push({ label: 'フード',   items: parsed.menu.food });
+      if (parsed.menu.sweets)           parsed.menu.categories.push({ label: 'スイーツ', items: parsed.menu.sweets });
+      if (parsed.menu.extraCategories)  parsed.menu.categories.push(...parsed.menu.extraCategories);
+    }
     return deepMerge(JSON.parse(JSON.stringify(DEFAULT_DATA)), parsed);
   } catch(e) {
     return JSON.parse(JSON.stringify(DEFAULT_DATA));

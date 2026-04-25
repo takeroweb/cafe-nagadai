@@ -1753,14 +1753,9 @@
 
   // ===== MENU =====
   function buildMenuTabs(d) {
-    const allCats = [
-      { key: 'drinks', label: 'ドリンク', items: d.menu.drinks  || [] },
-      { key: 'food',   label: 'フード',   items: d.menu.food    || [] },
-      { key: 'sweets', label: 'スイーツ', items: d.menu.sweets  || [] },
-      ...(d.menu.extraCategories || []).map((c, i) => ({
-        key: 'extra-' + i, label: c.label, items: c.items || []
-      }))
-    ];
+    const allCats = (d.menu.categories || []).map((c, i) => ({
+      key: 'cat-' + i, label: c.label, items: c.items || []
+    }));
 
     const tabsEl   = document.getElementById('d-menu-tabs');
     const panelsEl = document.getElementById('d-menu-panels');

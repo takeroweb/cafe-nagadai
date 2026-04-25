@@ -346,18 +346,46 @@
     }
     .menu-tab-add-btn:hover { color: var(--brown); }
 
-    .extra-tab { position: relative; padding-right: 28px !important; }
+    .menu-tab-cat {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 10px 6px;
+      font-size: 13px;
+      font-family: 'Noto Sans JP', sans-serif;
+      color: var(--text-muted);
+      cursor: pointer;
+      border: none;
+      background: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      font-weight: 400;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .menu-tab-cat.active { color: var(--brown); border-bottom-color: var(--brown); font-weight: 500; }
+    .menu-tab-cat:hover { color: var(--brown); }
+    .cat-tab-label { padding: 0 4px; }
+    .cat-move {
+      font-size: 15px;
+      line-height: 1;
+      cursor: pointer;
+      padding: 0 2px;
+      color: var(--text-muted);
+      opacity: 0.5;
+      transition: opacity 0.15s;
+    }
+    .cat-move:hover { opacity: 1; color: var(--brown); }
     .tab-close {
-      position: absolute;
-      right: 8px; top: 50%;
-      transform: translateY(-50%);
-      font-size: 14px;
+      font-size: 13px;
       color: var(--text-muted);
       line-height: 1;
       cursor: pointer;
-      padding: 2px 3px;
+      padding: 0 2px;
+      opacity: 0.5;
+      transition: opacity 0.15s;
     }
-    .tab-close:hover { color: var(--danger); }
+    .tab-close:hover { opacity: 1; color: var(--danger); }
 
     .menu-panel-admin { display: none; }
     .menu-panel-admin.active { display: block; }
@@ -1030,11 +1058,8 @@
     <div class="card">
       <div class="menu-tabs-admin-wrap" id="admin-menu-tabs-wrap">
         <div class="menu-tabs-admin" id="admin-menu-tabs">
-          <button class="menu-tab-admin active" onclick="switchMenuTab(this,'drinks')">ドリンク</button>
-          <button class="menu-tab-admin" onclick="switchMenuTab(this,'food')">フード</button>
-          <button class="menu-tab-admin" onclick="switchMenuTab(this,'sweets')">スイーツ</button>
-          <!-- extra tabs here -->
-          <button class="menu-tab-add-btn" onclick="toggleAddCatForm()">＋ カテゴリを追加</button>
+          <!-- カテゴリタブは動的に描画 -->
+          <button class="menu-tab-add-btn" id="menu-tab-add-btn" onclick="toggleAddCatForm()">＋ カテゴリを追加</button>
         </div>
       </div>
 
@@ -1045,44 +1070,8 @@
         <button class="btn btn-reset" style="padding:9px 14px;" onclick="toggleAddCatForm()">キャンセル</button>
       </div>
 
-      <div class="menu-panel-admin active" id="admin-tab-drinks">
-        <button class="btn-add" onclick="addMenuItem('drinks')" style="margin-bottom:12px;">
-          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          ドリンクを追加
-        </button>
-        <div id="menu-items-drinks"></div>
-        <button class="btn-add" onclick="addMenuItem('drinks')">
-          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          ドリンクを追加
-        </button>
-      </div>
-
-      <div class="menu-panel-admin" id="admin-tab-food">
-        <button class="btn-add" onclick="addMenuItem('food')" style="margin-bottom:12px;">
-          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          フードを追加
-        </button>
-        <div id="menu-items-food"></div>
-        <button class="btn-add" onclick="addMenuItem('food')">
-          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          フードを追加
-        </button>
-      </div>
-
-      <div class="menu-panel-admin" id="admin-tab-sweets">
-        <button class="btn-add" onclick="addMenuItem('sweets')" style="margin-bottom:12px;">
-          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          スイーツを追加
-        </button>
-        <div id="menu-items-sweets"></div>
-        <button class="btn-add" onclick="addMenuItem('sweets')">
-          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          スイーツを追加
-        </button>
-      </div>
-
-      <!-- 追加カテゴリのパネルはここに動的挿入 -->
-      <div id="admin-extra-panels"></div>
+      <!-- すべてのカテゴリパネルは動的に描画 -->
+      <div id="admin-all-panels"></div>
     </div>
   </div>
 
@@ -1257,8 +1246,8 @@
     renderConceptItems(data.concepts);
 
     // Menu
-    ['drinks', 'food', 'sweets'].forEach(cat => renderMenuItems(cat, data.menu[cat]));
-    renderExtraCategoryTabs(data.menu.extraCategories || []);
+    activeCatIndex = 0;
+    renderAllCategoryTabs(data.menu.categories || []);
 
     // Gallery
     renderGalleryItems(data.gallery || []);
@@ -1327,49 +1316,103 @@
     }));
   }
 
-  // ===== MENU ITEMS =====
-  function renderMenuItems(cat, items) {
-    const container = document.getElementById('menu-items-' + cat);
-    container.innerHTML = '';
-    items.forEach((item, i) => {
-      container.appendChild(buildMenuItemCard(cat, i, item));
+  // ===== MENU (全カテゴリ統合) =====
+  let activeCatIndex = 0;
+
+  function renderAllCategoryTabs(categories) {
+    const tabsContainer  = document.getElementById('admin-menu-tabs');
+    const addBtn         = document.getElementById('menu-tab-add-btn');
+    const panelContainer = document.getElementById('admin-all-panels');
+
+    tabsContainer.querySelectorAll('.menu-tab-cat').forEach(el => el.remove());
+    panelContainer.innerHTML = '';
+
+    categories.forEach((cat, i) => {
+      const tab = document.createElement('button');
+      tab.className = 'menu-tab-cat' + (i === activeCatIndex ? ' active' : '');
+      tab.dataset.catIndex = i;
+      tab.innerHTML = `
+        <span class="cat-move" onclick="moveCatLeft(${i});event.stopPropagation()">&#8249;</span>
+        <span class="cat-tab-label">${escHtml(cat.label)}</span>
+        <span class="cat-move" onclick="moveCatRight(${i});event.stopPropagation()">&#8250;</span>
+        <span class="tab-close" onclick="deleteCat(${i});event.stopPropagation()">×</span>
+      `;
+      tab.onclick = function() { switchCatTab(i); };
+      tabsContainer.insertBefore(tab, addBtn);
+
+      const panel = document.createElement('div');
+      panel.className = 'menu-panel-admin' + (i === activeCatIndex ? ' active' : '');
+      panel.id = `admin-tab-cat-${i}`;
+      panel.innerHTML = `
+        <button class="btn-add" onclick="addCatItem(${i})" style="margin-bottom:12px;">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          ${escHtml(cat.label)}を追加
+        </button>
+        <div id="menu-items-cat-${i}"></div>
+        <button class="btn-add" onclick="addCatItem(${i})">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          ${escHtml(cat.label)}を追加
+        </button>
+      `;
+      panelContainer.appendChild(panel);
+
+      renderCatItems(i, cat.items || []);
     });
+
+    setTimeout(updateMenuTabsOverflow, 50);
   }
 
-  function buildMenuItemCard(cat, i, item) {
-    const imgId = `menu-${cat}-${i}-image`;
-    const prevId = `menu-preview-${cat}-${i}`;
+  function switchCatTab(i) {
+    activeCatIndex = i;
+    document.querySelectorAll('.menu-tab-cat').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.menu-panel-admin').forEach(p => p.classList.remove('active'));
+    const tab = document.querySelector(`.menu-tab-cat[data-cat-index="${i}"]`);
+    const panel = document.getElementById(`admin-tab-cat-${i}`);
+    if (tab) tab.classList.add('active');
+    if (panel) panel.classList.add('active');
+  }
+
+  function renderCatItems(catIndex, items) {
+    const container = document.getElementById(`menu-items-cat-${catIndex}`);
+    if (!container) return;
+    container.innerHTML = '';
+    items.forEach((item, j) => container.appendChild(buildCatItemCard(catIndex, j, item)));
+  }
+
+  function buildCatItemCard(catIndex, j, item) {
+    const imgId  = `menu-cat-${catIndex}-${j}-image`;
+    const prevId = `menu-preview-cat-${catIndex}-${j}`;
     const isData = item.image && item.image.startsWith('data:');
     if (isData) fileUploads[imgId] = item.image;
-    const urlVal = isData ? '' : escHtml(item.image);
     const card = document.createElement('div');
     card.className = 'menu-item-card';
-    card.id = `menu-card-${cat}-${i}`;
+    card.id = `menu-card-cat-${catIndex}-${j}`;
     card.innerHTML = `
       <div class="menu-item-header">
-        <span class="menu-item-num">Item ${i + 1}</span>
-        <button class="btn-delete" onclick="deleteMenuItem('${cat}', ${i})">削除</button>
+        <span class="menu-item-num">Item ${j + 1}</span>
+        <button class="btn-delete" onclick="deleteCatItem(${catIndex},${j})">削除</button>
       </div>
       <div class="form-grid">
         <div class="form-group">
           <label>商品名</label>
-          <input type="text" id="menu-${cat}-${i}-name" value="${escHtml(item.name)}" />
+          <input type="text" id="menu-cat-${catIndex}-${j}-name" value="${escHtml(item.name)}" />
         </div>
         <div class="form-group">
           <label>価格</label>
-          <input type="text" id="menu-${cat}-${i}-price" value="${escHtml(item.price)}" placeholder="¥000" />
+          <input type="text" id="menu-cat-${catIndex}-${j}-price" value="${escHtml(item.price)}" placeholder="¥000" />
         </div>
         <div class="form-group form-full">
           <label>説明文</label>
-          <textarea id="menu-${cat}-${i}-desc" class="short">${escHtml(item.desc)}</textarea>
+          <textarea id="menu-cat-${catIndex}-${j}-desc" class="short">${escHtml(item.desc)}</textarea>
         </div>
         <div class="form-group form-full">
           <label>画像</label>
-          <label class="btn-file-upload" for="menu-${cat}-${i}-file">
+          <label class="btn-file-upload" for="menu-cat-${catIndex}-${j}-file">
             <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             写真を追加
           </label>
-          <input type="file" id="menu-${cat}-${i}-file" accept="image/*" style="display:none" onchange="handleFileUpload(this,'${imgId}','${prevId}')" />
+          <input type="file" id="menu-cat-${catIndex}-${j}-file" accept="image/*" style="display:none"
+                 onchange="handleFileUpload(this,'${imgId}','${prevId}')" />
         </div>
         <div class="img-preview-wrap form-full">
           <img class="img-preview" id="${prevId}" alt="" />
@@ -1383,81 +1426,66 @@
     return card;
   }
 
-  function syncMenuCat(cat) {
-    currentData.menu[cat] = currentData.menu[cat].map((item, i) => ({
-      name:  v(`menu-${cat}-${i}-name`,  item.name),
-      price: v(`menu-${cat}-${i}-price`, item.price),
-      desc:  v(`menu-${cat}-${i}-desc`,  item.desc),
-      image: getImgValue(`menu-${cat}-${i}-image`, item.image),
-    }));
-  }
-
-  function syncExtraCat(catIndex) {
-    const cat = currentData.menu.extraCategories[catIndex];
+  function syncCat(catIndex) {
+    const cat = currentData.menu.categories[catIndex];
     if (!cat) return;
     cat.items = cat.items.map((item, j) => ({
-      name:  v(`menu-extra-${catIndex}-${j}-name`,  item.name),
-      price: v(`menu-extra-${catIndex}-${j}-price`, item.price),
-      desc:  v(`menu-extra-${catIndex}-${j}-desc`,  item.desc),
-      image: getImgValue(`menu-extra-${catIndex}-${j}-image`, item.image),
+      name:  v(`menu-cat-${catIndex}-${j}-name`,  item.name),
+      price: v(`menu-cat-${catIndex}-${j}-price`, item.price),
+      desc:  v(`menu-cat-${catIndex}-${j}-desc`,  item.desc),
+      image: getImgValue(`menu-cat-${catIndex}-${j}-image`, item.image),
     }));
   }
 
-
-  function addMenuItem(cat) {
-    syncMenuCat(cat);
-    currentData.menu[cat].push({ name: '新しいメニュー', desc: '説明を入力してください。', price: '¥000', image: '' });
-    renderMenuItems(cat, currentData.menu[cat]);
-    scrollToLast('menu-items-' + cat);
+  function addCatItem(catIndex) {
+    syncCat(catIndex);
+    const cat = currentData.menu.categories[catIndex];
+    if (!cat) return;
+    cat.items.push({ name: '新しいメニュー', desc: '説明を入力してください。', price: '¥000', image: '' });
+    renderCatItems(catIndex, cat.items);
+    scrollToLast(`menu-items-cat-${catIndex}`);
   }
 
-  function deleteMenuItem(cat, index) {
-    syncMenuCat(cat);
-    currentData.menu[cat].splice(index, 1);
-    renderMenuItems(cat, currentData.menu[cat]);
+  function deleteCatItem(catIndex, j) {
+    syncCat(catIndex);
+    currentData.menu.categories[catIndex].items.splice(j, 1);
+    renderCatItems(catIndex, currentData.menu.categories[catIndex].items);
     saveData(currentData);
     showToast('削除しました。', 'success');
   }
 
-  // ===== 追加カテゴリ =====
-  function renderExtraCategoryTabs(extraCategories) {
-    const tabsContainer  = document.getElementById('admin-menu-tabs');
-    const addBtn         = tabsContainer.querySelector('.menu-tab-add-btn');
-    const panelContainer = document.getElementById('admin-extra-panels');
+  function deleteCat(i) {
+    if (currentData.menu.categories.length <= 1) {
+      showToast('最低1つのカテゴリが必要です。', 'error');
+      return;
+    }
+    if (!confirm(`「${currentData.menu.categories[i].label}」を削除しますか？`)) return;
+    currentData.menu.categories.forEach((_, idx) => syncCat(idx));
+    currentData.menu.categories.splice(i, 1);
+    activeCatIndex = Math.min(activeCatIndex, currentData.menu.categories.length - 1);
+    renderAllCategoryTabs(currentData.menu.categories);
+    saveData(currentData);
+    showToast('カテゴリを削除しました。', 'success');
+  }
 
-    // 既存の追加タブを削除
-    tabsContainer.querySelectorAll('.extra-tab').forEach(el => el.remove());
-    panelContainer.innerHTML = '';
+  function moveCatLeft(i) {
+    if (i === 0) return;
+    currentData.menu.categories.forEach((_, idx) => syncCat(idx));
+    const cats = currentData.menu.categories;
+    [cats[i - 1], cats[i]] = [cats[i], cats[i - 1]];
+    if (activeCatIndex === i) activeCatIndex = i - 1;
+    else if (activeCatIndex === i - 1) activeCatIndex = i;
+    renderAllCategoryTabs(cats);
+  }
 
-    extraCategories.forEach((cat, i) => {
-      // タブ
-      const tab = document.createElement('button');
-      tab.className = 'menu-tab-admin extra-tab';
-      tab.dataset.extraIndex = i;
-      tab.innerHTML = `${escHtml(cat.label)}<span class="tab-close" onclick="deleteCategory(${i});event.stopPropagation()">×</span>`;
-      tab.onclick = function() { switchMenuTab(this, `extra-${i}`); };
-      tabsContainer.insertBefore(tab, addBtn);
-
-      // パネル
-      const panel = document.createElement('div');
-      panel.className = 'menu-panel-admin';
-      panel.id = `admin-tab-extra-${i}`;
-      panel.innerHTML = `
-        <button class="btn-add" onclick="addMenuItemExtra(${i})" style="margin-bottom:12px;">
-          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          ${escHtml(cat.label)}を追加
-        </button>
-        <div id="menu-items-extra-${i}"></div>
-        <button class="btn-add" onclick="addMenuItemExtra(${i})">
-          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          ${escHtml(cat.label)}を追加
-        </button>`;
-      panelContainer.appendChild(panel);
-
-      renderExtraMenuItems(i, cat.items);
-    });
-
-    setTimeout(updateMenuTabsOverflow, 50);
+  function moveCatRight(i) {
+    if (i >= currentData.menu.categories.length - 1) return;
+    currentData.menu.categories.forEach((_, idx) => syncCat(idx));
+    const cats = currentData.menu.categories;
+    [cats[i], cats[i + 1]] = [cats[i + 1], cats[i]];
+    if (activeCatIndex === i) activeCatIndex = i + 1;
+    else if (activeCatIndex === i + 1) activeCatIndex = i;
+    renderAllCategoryTabs(cats);
   }
 
   function updateMenuTabsOverflow() {
@@ -1483,96 +1511,14 @@
     const label = document.getElementById('new-cat-label').value.trim();
     if (!label) { alert('カテゴリ名を入力してください。'); return; }
 
-    if (!currentData.menu.extraCategories) currentData.menu.extraCategories = [];
-    currentData.menu.extraCategories.push({ label, items: [] });
-    renderExtraCategoryTabs(currentData.menu.extraCategories);
+    currentData.menu.categories.forEach((_, i) => syncCat(i));
+    if (!currentData.menu.categories) currentData.menu.categories = [];
+    currentData.menu.categories.push({ label, items: [] });
+    activeCatIndex = currentData.menu.categories.length - 1;
+    renderAllCategoryTabs(currentData.menu.categories);
 
     document.getElementById('new-cat-label').value = '';
     toggleAddCatForm();
-
-    // 新しいタブに切替
-    const i = currentData.menu.extraCategories.length - 1;
-    const newTab = document.querySelector(`.extra-tab[data-extra-index="${i}"]`);
-    if (newTab) switchMenuTab(newTab, `extra-${i}`);
-  }
-
-  function deleteCategory(i) {
-    currentData.menu.extraCategories.splice(i, 1);
-    renderExtraCategoryTabs(currentData.menu.extraCategories);
-    saveData(currentData);
-    showToast('カテゴリを削除しました。', 'success');
-    const drinksTab = document.querySelector('.menu-tab-admin:first-child');
-    if (drinksTab) switchMenuTab(drinksTab, 'drinks');
-  }
-
-  function renderExtraMenuItems(catIndex, items) {
-    const container = document.getElementById(`menu-items-extra-${catIndex}`);
-    if (!container) return;
-    container.innerHTML = '';
-    items.forEach((item, j) => container.appendChild(buildExtraMenuItemCard(catIndex, j, item)));
-  }
-
-  function buildExtraMenuItemCard(catIndex, j, item) {
-    const imgId = `menu-extra-${catIndex}-${j}-image`;
-    const prevId = `menu-preview-extra-${catIndex}-${j}`;
-    const isData = item.image && item.image.startsWith('data:');
-    if (isData) fileUploads[imgId] = item.image;
-    const urlVal = isData ? '' : escHtml(item.image);
-    const card = document.createElement('div');
-    card.className = 'menu-item-card';
-    card.id = `menu-card-extra-${catIndex}-${j}`;
-    card.innerHTML = `
-      <div class="menu-item-header">
-        <span class="menu-item-num">Item ${j + 1}</span>
-        <button class="btn-delete" onclick="deleteMenuItemExtra(${catIndex},${j})">削除</button>
-      </div>
-      <div class="form-grid">
-        <div class="form-group">
-          <label>商品名</label>
-          <input type="text" id="menu-extra-${catIndex}-${j}-name" value="${escHtml(item.name)}" />
-        </div>
-        <div class="form-group">
-          <label>価格</label>
-          <input type="text" id="menu-extra-${catIndex}-${j}-price" value="${escHtml(item.price)}" placeholder="¥000" />
-        </div>
-        <div class="form-group form-full">
-          <label>説明文</label>
-          <textarea id="menu-extra-${catIndex}-${j}-desc" class="short">${escHtml(item.desc)}</textarea>
-        </div>
-        <div class="form-group form-full">
-          <label>画像</label>
-          <label class="btn-file-upload" for="menu-extra-${catIndex}-${j}-file">
-            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            写真を追加
-          </label>
-          <input type="file" id="menu-extra-${catIndex}-${j}-file" accept="image/*" style="display:none"
-                 onchange="handleFileUpload(this,'${imgId}','${prevId}')" />
-        </div>
-        <div class="img-preview-wrap form-full">
-          <img class="img-preview" id="${prevId}" alt="" />
-        </div>
-      </div>`;
-    if (item.image) {
-      const prev = card.querySelector('#' + prevId);
-      if (prev) { prev.src = item.image; prev.classList.add('loaded'); }
-    }
-    return card;
-  }
-
-  function addMenuItemExtra(catIndex) {
-    syncExtraCat(catIndex);
-    if (!currentData.menu.extraCategories[catIndex].items) currentData.menu.extraCategories[catIndex].items = [];
-    currentData.menu.extraCategories[catIndex].items.push({ name: '新しいメニュー', desc: '説明を入力してください。', price: '¥000', image: '' });
-    renderExtraMenuItems(catIndex, currentData.menu.extraCategories[catIndex].items);
-    scrollToLast(`menu-items-extra-${catIndex}`);
-  }
-
-  function deleteMenuItemExtra(catIndex, j) {
-    syncExtraCat(catIndex);
-    currentData.menu.extraCategories[catIndex].items.splice(j, 1);
-    renderExtraMenuItems(catIndex, currentData.menu.extraCategories[catIndex].items);
-    saveData(currentData);
-    showToast('削除しました。', 'success');
   }
 
   // ===== FAQ ITEMS =====
@@ -1730,24 +1676,14 @@
       text:  v(`concept-text-${i}`,  '')
     }));
 
-    // Menu (固定3カテゴリ)
-    ['drinks','food','sweets'].forEach(cat => {
-      data.menu[cat] = data.menu[cat].map((item, i) => ({
-        name: v(`menu-${cat}-${i}-name`, item.name),
-        price: v(`menu-${cat}-${i}-price`, item.price),
-        desc: v(`menu-${cat}-${i}-desc`, item.desc),
-        image: getImgValue(`menu-${cat}-${i}-image`, item.image)
-      }));
-    });
-
-    // Menu (追加カテゴリ)
-    data.menu.extraCategories = (currentData.menu.extraCategories || []).map((cat, i) => ({
+    // Menu
+    data.menu.categories = (currentData.menu.categories || []).map((cat, i) => ({
       label: cat.label,
       items: cat.items.map((item, j) => ({
-        name:  v(`menu-extra-${i}-${j}-name`,  item.name),
-        price: v(`menu-extra-${i}-${j}-price`, item.price),
-        desc:  v(`menu-extra-${i}-${j}-desc`,  item.desc),
-        image: getImgValue(`menu-extra-${i}-${j}-image`, item.image)
+        name:  v(`menu-cat-${i}-${j}-name`,  item.name),
+        price: v(`menu-cat-${i}-${j}-price`, item.price),
+        desc:  v(`menu-cat-${i}-${j}-desc`,  item.desc),
+        image: getImgValue(`menu-cat-${i}-${j}-image`, item.image)
       }))
     }));
 
@@ -1813,14 +1749,6 @@
     currentData = JSON.parse(JSON.stringify(DEFAULT_DATA));
     populateForms(currentData);
     showToast('初期設定に戻しました。', 'success');
-  }
-
-  // ===== MENU TAB SWITCH =====
-  function switchMenuTab(btn, cat) {
-    document.querySelectorAll('.menu-tab-admin').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.menu-panel-admin').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('admin-tab-' + cat).classList.add('active');
   }
 
   // ===== TOAST =====
