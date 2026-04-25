@@ -6,6 +6,8 @@
   <title>管理画面 | 坂の上珈琲</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Playfair+Display:ital@0;1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -611,6 +613,12 @@
     }
     .gallery-admin-footer input { flex: 1; font-size: 12px; padding: 5px 8px; }
 
+    /* ===== MAP PICKER ===== */
+    #admin-map-picker { height: 280px; border-radius: 8px; border: 1.5px solid var(--border); }
+    .map-search-row { display: flex; gap: 8px; margin-bottom: 10px; }
+    .map-search-row input { flex: 1; }
+    .map-search-row .btn { white-space: nowrap; padding: 9px 14px; flex-shrink: 0; }
+
     /* ===== SIDEBAR OVERLAY (mobile) ===== */
     .sidebar-overlay {
       display: none;
@@ -831,9 +839,15 @@
           <input type="text" id="shop-tel" placeholder="095-000-0000" />
         </div>
         <div class="form-group form-full">
-          <label>Googleマップ埋め込みURL（任意）</label>
-          <input type="text" id="map-customUrl" placeholder="https://www.google.com/maps/embed?pb=..." />
-          <span class="form-hint">Googleマップで場所を開き「共有」→「地図を埋め込む」→「HTMLをコピー」で取得したコードをそのまま貼り付けてください（&lt;iframe&gt;タグごとでもURLだけでもOK）。空欄の場合は住所から自動表示されます。</span>
+          <label>Googleマップのピン位置</label>
+          <div class="map-search-row">
+            <input type="text" id="map-search-input" placeholder="場所名・住所で検索（例：長崎大学 文教キャンパス）" />
+            <button class="btn btn-save" onclick="searchAdminMap()">検索</button>
+            <button class="btn btn-reset" onclick="useShopAddress()">住所から</button>
+          </div>
+          <div id="admin-map-picker"></div>
+          <span class="form-hint">地図をクリックするか、ピンをドラッグして位置を調整してください。公開ページのマップに反映されます。</span>
+          <input type="hidden" id="map-customUrl" />
         </div>
       </div>
     </div>
@@ -1209,6 +1223,7 @@
       document.getElementById('topbar-title').textContent = SECTION_TITLES[target];
       currentSection = target;
       if (target === 'members') loadWhitelist();
+      if (target === 'basic') setTimeout(() => { if (adminMap) adminMap.invalidateSize(); else initAdminMapPicker(); }, 100);
     });
   });
 
@@ -1766,10 +1781,7 @@
 
     // Map
     if (!data.map) data.map = {};
-    let mapRaw = v('map-customUrl', '').trim();
-    const iframeSrc = mapRaw.match(/src="([^"]+)"/);
-    if (iframeSrc) mapRaw = iframeSrc[1];
-    data.map.customUrl = mapRaw;
+    data.map.customUrl = v('map-customUrl', '');
 
     // Chat
     data.chat.welcome = document.getElementById('chat-welcome').value;
@@ -1847,6 +1859,81 @@
   // ===== UTILS =====
   function escHtml(str) {
     return String(str || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // ===== ADMIN MAP PICKER =====
+  let adminMap = null, adminMarker = null;
+
+  function initAdminMapPicker() {
+    if (adminMap) { setTimeout(() => adminMap.invalidateSize(), 50); return; }
+    const savedUrl = currentData.map && currentData.map.customUrl ? currentData.map.customUrl : '';
+    const coordMatch = savedUrl.match(/q=([-\d.]+),([-\d.]+)/);
+    const defLat = 32.7481, defLng = 129.8772;
+    const lat = coordMatch ? parseFloat(coordMatch[1]) : defLat;
+    const lng = coordMatch ? parseFloat(coordMatch[2]) : defLng;
+
+    adminMap = L.map('admin-map-picker').setView([lat, lng], 16);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>'
+    }).addTo(adminMap);
+
+    adminMarker = L.marker([lat, lng], { draggable: true }).addTo(adminMap);
+
+    if (coordMatch) {
+      setMapUrl(lat, lng);
+    } else {
+      geocodeAddress();
+    }
+
+    adminMap.on('click', e => {
+      adminMarker.setLatLng(e.latlng);
+      setMapUrl(e.latlng.lat, e.latlng.lng);
+    });
+
+    adminMarker.on('dragend', () => {
+      const pos = adminMarker.getLatLng();
+      setMapUrl(pos.lat, pos.lng);
+    });
+  }
+
+  function setMapUrl(lat, lng) {
+    document.getElementById('map-customUrl').value =
+      `https://maps.google.com/maps?q=${lat.toFixed(6)},${lng.toFixed(6)}&z=16&output=embed`;
+  }
+
+  async function geocodeAndMove(query) {
+    try {
+      const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`, {
+        headers: { 'Accept-Language': 'ja,en' }
+      });
+      const data = await r.json();
+      if (data.length > 0) {
+        const lat = parseFloat(data[0].lat), lng = parseFloat(data[0].lon);
+        adminMap.setView([lat, lng], 16);
+        adminMarker.setLatLng([lat, lng]);
+        setMapUrl(lat, lng);
+        return true;
+      }
+      return false;
+    } catch { return false; }
+  }
+
+  async function searchAdminMap() {
+    const q = document.getElementById('map-search-input').value.trim();
+    if (!q) return;
+    if (!await geocodeAndMove(q)) showToast('場所が見つかりませんでした。', 'error');
+  }
+
+  async function useShopAddress() {
+    const addr = document.getElementById('shop-address').value.trim().replace(/\n/g, ' ');
+    if (!addr) return;
+    document.getElementById('map-search-input').value = addr;
+    if (!await geocodeAndMove(addr)) showToast('住所の検索に失敗しました。', 'error');
+  }
+
+  async function geocodeAddress() {
+    const addr = v('shop-address', '').trim().replace(/\n/g, ' ') || '長崎大学 文教キャンパス';
+    await geocodeAndMove(addr);
   }
 
   // ===== FIREBASE AUTH =====
@@ -1948,6 +2035,7 @@
 
   // ===== INIT =====
   populateForms(currentData);
+  setTimeout(initAdminMapPicker, 400);
 
   // Keyboard shortcut: Cmd+S / Ctrl+S to save
   document.addEventListener('keydown', e => {
