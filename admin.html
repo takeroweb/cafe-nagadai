@@ -1950,10 +1950,12 @@
   const auth = firebase.auth();
   const db = firebase.firestore();
 
+  let currentUser = null;
   auth.onAuthStateChanged(user => {
     if (!user) {
       window.location.replace('login.html');
     } else {
+      currentUser = user;
       document.getElementById('auth-gate').style.display = 'none';
     }
   });
@@ -1987,7 +1989,7 @@
   function showCurrentUser() {
     const container = document.getElementById('current-user-info');
     if (!container) return;
-    const user = auth.currentUser;
+    const user = currentUser || auth.currentUser;
     if (!user) { container.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">取得中...</p>'; return; }
     container.innerHTML = `
       <div style="display:flex;align-items:center;gap:14px;padding:8px 0;">
@@ -2016,7 +2018,7 @@
       snapshot.forEach(doc => {
         const div = document.createElement('div');
         div.style.cssText = 'display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);gap:12px;';
-        div.innerHTML = `<span style="flex:1;font-size:14px;">${escHtml(doc.id)}</span><button class="btn-delete" onclick="removeFromWhitelist('${escHtml(doc.id)}')">削除</button>`;
+        div.innerHTML = `<span style="font-size:14px;">${escHtml(doc.id)}</span>`;
         container.appendChild(div);
       });
     } catch(e) {
