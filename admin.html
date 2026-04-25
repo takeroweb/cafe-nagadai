@@ -832,8 +832,8 @@
         </div>
         <div class="form-group form-full">
           <label>Googleマップ埋め込みURL（任意）</label>
-          <input type="url" id="map-customUrl" placeholder="https://www.google.com/maps/embed?pb=..." />
-          <span class="form-hint">住所からマップが自動表示されます。ピンの位置が合わない場合は、Googleマップで場所を開き「共有」→「地図を埋め込む」→「HTMLをコピー」でsrc="..."の中のURLを貼り付けてください。</span>
+          <input type="text" id="map-customUrl" placeholder="https://www.google.com/maps/embed?pb=..." />
+          <span class="form-hint">Googleマップで場所を開き「共有」→「地図を埋め込む」→「HTMLをコピー」で取得したコードをそのまま貼り付けてください（&lt;iframe&gt;タグごとでもURLだけでもOK）。空欄の場合は住所から自動表示されます。</span>
         </div>
       </div>
     </div>
@@ -1766,7 +1766,10 @@
 
     // Map
     if (!data.map) data.map = {};
-    data.map.customUrl = v('map-customUrl', '');
+    let mapRaw = v('map-customUrl', '').trim();
+    const iframeSrc = mapRaw.match(/src="([^"]+)"/);
+    if (iframeSrc) mapRaw = iframeSrc[1];
+    data.map.customUrl = mapRaw;
 
     // Chat
     data.chat.welcome = document.getElementById('chat-welcome').value;
