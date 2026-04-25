@@ -1528,7 +1528,7 @@
           referrerpolicy="no-referrer-when-downgrade"
           title="坂の上珈琲 地図"
         ></iframe>
-        <p class="map-caption">長崎大学文教キャンパス周辺</p>
+        <p class="map-caption" id="d-map-caption">長崎大学文教キャンパス周辺</p>
       </div>
     </div>
   </div>
@@ -1910,6 +1910,8 @@
         : 'https://maps.google.co.jp/maps?q=' + encodeURIComponent(d.shop.address) + '&output=embed&hl=ja&z=16';
       mapIframe.src = mapSrc;
     }
+    const mapCapEl = document.getElementById('d-map-caption');
+    if (mapCapEl && d.map && d.map.caption) mapCapEl.textContent = d.map.caption;
 
     // Contact lead
     setHtml('d-contact-lead', nl2br(d.contact.lead));

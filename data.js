@@ -72,7 +72,8 @@ const DEFAULT_DATA = {
     { url: 'https://images.unsplash.com/photo-1464983953574-0892a716854b?w=600&q=80', alt: 'テーブル席' }
   ],
   map: {
-    customUrl: ''
+    customUrl: '',
+    caption: '長崎大学文教キャンパス周辺'
   },
   chat: {
     welcome: 'こんにちは！坂の上珈琲へようこそ☕\nご質問があればお気軽にどうぞ。\n\n以下のボタンからよくある質問を選べます👇',
