@@ -6,5 +6,5 @@
 
 | ページ | URL |
 |--------|-----|
-| 🌐 公開ページ | https://torin-take.github.io/cafe-nagadai/ |
-| ⚙️ 管理・編集ページ | https://torin-take.github.io/cafe-nagadai/admin.html |
+| 🌐 公開ページ | https://takeroweb.github.io/cafe-nagadai/ |
+| ⚙️ 管理・編集ページ | https://takeroweb.github.io/cafe-nagadai/admin.html |
