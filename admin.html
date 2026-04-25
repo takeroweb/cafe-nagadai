@@ -6,6 +6,9 @@
   <title>管理画面 | 坂の上珈琲</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Playfair+Display:ital@0;1&display=swap" rel="stylesheet" />
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -700,6 +703,9 @@
 </head>
 <body>
 
+<!-- 認証待ちオーバーレイ -->
+<div id="auth-gate" style="position:fixed;inset:0;background:#F4F1EC;z-index:9999;display:flex;align-items:center;justify-content:center;font-family:'Noto Sans JP',sans-serif;font-size:14px;color:#7A6755;">認証確認中...</div>
+
 <!-- モバイルオーバーレイ -->
 <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
 
@@ -740,6 +746,12 @@
     <div class="nav-item" data-target="contact">
       <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.23h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.8a16 16 0 0 0 6.29 6.29l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7a2 2 0 0 1 1.72 2.04z"/></svg>
       お問い合わせ
+    </div>
+
+    <div class="sidebar-section-label" style="margin-top:8px;">システム</div>
+    <div class="nav-item" data-target="members">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      メンバー管理
     </div>
   </nav>
 
@@ -1115,6 +1127,34 @@
     </div>
   </div>
 
+  <!-- メンバー管理 -->
+  <div class="section-panel" id="panel-members">
+    <h2 class="panel-heading">メンバー管理</h2>
+    <p class="panel-subheading">ログインを許可するメールアドレスのホワイトリストを管理します。</p>
+
+    <div class="card">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        メンバーを追加
+      </div>
+      <div style="display:flex;gap:8px;align-items:flex-end;">
+        <div class="form-group" style="flex:1;">
+          <label>メールアドレス</label>
+          <input type="text" id="new-member-email" placeholder="example@email.com" />
+        </div>
+        <button class="btn btn-save" style="white-space:nowrap;flex-shrink:0;" onclick="addToWhitelist()">追加</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        ホワイトリスト
+      </div>
+      <div id="whitelist-items"></div>
+    </div>
+  </div>
+
   <!-- お問い合わせ -->
   <div class="section-panel" id="panel-contact">
     <h2 class="panel-heading">お問い合わせセクション</h2>
@@ -1154,7 +1194,8 @@
     menu: 'メニュー',
     gallery: 'ギャラリー',
     faq: 'チャット FAQ',
-    contact: 'お問い合わせ'
+    contact: 'お問い合わせ',
+    members: 'メンバー管理'
   };
 
   // ===== NAVIGATION =====
@@ -1167,6 +1208,7 @@
       document.getElementById('panel-' + target).classList.add('active');
       document.getElementById('topbar-title').textContent = SECTION_TITLES[target];
       currentSection = target;
+      if (target === 'members') loadWhitelist();
     });
   });
 
@@ -1804,12 +1846,26 @@
     return String(str || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
-  // ===== AUTH CHECK =====
-  (function() {
-    if (!sessionStorage.getItem('sakanoueCafe_session')) {
+  // ===== FIREBASE AUTH =====
+  firebase.initializeApp({
+    apiKey: "AIzaSyDv2glZjdgRkDiCPCQqAMo6fvDinBhbvrE",
+    authDomain: "cafe-nagadai-35631.firebaseapp.com",
+    projectId: "cafe-nagadai-35631",
+    storageBucket: "cafe-nagadai-35631.firebasestorage.app",
+    messagingSenderId: "851628794397",
+    appId: "1:851628794397:web:937940a83d3d5a732bdcf4",
+    measurementId: "G-L2KLZSC1GM"
+  });
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  auth.onAuthStateChanged(user => {
+    if (!user) {
       window.location.replace('login.html');
+    } else {
+      document.getElementById('auth-gate').style.display = 'none';
     }
-  })();
+  });
 
   // ===== SIDEBAR TOGGLE (mobile) =====
   function toggleSidebar() {
@@ -1832,10 +1888,59 @@
   });
 
   // ===== LOGOUT =====
-  function doLogout() {
-    if (!confirm('ログアウトしますか？')) return;
-    sessionStorage.removeItem('sakanoueCafe_session');
-    window.location.href = 'login.html';
+  async function doLogout() {
+    try { await auth.signOut(); } catch(e) {}
+  }
+
+  // ===== WHITELIST MANAGEMENT =====
+  async function loadWhitelist() {
+    const container = document.getElementById('whitelist-items');
+    container.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:12px 0;">読み込み中...</p>';
+    try {
+      const snapshot = await db.collection('whitelist').get();
+      container.innerHTML = '';
+      if (snapshot.empty) {
+        container.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:12px 0;">ホワイトリストが空です。</p>';
+        return;
+      }
+      snapshot.forEach(doc => {
+        const div = document.createElement('div');
+        div.style.cssText = 'display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);gap:12px;';
+        div.innerHTML = `<span style="flex:1;font-size:14px;">${escHtml(doc.id)}</span><button class="btn-delete" onclick="removeFromWhitelist('${escHtml(doc.id)}')">削除</button>`;
+        container.appendChild(div);
+      });
+    } catch(e) {
+      container.innerHTML = '<p style="color:var(--danger);font-size:13px;padding:12px 0;">読み込みに失敗しました。</p>';
+    }
+  }
+
+  async function addToWhitelist() {
+    const email = document.getElementById('new-member-email').value.trim().toLowerCase();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showToast('正しいメールアドレスを入力してください。', 'error');
+      return;
+    }
+    try {
+      await db.collection('whitelist').doc(email).set({
+        addedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        addedBy: auth.currentUser?.email || ''
+      });
+      document.getElementById('new-member-email').value = '';
+      await loadWhitelist();
+      showToast('追加しました。', 'success');
+    } catch(e) {
+      showToast('追加に失敗しました。', 'error');
+    }
+  }
+
+  async function removeFromWhitelist(email) {
+    try {
+      await db.collection('whitelist').doc(email).delete();
+      await loadWhitelist();
+      showToast('削除しました。', 'success');
+    } catch(e) {
+      showToast('削除に失敗しました。', 'error');
+    }
   }
 
   // ===== INIT =====
