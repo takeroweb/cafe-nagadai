@@ -2020,17 +2020,18 @@
   }, { threshold: 0.1 });
 
   // ===== CHAT ENGINE =====
-  const FAQ         = window.__SITE_FAQ__;
-  const FALLBACK    = window.__SITE_FALLBACK__;
-  const WELCOME     = window.__SITE_WELCOME__;
-  const QUICK_LABELS = window.__SITE_QUICK__;
+  // Firestoreデータ到着前のフォールバック（applyDataが上書きする）
+  if (!window.__SITE_FAQ__)     window.__SITE_FAQ__     = DEFAULT_DATA.chat.faq.map(f => ({ keywords: f.keywords.split(',').map(k => k.trim()), answer: f.answer }));
+  if (!window.__SITE_WELCOME__) window.__SITE_WELCOME__ = DEFAULT_DATA.chat.welcome;
+  if (!window.__SITE_FALLBACK__)window.__SITE_FALLBACK__= DEFAULT_DATA.chat.fallback;
+  if (!window.__SITE_QUICK__)   window.__SITE_QUICK__   = DEFAULT_DATA.chat.faq.map(f => f.label);
 
   function getAnswer(text) {
     const lower = text.toLowerCase();
-    for (const faq of FAQ) {
+    for (const faq of (window.__SITE_FAQ__ || [])) {
       if (faq.keywords.some(k => lower.includes(k))) return faq.answer;
     }
-    return FALLBACK;
+    return window.__SITE_FALLBACK__ || '';
   }
 
   function createChat(messagesEl, inputEl, sendBtnEl) {
@@ -2056,7 +2057,7 @@
     function addQuickReplies() {
       const qr = document.createElement('div');
       qr.className = 'chat-quick-replies';
-      QUICK_LABELS.forEach(label => {
+      (window.__SITE_QUICK__ || []).forEach(label => {
         const btn = document.createElement('button');
         btn.className = 'chat-qbtn';
         btn.textContent = label;
@@ -2102,7 +2103,7 @@
     sendBtnEl.addEventListener('click', () => handleMsg(inputEl.value));
     inputEl.addEventListener('keydown', e => { if (e.key === 'Enter') handleMsg(inputEl.value); });
 
-    setTimeout(() => { addMsg(WELCOME, 'bot'); addQuickReplies(); }, 500);
+    setTimeout(() => { addMsg(window.__SITE_WELCOME__ || '', 'bot'); addQuickReplies(); }, 500);
   }
 
   // メインチャット初期化
