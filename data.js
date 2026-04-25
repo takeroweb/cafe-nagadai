@@ -116,6 +116,18 @@ function applyMigration(parsed) {
   return parsed;
 }
 
+// 空配列になってしまった重要フィールドを DEFAULT_DATA で補完する
+function restoreEmptyArrays(data) {
+  if (!data.menu) data.menu = {};
+  if (!data.menu.categories || data.menu.categories.length === 0) {
+    data.menu.categories = JSON.parse(JSON.stringify(DEFAULT_DATA.menu.categories));
+  }
+  if (!data.gallery || data.gallery.length === 0) {
+    data.gallery = JSON.parse(JSON.stringify(DEFAULT_DATA.gallery));
+  }
+  return data;
+}
+
 // Firestore からデータを読み込む（非同期）
 // Firestoreにデータがない場合は localStorage のデータを移行元として使う
 async function loadData(db) {
@@ -123,14 +135,14 @@ async function loadData(db) {
     const snap = await db.collection('config').doc('siteData').get();
     if (snap.exists) {
       const saved = applyMigration(snap.data());
-      return deepMerge(JSON.parse(JSON.stringify(DEFAULT_DATA)), saved);
+      return restoreEmptyArrays(deepMerge(JSON.parse(JSON.stringify(DEFAULT_DATA)), saved));
     }
     // Firestore未保存 → localStorage から移行（初回のみ）
     try {
       const lsRaw = localStorage.getItem('sakanoueCafe');
       if (lsRaw) {
         const parsed = applyMigration(JSON.parse(lsRaw));
-        return deepMerge(JSON.parse(JSON.stringify(DEFAULT_DATA)), parsed);
+        return restoreEmptyArrays(deepMerge(JSON.parse(JSON.stringify(DEFAULT_DATA)), parsed));
       }
     } catch {}
     return JSON.parse(JSON.stringify(DEFAULT_DATA));
@@ -144,6 +156,21 @@ async function loadData(db) {
 // Firestore へデータを保存する（非同期）
 async function saveData(db, data) {
   await db.collection('config').doc('siteData').set(data);
+}
+
+// Firestore をリアルタイム購読 — 誰かが保存するたびに callback が呼ばれる
+function listenData(db, callback) {
+  return db.collection('config').doc('siteData').onSnapshot(snap => {
+    if (snap.exists) {
+      const d = restoreEmptyArrays(deepMerge(JSON.parse(JSON.stringify(DEFAULT_DATA)), applyMigration(snap.data())));
+      callback(d);
+    } else {
+      callback(JSON.parse(JSON.stringify(DEFAULT_DATA)));
+    }
+  }, err => {
+    console.warn('Firestore listen error:', err);
+    callback(JSON.parse(JSON.stringify(DEFAULT_DATA)));
+  });
 }
 
 function deepMerge(target, source) {

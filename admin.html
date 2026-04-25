@@ -1857,6 +1857,11 @@
     if (btn) { btn.disabled = true; btn.textContent = '保存中...'; }
     try {
       currentData = collectData();
+      // メニューカテゴリが空なら保存しない（データ破損を防ぐ）
+      if (!currentData.menu.categories || currentData.menu.categories.length === 0) {
+        showToast('メニューカテゴリが空です。保存できません。', 'error');
+        return;
+      }
       await saveData(db, currentData);
       showToast('保存しました！サイトに反映されています。', 'success');
     } catch(e) {
