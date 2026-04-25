@@ -104,27 +104,46 @@ const DEFAULT_DATA = {
   }
 };
 
-function loadData() {
+function applyMigration(parsed) {
+  // 旧形式（drinks/food/sweets）→ categories に自動移行
+  if (parsed.menu && !parsed.menu.categories) {
+    parsed.menu.categories = [];
+    if (parsed.menu.drinks)          parsed.menu.categories.push({ label: 'ドリンク', items: parsed.menu.drinks });
+    if (parsed.menu.food)            parsed.menu.categories.push({ label: 'フード',   items: parsed.menu.food });
+    if (parsed.menu.sweets)          parsed.menu.categories.push({ label: 'スイーツ', items: parsed.menu.sweets });
+    if (parsed.menu.extraCategories) parsed.menu.categories.push(...parsed.menu.extraCategories);
+  }
+  return parsed;
+}
+
+// Firestore からデータを読み込む（非同期）
+// Firestoreにデータがない場合は localStorage のデータを移行元として使う
+async function loadData(db) {
   try {
-    const saved = localStorage.getItem('sakanoueCafe');
-    if (!saved) return JSON.parse(JSON.stringify(DEFAULT_DATA));
-    const parsed = JSON.parse(saved);
-    // 旧形式（drinks/food/sweets）→ categories に自動移行
-    if (parsed.menu && !parsed.menu.categories) {
-      parsed.menu.categories = [];
-      if (parsed.menu.drinks)           parsed.menu.categories.push({ label: 'ドリンク', items: parsed.menu.drinks });
-      if (parsed.menu.food)             parsed.menu.categories.push({ label: 'フード',   items: parsed.menu.food });
-      if (parsed.menu.sweets)           parsed.menu.categories.push({ label: 'スイーツ', items: parsed.menu.sweets });
-      if (parsed.menu.extraCategories)  parsed.menu.categories.push(...parsed.menu.extraCategories);
+    const snap = await db.collection('config').doc('siteData').get();
+    if (snap.exists) {
+      const saved = applyMigration(snap.data());
+      return deepMerge(JSON.parse(JSON.stringify(DEFAULT_DATA)), saved);
     }
-    return deepMerge(JSON.parse(JSON.stringify(DEFAULT_DATA)), parsed);
+    // Firestore未保存 → localStorage から移行（初回のみ）
+    try {
+      const lsRaw = localStorage.getItem('sakanoueCafe');
+      if (lsRaw) {
+        const parsed = applyMigration(JSON.parse(lsRaw));
+        return deepMerge(JSON.parse(JSON.stringify(DEFAULT_DATA)), parsed);
+      }
+    } catch {}
+    return JSON.parse(JSON.stringify(DEFAULT_DATA));
   } catch(e) {
+    // Firestore接続エラー時は DEFAULT_DATA を返す
+    console.warn('Firestore load error:', e);
     return JSON.parse(JSON.stringify(DEFAULT_DATA));
   }
 }
 
-function saveData(data) {
-  localStorage.setItem('sakanoueCafe', JSON.stringify(data));
+// Firestore へデータを保存する（非同期）
+async function saveData(db, data) {
+  await db.collection('config').doc('siteData').set(data);
 }
 
 function deepMerge(target, source) {

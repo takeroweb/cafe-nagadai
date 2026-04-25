@@ -1734,6 +1734,8 @@
   </div>
 </footer>
 
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="data.js"></script>
 <script>
   // ===== DATA APPLY =====
@@ -1843,8 +1845,7 @@
 
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenuModal(); });
 
-  function applyData() {
-    const d = loadData();
+  function applyData(d) {
 
     // Logo / タイトル
     document.querySelectorAll('.logo-jp').forEach(el => el.textContent = d.shop.name_jp);
@@ -1960,7 +1961,19 @@
     window.__SITE_QUICK__ = d.chat.faq.map(f => f.label);
   }
 
-  applyData();
+  // Firebase 初期化 → Firestore からデータ取得 → ページに反映
+  firebase.initializeApp({
+    apiKey: "AIzaSyDv2glZjdgRkDiCPCQqAMo6fvDinBhbvrE",
+    authDomain: "cafe-nagadai-35631.firebaseapp.com",
+    projectId: "cafe-nagadai-35631",
+    storageBucket: "cafe-nagadai-35631.firebasestorage.app",
+    messagingSenderId: "851628794397",
+    appId: "1:851628794397:web:937940a83d3d5a732bdcf4"
+  });
+  const db = firebase.firestore();
+  loadData(db)
+    .then(applyData)
+    .catch(() => applyData(JSON.parse(JSON.stringify(DEFAULT_DATA))));
 
   // ヘッダースクロール
   const header = document.getElementById('header');

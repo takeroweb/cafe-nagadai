@@ -1156,7 +1156,7 @@
 
 <script src="data.js"></script>
 <script>
-  let currentData = loadData();
+  let currentData = null;
   let currentSection = 'basic';
   const fileUploads = {};
 
@@ -1296,7 +1296,7 @@
     collectConceptsIntoData();
     currentData.concepts.splice(i, 1);
     renderConceptItems(currentData.concepts);
-    saveData(currentData);
+    saveData(db, currentData);
     showToast('削除しました。', 'success');
   }
 
@@ -1444,7 +1444,7 @@
     syncCat(catIndex);
     currentData.menu.categories[catIndex].items.splice(j, 1);
     renderCatItems(catIndex, currentData.menu.categories[catIndex].items);
-    saveData(currentData);
+    saveData(db, currentData);
     showToast('削除しました。', 'success');
   }
 
@@ -1458,7 +1458,7 @@
     currentData.menu.categories.splice(i, 1);
     activeCatIndex = Math.min(activeCatIndex, currentData.menu.categories.length - 1);
     renderAllCategoryTabs(currentData.menu.categories);
-    saveData(currentData);
+    saveData(db, currentData);
     showToast('カテゴリを削除しました。', 'success');
   }
 
@@ -1688,7 +1688,7 @@
   function deleteFaqItem(index) {
     currentData.chat.faq.splice(index, 1);
     renderFaqItems(currentData.chat.faq);
-    saveData(currentData);
+    saveData(db, currentData);
     showToast('削除しました。', 'success');
   }
 
@@ -1760,7 +1760,7 @@
     collectGalleryIntoData();
     currentData.gallery.splice(i, 1);
     renderGalleryItems(currentData.gallery);
-    saveData(currentData);
+    saveData(db, currentData);
     showToast('削除しました。', 'success');
   }
 
@@ -1852,22 +1852,28 @@
   }
 
   // ===== SAVE =====
-  function saveAll() {
+  async function saveAll() {
+    const btn = document.querySelector('.btn-save');
+    if (btn) { btn.disabled = true; btn.textContent = '保存中...'; }
     try {
       currentData = collectData();
-      saveData(currentData);
+      await saveData(db, currentData);
       showToast('保存しました！サイトに反映されています。', 'success');
     } catch(e) {
-      showToast('保存に失敗しました。', 'error');
+      showToast('保存に失敗しました。' + (e.message || ''), 'error');
+    } finally {
+      if (btn) { btn.disabled = false; btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg><span class="btn-label">保存する</span>'; }
     }
   }
 
   // ===== RESET =====
-  function resetData() {
+  async function resetData() {
     if (!confirm('すべての変更を初期設定に戻しますか？\nこの操作は元に戻せません。')) return;
-    localStorage.removeItem('sakanoueCafe');
     currentData = JSON.parse(JSON.stringify(DEFAULT_DATA));
     populateForms(currentData);
+    try {
+      await saveData(db, currentData);
+    } catch(e) {}
     showToast('初期設定に戻しました。', 'success');
   }
 
@@ -1977,13 +1983,17 @@
   const db = firebase.firestore();
 
   let currentUser = null;
-  auth.onAuthStateChanged(user => {
+  auth.onAuthStateChanged(async user => {
     if (!user) {
       window.location.replace('login.html');
     } else {
       currentUser = user;
-      document.getElementById('auth-gate').style.display = 'none';
       showCurrentUser();
+      // Firestore からデータを読み込んでフォームを初期化
+      currentData = await loadData(db);
+      populateForms(currentData);
+      setTimeout(initAdminMapPicker, 400);
+      document.getElementById('auth-gate').style.display = 'none';
     }
   });
 
@@ -2046,10 +2056,6 @@
     `;
   }
 
-
-  // ===== INIT =====
-  populateForms(currentData);
-  setTimeout(initAdminMapPicker, 400);
 
   // Keyboard shortcut: Cmd+S / Ctrl+S to save
   document.addEventListener('keydown', e => {
