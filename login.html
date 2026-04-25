@@ -52,31 +52,10 @@
       background: #FDFAF7; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
     }
     input:focus { border-color: var(--brown-light); box-shadow: 0 0 0 3px rgba(196,149,106,0.12); }
-    .hint { font-size: 11px; color: #aaa; margin-top: 4px; }
-    .pw-bar-wrap { height: 4px; border-radius: 2px; background: var(--border); margin-top: 6px; overflow: hidden; }
-    .pw-bar { height: 100%; border-radius: 2px; width: 0; transition: width 0.3s, background 0.3s; }
-    .pw-bar-label { font-size: 11px; margin-top: 4px; }
-    .btn {
-      width: 100%; padding: 14px; background: var(--brown); color: #fff; border: none;
-      border-radius: 8px; font-size: 15px; font-weight: 500; font-family: 'Noto Sans JP', sans-serif;
-      cursor: pointer; letter-spacing: 0.05em; transition: background 0.2s;
-      display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px;
-    }
-    .btn:hover { background: var(--brown-dark); }
-    .btn:disabled { background: #ccc; cursor: not-allowed; }
-    .spinner { display: none; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.6s linear infinite; }
-    .btn.loading .spinner { display: block; }
-    @keyframes spin { to { transform: rotate(360deg); } }
     .msg { padding: 12px 16px; border-radius: 8px; font-size: 13px; margin-bottom: 20px; display: none; line-height: 1.6; white-space: pre-line; }
     .msg.show { display: block; }
     .msg.error   { background: #fef0f0; color: var(--danger); border: 1px solid #f5c6c6; }
     .msg.success { background: #edfaf3; color: var(--success); border: 1px solid #a8e6c3; }
-    .divider { height: 1px; background: var(--border); margin: 22px 0; }
-    .link-btn { background: none; border: none; color: var(--brown); font-size: 13px; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; text-decoration: underline; padding: 0; }
-    .link-btn:hover { color: var(--brown-dark); }
-    .link-row { text-align: center; margin-top: 18px; font-size: 13px; color: var(--text-muted); }
-    .panel { display: none; }
-    .panel.active { display: block; }
     .footer { text-align: center; margin-top: 24px; font-size: 12px; color: var(--text-muted); }
     .btn-google {
       width: 100%; padding: 13px; background: #fff; color: #3c4043; border: 1.5px solid var(--border);
@@ -87,9 +66,6 @@
     .btn-google:hover { background: #f8f8f8; box-shadow: 0 1px 6px rgba(0,0,0,0.12); }
     .btn-google:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-google svg { width: 20px; height: 20px; flex-shrink: 0; }
-    .or-divider { display: flex; align-items: center; gap: 12px; margin: 16px 0; }
-    .or-divider::before, .or-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-    .or-divider span { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
     @media (max-width: 480px) { .card { padding: 28px 20px; } .card-title { font-size: 18px; } }
   </style>
 </head>
@@ -103,84 +79,13 @@
   </div>
 
   <div class="card">
-
-    <!-- ログイン -->
-    <div class="panel active" id="panel-login">
-      <h2 class="card-title">ログイン</h2>
-      <p class="card-sub">メールアドレスとパスワードを入力してください。</p>
-      <div class="msg" id="login-msg"></div>
-
-      <button class="btn-google" id="btn-google" onclick="doGoogleLogin()">
-        <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-        Googleでログイン
-      </button>
-
-      <div class="or-divider"><span>またはメールでログイン</span></div>
-
-      <div class="form-group">
-        <label>メールアドレス</label>
-        <input type="email" id="login-email" placeholder="example@email.com" autocomplete="email" />
-      </div>
-      <div class="form-group">
-        <label>パスワード</label>
-        <input type="password" id="login-pw" placeholder="パスワードを入力" autocomplete="current-password" />
-      </div>
-      <button class="btn" id="btn-login" onclick="doLogin()">
-        <span class="spinner"></span>ログイン
-      </button>
-      <div class="divider"></div>
-      <div class="link-row">
-        <button class="link-btn" onclick="showPanel('panel-register')">新規登録</button>
-        　|
-        <button class="link-btn" onclick="showPanel('panel-reset')">パスワードを忘れた方</button>
-      </div>
-    </div>
-
-    <!-- 新規登録 -->
-    <div class="panel" id="panel-register">
-      <h2 class="card-title">新規登録</h2>
-      <p class="card-sub">メールアドレスとパスワードを設定してください。<br>※事前にホワイトリストへの追加が必要です。</p>
-      <div class="msg" id="reg-msg"></div>
-      <div class="form-group">
-        <label>メールアドレス</label>
-        <input type="email" id="reg-email" placeholder="example@email.com" autocomplete="email" />
-      </div>
-      <div class="form-group">
-        <label>パスワード</label>
-        <input type="password" id="reg-pw" placeholder="8文字以上" autocomplete="new-password" oninput="checkPwStrength(this.value)" />
-        <div class="pw-bar-wrap"><div class="pw-bar" id="pw-bar"></div></div>
-        <div class="pw-bar-label" id="pw-bar-label"></div>
-        <div class="hint">英字・数字を含む8文字以上を推奨します。</div>
-      </div>
-      <div class="form-group">
-        <label>パスワード（確認）</label>
-        <input type="password" id="reg-pw2" placeholder="もう一度入力" autocomplete="new-password" />
-      </div>
-      <button class="btn" id="btn-register" onclick="doRegister()">
-        <span class="spinner"></span>登録する
-      </button>
-      <div class="link-row">
-        <button class="link-btn" onclick="showPanel('panel-login')">← ログインに戻る</button>
-      </div>
-    </div>
-
-    <!-- パスワードリセット -->
-    <div class="panel" id="panel-reset">
-      <h2 class="card-title">パスワードをリセット</h2>
-      <p class="card-sub">登録済みのメールアドレスを入力してください。<br>パスワード再設定用のリンクを送信します。</p>
-      <div class="msg" id="reset-msg"></div>
-      <div class="form-group">
-        <label>メールアドレス</label>
-        <input type="email" id="reset-email" placeholder="example@email.com" />
-      </div>
-      <button class="btn" id="btn-reset" onclick="doReset()">
-        <span class="spinner"></span>リセットメールを送信
-      </button>
-      <div class="link-row">
-        <button class="link-btn" onclick="showPanel('panel-login')">← ログインに戻る</button>
-      </div>
-    </div>
-
+    <h2 class="card-title">ログイン</h2>
+    <p class="card-sub">管理者アカウントでログインしてください。</p>
+    <div class="msg" id="login-msg"></div>
+    <button class="btn-google" id="btn-google" onclick="doGoogleLogin()">
+      <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      Googleでログイン
+    </button>
   </div>
   <div class="footer">&copy; 2020 坂の上珈琲 — 管理者専用ページ</div>
 </div>
@@ -206,45 +111,10 @@
     if (user) window.location.replace('admin.html');
   });
 
-  // Enterキー対応
-  document.addEventListener('keydown', e => {
-    if (e.key !== 'Enter') return;
-    const active = document.querySelector('.panel.active')?.id;
-    if      (active === 'panel-login')    doLogin();
-    else if (active === 'panel-register') doRegister();
-    else if (active === 'panel-reset')    doReset();
-  });
-
-  function showPanel(id) {
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    document.querySelectorAll('.msg').forEach(m => { m.className = 'msg'; m.textContent = ''; });
-  }
-
   function showMsg(id, text, type) {
     const el = document.getElementById(id);
     el.textContent = text;
     el.className = 'msg show ' + type;
-  }
-
-  function setLoading(btnId, on) {
-    const btn = document.getElementById(btnId);
-    btn.classList.toggle('loading', on);
-    btn.disabled = on;
-  }
-
-  function getAuthError(code) {
-    const map = {
-      'auth/user-not-found':         'メールアドレスまたはパスワードが違います。',
-      'auth/wrong-password':         'メールアドレスまたはパスワードが違います。',
-      'auth/invalid-credential':     'メールアドレスまたはパスワードが違います。',
-      'auth/email-already-in-use':   'このメールアドレスはすでに登録されています。',
-      'auth/weak-password':          'パスワードは6文字以上必要です。',
-      'auth/invalid-email':          '正しいメールアドレスを入力してください。',
-      'auth/too-many-requests':      'ログイン試行が多すぎます。しばらくしてからお試しください。',
-      'auth/network-request-failed': 'ネットワークエラーが発生しました。接続を確認してください。',
-    };
-    return map[code] || 'エラーが発生しました。もう一度お試しください。';
   }
 
   async function isWhitelisted(email) {
@@ -279,89 +149,6 @@
     }
   }
 
-  // ===== ログイン =====
-  async function doLogin() {
-    const email = document.getElementById('login-email').value.trim();
-    const pw    = document.getElementById('login-pw').value;
-    if (!email || !pw) { showMsg('login-msg', 'メールアドレスとパスワードを入力してください。', 'error'); return; }
-    setLoading('btn-login', true);
-    try {
-      if (!await isWhitelisted(email)) {
-        showMsg('login-msg', 'このアカウントはアクセスが許可されていません。\n管理者にお問い合わせください。', 'error');
-        return;
-      }
-      await auth.signInWithEmailAndPassword(email, pw);
-      // onAuthStateChanged がリダイレクト処理
-    } catch (e) {
-      showMsg('login-msg', getAuthError(e.code), 'error');
-    } finally {
-      setLoading('btn-login', false);
-    }
-  }
-
-  // ===== 新規登録 =====
-  async function doRegister() {
-    const email = document.getElementById('reg-email').value.trim();
-    const pw    = document.getElementById('reg-pw').value;
-    const pw2   = document.getElementById('reg-pw2').value;
-    if (!email)         { showMsg('reg-msg', 'メールアドレスを入力してください。', 'error'); return; }
-    if (pw.length < 8)  { showMsg('reg-msg', 'パスワードは8文字以上で入力してください。', 'error'); return; }
-    if (pw !== pw2)     { showMsg('reg-msg', 'パスワードが一致しません。', 'error'); return; }
-    setLoading('btn-register', true);
-    try {
-      if (!await isWhitelisted(email)) {
-        showMsg('reg-msg', 'このメールアドレスは登録が許可されていません。\n管理者にホワイトリストへの追加を依頼してください。', 'error');
-        return;
-      }
-      await auth.createUserWithEmailAndPassword(email, pw);
-      // onAuthStateChanged がリダイレクト処理
-    } catch (e) {
-      showMsg('reg-msg', getAuthError(e.code), 'error');
-    } finally {
-      setLoading('btn-register', false);
-    }
-  }
-
-  // ===== パスワードリセット =====
-  async function doReset() {
-    const email = document.getElementById('reset-email').value.trim();
-    if (!email) { showMsg('reset-msg', 'メールアドレスを入力してください。', 'error'); return; }
-    setLoading('btn-reset', true);
-    try {
-      await auth.sendPasswordResetEmail(email);
-      showMsg('reset-msg', 'パスワードリセットメールを送信しました。\nメールをご確認ください。', 'success');
-    } catch (e) {
-      showMsg('reset-msg', getAuthError(e.code), 'error');
-    } finally {
-      setLoading('btn-reset', false);
-    }
-  }
-
-  // ===== パスワード強度 =====
-  function calcStrength(pw) {
-    let s = 0;
-    if (pw.length >= 8)  s++;
-    if (pw.length >= 12) s++;
-    if (/[A-Za-z]/.test(pw)) s++;
-    if (/[0-9]/.test(pw))    s++;
-    if (/[^A-Za-z0-9]/.test(pw)) s++;
-    return s;
-  }
-  function checkPwStrength(pw) {
-    const levels = [
-      {w:'0%',   bg:'transparent', t:''},
-      {w:'25%',  bg:'#e74c3c',     t:'弱い'},
-      {w:'50%',  bg:'#e67e22',     t:'やや弱い'},
-      {w:'75%',  bg:'#f1c40f',     t:'まあまあ'},
-      {w:'90%',  bg:'#27ae60',     t:'強い'},
-      {w:'100%', bg:'#2ecc71',     t:'とても強い'},
-    ];
-    const lv  = levels[Math.min(calcStrength(pw), 5)];
-    const bar = document.getElementById('pw-bar');
-    const lbl = document.getElementById('pw-bar-label');
-    bar.style.width = lv.w; bar.style.background = lv.bg;
-    lbl.textContent = lv.t; lbl.style.color = lv.bg;
-  }
 </script>
 </body>
 </html>
