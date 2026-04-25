@@ -1465,31 +1465,51 @@
   // ===== TAB DRAG (長押し → ゴーストで自由移動) =====
   let dragState = null;
   let dragActivated = false;
+  let isPressing = false;
+
+  // 長押し中・ドラッグ中はタブコンテナの横スクロールを止める
+  document.getElementById('admin-menu-tabs').addEventListener('touchmove', e => {
+    if (isPressing || dragState) e.preventDefault();
+  }, { passive: false });
 
   function attachTabDrag(tab, i) {
     let pressTimer = null;
-
-    function getX(e) { return e.touches ? e.touches[0].clientX : e.clientX; }
+    let lastX = 0; // 長押し中の最新finger位置を追跡
 
     function onPressStart(e) {
       if (e.target.classList.contains('tab-close')) return;
-      const x = getX(e);
-      pressTimer = setTimeout(() => activateDrag(tab, i, x), 500);
+      lastX = e.touches ? e.touches[0].clientX : e.clientX;
+      isPressing = true;
+      // 500ms後にactivateDrag — lastXはその時点の最新値を使う（クロージャ参照）
+      pressTimer = setTimeout(() => activateDrag(tab, i, lastX), 500);
     }
 
-    function onPressEnd() { clearTimeout(pressTimer); pressTimer = null; }
+    function onPressMove(e) {
+      // 長押し中の指の現在位置を更新（startXとして使うため）
+      lastX = e.touches ? e.touches[0].clientX : e.clientX;
+    }
+
+    function onPressEnd() {
+      isPressing = false;
+      clearTimeout(pressTimer);
+      pressTimer = null;
+    }
 
     tab.addEventListener('mousedown', onPressStart);
     tab.addEventListener('touchstart', onPressStart, { passive: true });
+    tab.addEventListener('mousemove', onPressMove);
+    tab.addEventListener('touchmove', onPressMove, { passive: true });
     tab.addEventListener('mouseup', onPressEnd);
     tab.addEventListener('touchend', onPressEnd);
     tab.addEventListener('contextmenu', e => e.preventDefault());
   }
 
   function activateDrag(tab, catIndex, startX) {
+    isPressing = false;
     dragActivated = true;
     currentData.menu.categories.forEach((_, i) => syncCat(i));
 
+    // ドラッグ開始時点の位置を取得（スクロールが止まった後なので正確）
     const rect = tab.getBoundingClientRect();
     const allTabs = [...document.querySelectorAll('.menu-tab-cat')];
     const tabRects = allTabs.map(t => t.getBoundingClientRect());
@@ -1498,33 +1518,33 @@
     const ghost = document.createElement('div');
     ghost.textContent = currentData.menu.categories[catIndex].label;
     ghost.style.cssText = [
-      `position:fixed`,
+      'position:fixed',
       `left:${rect.left}px`,
       `top:${rect.top}px`,
       `width:${rect.width}px`,
       `height:${rect.height}px`,
-      `display:inline-flex`,
-      `align-items:center`,
-      `justify-content:center`,
-      `font-family:'Noto Sans JP',sans-serif`,
-      `font-size:13px`,
-      `font-weight:600`,
-      `color:var(--brown)`,
-      `background:#fff`,
-      `border-radius:6px 6px 0 0`,
-      `border-bottom:2px solid var(--brown)`,
-      `box-shadow:0 8px 24px rgba(74,47,26,0.28)`,
-      `z-index:9000`,
-      `pointer-events:none`,
-      `transform:scale(1.06)`,
-      `opacity:0.96`,
-      `transition:transform 0.1s ease`
+      'display:inline-flex',
+      'align-items:center',
+      'justify-content:center',
+      "font-family:'Noto Sans JP',sans-serif",
+      'font-size:13px',
+      'font-weight:600',
+      'color:var(--brown)',
+      'background:#fff',
+      'border-radius:6px 6px 0 0',
+      'border-bottom:2px solid var(--brown)',
+      'box-shadow:0 8px 24px rgba(74,47,26,0.28)',
+      'z-index:9000',
+      'pointer-events:none',
+      'transform:scale(1.06)',
+      'opacity:0.96'
     ].join(';');
     document.body.appendChild(ghost);
 
     tab.style.cssText = 'opacity:0.2;transition:opacity 0.15s;';
     document.body.style.userSelect = 'none';
 
+    // startX は長押し中の最新finger位置（ドラッグ開始時点）
     dragState = { catIndex, startX, ghostStartLeft: rect.left, ghost, tab, allTabs, tabRects, targetIndex: catIndex };
   }
 
@@ -1540,10 +1560,10 @@
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const dx = clientX - startX;
 
-    // ゴーストを追従
+    // ゴーストを追従（指の動きにそのまま追従）
     ghost.style.left = (ghostStartLeft + dx) + 'px';
 
-    // ゴースト中心に最も近いタブを targetIndex に
+    // ゴースト中心に最も近い自然位置のタブを targetIndex に
     const ghostCenterX = ghostStartLeft + dx + ghost.offsetWidth / 2;
     let targetIndex = catIndex;
     let minDist = Infinity;
@@ -1553,7 +1573,7 @@
     });
     dragState.targetIndex = targetIndex;
 
-    // 他タブを左右にスライド（挿入位置を視覚的に表現）
+    // 他タブを左右にスライドして挿入位置を表示
     const ghostWidth = tabRects[catIndex].width;
     allTabs.forEach((t, i) => {
       if (t === tab) { t.style.transform = ''; return; }
@@ -1567,6 +1587,7 @@
 
   function endTabDrag() {
     if (!dragState) return;
+    isPressing = false;
     const { catIndex, targetIndex, ghost, tab, allTabs } = dragState;
 
     ghost.remove();
