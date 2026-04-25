@@ -1148,26 +1148,20 @@
   <!-- メンバー管理 -->
   <div class="section-panel" id="panel-members">
     <h2 class="panel-heading">メンバー管理</h2>
-    <p class="panel-subheading">ログインを許可するメールアドレスのホワイトリストを管理します。</p>
+    <p class="panel-subheading">現在のログイン状況とアクセス許可メンバーの確認。</p>
 
     <div class="card">
       <div class="card-title">
-        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-        メンバーを追加
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        現在のログインユーザー
       </div>
-      <div style="display:flex;gap:8px;align-items:flex-end;">
-        <div class="form-group" style="flex:1;">
-          <label>メールアドレス</label>
-          <input type="text" id="new-member-email" placeholder="example@email.com" />
-        </div>
-        <button class="btn btn-save" style="white-space:nowrap;flex-shrink:0;" onclick="addToWhitelist()">追加</button>
-      </div>
+      <div id="current-user-info"></div>
     </div>
 
     <div class="card">
       <div class="card-title">
         <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        ホワイトリスト
+        アクセス許可メンバー
       </div>
       <div id="whitelist-items"></div>
     </div>
@@ -1226,7 +1220,7 @@
       document.getElementById('panel-' + target).classList.add('active');
       document.getElementById('topbar-title').textContent = SECTION_TITLES[target];
       currentSection = target;
-      if (target === 'members') loadWhitelist();
+      if (target === 'members') { showCurrentUser(); loadWhitelist(); }
       if (target === 'basic') setTimeout(() => { if (adminMap) adminMap.invalidateSize(); else initAdminMapPicker(); }, 100);
     });
   });
@@ -1990,6 +1984,25 @@
   }
 
   // ===== WHITELIST MANAGEMENT =====
+  function showCurrentUser() {
+    const container = document.getElementById('current-user-info');
+    if (!container) return;
+    const user = auth.currentUser;
+    if (!user) { container.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">取得中...</p>'; return; }
+    container.innerHTML = `
+      <div style="display:flex;align-items:center;gap:14px;padding:8px 0;">
+        ${user.photoURL
+          ? `<img src="${user.photoURL}" style="width:44px;height:44px;border-radius:50%;border:2px solid var(--border);" />`
+          : `<div style="width:44px;height:44px;border-radius:50%;background:var(--brown-light);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;">👤</div>`}
+        <div>
+          <div style="font-size:15px;font-weight:600;color:var(--text);">${escHtml(user.displayName || 'ユーザー')}</div>
+          <div style="font-size:13px;color:var(--text-muted);margin-top:2px;">${escHtml(user.email)}</div>
+        </div>
+        <span style="margin-left:auto;padding:5px 12px;background:#edfaf3;color:#27AE60;border-radius:20px;font-size:12px;font-weight:500;border:1px solid #a8e6c3;">ログイン中</span>
+      </div>
+    `;
+  }
+
   async function loadWhitelist() {
     const container = document.getElementById('whitelist-items');
     container.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:12px 0;">読み込み中...</p>';
