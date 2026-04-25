@@ -367,14 +367,7 @@
     }
     .menu-tab-cat.active { color: var(--brown); border-bottom-color: var(--brown); font-weight: 500; }
     .menu-tab-cat:hover { color: var(--brown); }
-    .menu-tab-cat.dragging {
-      cursor: grabbing;
-      color: var(--brown);
-      background: rgba(139,94,60,0.08);
-      border-radius: 6px 6px 0 0;
-      box-shadow: 0 2px 10px rgba(74,47,26,0.18);
-      opacity: 0.85;
-    }
+    .menu-tab-cat:active { cursor: grabbing; }
     .tab-close {
       font-size: 13px;
       color: var(--text-muted);
@@ -1469,7 +1462,7 @@
     showToast('カテゴリを削除しました。', 'success');
   }
 
-  // ===== TAB DRAG (長押しで並び替え) =====
+  // ===== TAB DRAG (長押し → ゴーストで自由移動) =====
   let dragState = null;
   let dragActivated = false;
 
@@ -1481,24 +1474,58 @@
     function onPressStart(e) {
       if (e.target.classList.contains('tab-close')) return;
       const x = getX(e);
-      pressTimer = setTimeout(() => {
-        dragActivated = true;
-        dragState = { catIndex: i, startX: x };
-        tab.classList.add('dragging');
-        document.body.style.userSelect = 'none';
-      }, 500);
+      pressTimer = setTimeout(() => activateDrag(tab, i, x), 500);
     }
 
-    function onPressEnd() {
-      clearTimeout(pressTimer);
-      pressTimer = null;
-    }
+    function onPressEnd() { clearTimeout(pressTimer); pressTimer = null; }
 
     tab.addEventListener('mousedown', onPressStart);
     tab.addEventListener('touchstart', onPressStart, { passive: true });
     tab.addEventListener('mouseup', onPressEnd);
     tab.addEventListener('touchend', onPressEnd);
     tab.addEventListener('contextmenu', e => e.preventDefault());
+  }
+
+  function activateDrag(tab, catIndex, startX) {
+    dragActivated = true;
+    currentData.menu.categories.forEach((_, i) => syncCat(i));
+
+    const rect = tab.getBoundingClientRect();
+    const allTabs = [...document.querySelectorAll('.menu-tab-cat')];
+    const tabRects = allTabs.map(t => t.getBoundingClientRect());
+
+    // 追従するゴースト要素を生成
+    const ghost = document.createElement('div');
+    ghost.textContent = currentData.menu.categories[catIndex].label;
+    ghost.style.cssText = [
+      `position:fixed`,
+      `left:${rect.left}px`,
+      `top:${rect.top}px`,
+      `width:${rect.width}px`,
+      `height:${rect.height}px`,
+      `display:inline-flex`,
+      `align-items:center`,
+      `justify-content:center`,
+      `font-family:'Noto Sans JP',sans-serif`,
+      `font-size:13px`,
+      `font-weight:600`,
+      `color:var(--brown)`,
+      `background:#fff`,
+      `border-radius:6px 6px 0 0`,
+      `border-bottom:2px solid var(--brown)`,
+      `box-shadow:0 8px 24px rgba(74,47,26,0.28)`,
+      `z-index:9000`,
+      `pointer-events:none`,
+      `transform:scale(1.06)`,
+      `opacity:0.96`,
+      `transition:transform 0.1s ease`
+    ].join(';');
+    document.body.appendChild(ghost);
+
+    tab.style.cssText = 'opacity:0.2;transition:opacity 0.15s;';
+    document.body.style.userSelect = 'none';
+
+    dragState = { catIndex, startX, ghostStartLeft: rect.left, ghost, tab, allTabs, tabRects, targetIndex: catIndex };
   }
 
   document.addEventListener('mousemove', onTabDragMove);
@@ -1508,38 +1535,53 @@
 
   function onTabDragMove(e) {
     if (!dragState) return;
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const dx = clientX - dragState.startX;
-    const cats = currentData.menu.categories;
-    const ci = dragState.catIndex;
+    const { catIndex, startX, ghostStartLeft, ghost, tab, allTabs, tabRects } = dragState;
 
-    if (dx < -40 && ci > 0) {
-      cats.forEach((_, idx) => syncCat(idx));
-      [cats[ci - 1], cats[ci]] = [cats[ci], cats[ci - 1]];
-      if (activeCatIndex === ci) activeCatIndex = ci - 1;
-      else if (activeCatIndex === ci - 1) activeCatIndex = ci;
-      dragState.catIndex--;
-      dragState.startX = clientX;
-      renderAllCategoryTabs(cats);
-      const moved = document.querySelector(`.menu-tab-cat[data-cat-index="${dragState.catIndex}"]`);
-      if (moved) moved.classList.add('dragging');
-    } else if (dx > 40 && ci < cats.length - 1) {
-      cats.forEach((_, idx) => syncCat(idx));
-      [cats[ci], cats[ci + 1]] = [cats[ci + 1], cats[ci]];
-      if (activeCatIndex === ci) activeCatIndex = ci + 1;
-      else if (activeCatIndex === ci + 1) activeCatIndex = ci;
-      dragState.catIndex++;
-      dragState.startX = clientX;
-      renderAllCategoryTabs(cats);
-      const moved = document.querySelector(`.menu-tab-cat[data-cat-index="${dragState.catIndex}"]`);
-      if (moved) moved.classList.add('dragging');
-    }
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const dx = clientX - startX;
+
+    // ゴーストを追従
+    ghost.style.left = (ghostStartLeft + dx) + 'px';
+
+    // ゴースト中心に最も近いタブを targetIndex に
+    const ghostCenterX = ghostStartLeft + dx + ghost.offsetWidth / 2;
+    let targetIndex = catIndex;
+    let minDist = Infinity;
+    tabRects.forEach((r, i) => {
+      const dist = Math.abs(ghostCenterX - (r.left + r.width / 2));
+      if (dist < minDist) { minDist = dist; targetIndex = i; }
+    });
+    dragState.targetIndex = targetIndex;
+
+    // 他タブを左右にスライド（挿入位置を視覚的に表現）
+    const ghostWidth = tabRects[catIndex].width;
+    allTabs.forEach((t, i) => {
+      if (t === tab) { t.style.transform = ''; return; }
+      let shift = 0;
+      if (targetIndex < catIndex && i >= targetIndex && i < catIndex) shift = ghostWidth;
+      else if (targetIndex > catIndex && i > catIndex && i <= targetIndex) shift = -ghostWidth;
+      t.style.transition = 'transform 0.18s cubic-bezier(0.25,0.46,0.45,0.94)';
+      t.style.transform = shift ? `translateX(${shift}px)` : '';
+    });
   }
 
   function endTabDrag() {
     if (!dragState) return;
-    const tab = document.querySelector(`.menu-tab-cat[data-cat-index="${dragState.catIndex}"]`);
-    if (tab) tab.classList.remove('dragging');
+    const { catIndex, targetIndex, ghost, tab, allTabs } = dragState;
+
+    ghost.remove();
+    tab.style.cssText = '';
+    allTabs.forEach(t => { t.style.transform = ''; t.style.transition = ''; });
+
+    if (targetIndex !== catIndex) {
+      const cats = currentData.menu.categories;
+      const prevActive = cats[activeCatIndex];
+      const [moved] = cats.splice(catIndex, 1);
+      cats.splice(targetIndex, 0, moved);
+      activeCatIndex = Math.max(0, cats.indexOf(prevActive));
+      renderAllCategoryTabs(cats);
+    }
+
     document.body.style.userSelect = '';
     dragState = null;
     setTimeout(() => { dragActivated = false; }, 50);
