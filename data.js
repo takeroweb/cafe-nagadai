@@ -13,6 +13,7 @@ const DEFAULT_DATA = {
     closed: '日祝',
     access: '長崎電気軌道「長大前」電停より徒歩1分\n長崎バス「文教町」停留所より徒歩2分',
     parking_note: '※駐車場はございません。公共交通機関をご利用ください。',
+    reservation_url: '',
     line: '',
     line_visible: false,
     instagram: '@sakanouecoffee',

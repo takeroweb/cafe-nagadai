@@ -115,6 +115,17 @@
     .nav-cta::after { display: none !important; }
     .nav-cta:hover { background: var(--brown-dark) !important; color: var(--white) !important; }
 
+    .nav-reserve {
+      background: var(--green);
+      color: var(--white) !important;
+      padding: 9px 22px;
+      border-radius: 2px;
+      font-size: 12px !important;
+      letter-spacing: 0.15em;
+    }
+    .nav-reserve::after { display: none !important; }
+    .nav-reserve:hover { background: var(--green-light) !important; color: var(--white) !important; }
+
     /* ===== HERO ===== */
     #hero {
       height: 100vh;
@@ -1345,6 +1356,7 @@
   </div>
   <nav id="nav">
     <a href="#about">コンセプト</a>
+    <a id="d-nav-reserve" href="#" target="_blank" rel="noopener" class="nav-reserve" style="display:none;">予約</a>
     <a href="#menu">メニュー</a>
     <a href="#gallery">ギャラリー</a>
     <a href="#access">アクセス</a>
@@ -1838,6 +1850,14 @@
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenuModal(); });
 
   function applyData(d) {
+
+    // 予約ボタン
+    const navReserve = document.getElementById('d-nav-reserve');
+    if (navReserve) {
+      const resUrl = d.shop.reservation_url || '';
+      navReserve.href = resUrl;
+      navReserve.style.display = resUrl ? '' : 'none';
+    }
 
     // Logo / タイトル
     document.querySelectorAll('.logo-jp').forEach(el => el.textContent = d.shop.name_jp);
