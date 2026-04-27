@@ -11,6 +11,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -561,6 +562,7 @@
     .toast.show { transform: translateY(0); opacity: 1; }
     .toast.success { border-left: 4px solid var(--success); }
     .toast.error { border-left: 4px solid var(--danger); }
+    .toast.info { border-left: 4px solid var(--brown-light); }
     .toast svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; flex-shrink: 0; }
 
     /* ===== BADGE ===== */
@@ -1262,17 +1264,25 @@
     }
   }
 
-  function handleFileUpload(input, urlFieldId, previewId) {
+  async function handleFileUpload(input, urlFieldId, previewId) {
     const file = input.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = e => {
-      fileUploads[urlFieldId] = e.target.result;
-      const preview = document.getElementById(previewId);
-      if (preview) { preview.src = e.target.result; preview.classList.add('loaded'); }
-    };
-    reader.readAsDataURL(file);
     input.value = '';
+    const preview = document.getElementById(previewId);
+    if (preview) { preview.style.opacity = '0.4'; }
+    showToast('画像をアップロード中...', 'info');
+    try {
+      const path = `images/${urlFieldId}_${Date.now()}_${file.name}`;
+      const ref = storage.ref(path);
+      await ref.put(file);
+      const url = await ref.getDownloadURL();
+      fileUploads[urlFieldId] = url;
+      if (preview) { preview.src = url; preview.style.opacity = '1'; preview.classList.add('loaded'); }
+      showToast('画像のアップロード完了！', 'success');
+    } catch(e) {
+      if (preview) { preview.style.opacity = '1'; }
+      showToast('アップロード失敗: ' + (e.message || ''), 'error');
+    }
   }
 
   // ===== POPULATE FORMS =====
@@ -1801,17 +1811,25 @@
   }
 
 
-  function handleGalleryFileUpload(input, i) {
+  async function handleGalleryFileUpload(input, i) {
     const file = input.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = e => {
-      fileUploads[`gallery-${i}-url`] = e.target.result;
-      const thumb = document.querySelector(`#gallery-item-${i} .gallery-admin-thumb`);
-      if (thumb) thumb.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
     input.value = '';
+    const thumb = document.querySelector(`#gallery-item-${i} .gallery-admin-thumb`);
+    if (thumb) { thumb.style.opacity = '0.4'; }
+    showToast('画像をアップロード中...', 'info');
+    try {
+      const path = `images/gallery_${i}_${Date.now()}_${file.name}`;
+      const ref = storage.ref(path);
+      await ref.put(file);
+      const url = await ref.getDownloadURL();
+      fileUploads[`gallery-${i}-url`] = url;
+      if (thumb) { thumb.src = url; thumb.style.opacity = '1'; }
+      showToast('画像のアップロード完了！', 'success');
+    } catch(e) {
+      if (thumb) { thumb.style.opacity = '1'; }
+      showToast('アップロード失敗: ' + (e.message || ''), 'error');
+    }
   }
 
   function collectGalleryIntoData() {
@@ -1970,6 +1988,7 @@
     document.getElementById('toast-msg').textContent = msg;
     toast.className = 'toast ' + type;
     if (type === 'success') icon.innerHTML = '<polyline points="20 6 9 17 4 12"/>';
+    else if (type === 'info') icon.innerHTML = '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>';
     else icon.innerHTML = '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>';
     toast.classList.add('show');
     setTimeout(() => toast.classList.remove('show'), 3000);
@@ -2067,6 +2086,7 @@
   });
   const auth = firebase.auth();
   const db = firebase.firestore();
+  const storage = firebase.storage();
 
   let currentUser = null;
   let isSaving = false;
