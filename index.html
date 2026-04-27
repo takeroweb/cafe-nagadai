@@ -194,6 +194,25 @@
       flex-wrap: wrap;
     }
 
+    .hero-sns {
+      display: flex;
+      gap: 14px;
+      margin-top: 28px;
+      flex-wrap: wrap;
+    }
+    .hero-sns a {
+      width: 40px; height: 40px;
+      border: 1px solid rgba(255,255,255,0.45);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      transition: background 0.25s, border-color 0.25s;
+    }
+    .hero-sns a:hover { background: rgba(255,255,255,0.18); border-color: #fff; }
+    .hero-sns svg { width: 17px; height: 17px; stroke: #fff; fill: none; stroke-width: 1.6; }
+
     .btn {
       display: inline-block;
       padding: 14px 36px;
@@ -1384,6 +1403,7 @@
       <a href="#menu" class="btn btn-primary">メニューを見る</a>
       <a href="#access" class="btn btn-outline">アクセス</a>
     </div>
+    <div class="hero-sns" id="d-hero-sns"></div>
   </div>
   <div class="hero-scroll">
     <div class="hero-scroll-line"></div>
@@ -1981,6 +2001,15 @@
     const footerSns = document.getElementById('d-footer-sns');
     if (footerSns) {
       footerSns.innerHTML = SNS_PLATFORMS
+        .filter(p => d.shop[`${p.key}_visible`] !== false && d.shop[p.key])
+        .map(p => `<a href="${p.urlFn(d.shop[p.key])}" target="_blank" rel="noopener" aria-label="${p.label}">
+          <svg viewBox="0 0 24 24" stroke-width="1.5">${SNS_ICONS[p.key]}</svg>
+        </a>`).join('');
+    }
+
+    const heroSns = document.getElementById('d-hero-sns');
+    if (heroSns) {
+      heroSns.innerHTML = SNS_PLATFORMS
         .filter(p => d.shop[`${p.key}_visible`] !== false && d.shop[p.key])
         .map(p => `<a href="${p.urlFn(d.shop[p.key])}" target="_blank" rel="noopener" aria-label="${p.label}">
           <svg viewBox="0 0 24 24" stroke-width="1.5">${SNS_ICONS[p.key]}</svg>
