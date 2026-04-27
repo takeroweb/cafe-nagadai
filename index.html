@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>坂の上珈琲 | 長崎大学前カフェ</title>
+  <script type="application/ld+json" id="ld-json"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600;700&family=Noto+Sans+JP:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
@@ -2071,6 +2072,39 @@
     window.__SITE_WELCOME__ = d.chat.welcome;
     window.__SITE_FALLBACK__ = d.chat.fallback;
     window.__SITE_QUICK__ = d.chat.faq.map(f => f.label);
+
+    // 構造化データ（JSON-LD）
+    const s = d.shop;
+    const parseHours = str => {
+      const m = str.match(/(\d+):(\d+)[^\d]+(\d+):(\d+)/);
+      return m ? { opens: `${m[1].padStart(2,'0')}:${m[2]}`, closes: `${m[3].padStart(2,'0')}:${m[4]}` } : null;
+    };
+    const wdHours  = parseHours(s.hours_weekday);
+    const satHours = parseHours(s.hours_saturday);
+    const openingHours = [];
+    if (wdHours)  openingHours.push({ "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"], ...wdHours });
+    if (satHours) openingHours.push({ "@type": "OpeningHoursSpecification", "dayOfWeek": ["Saturday"], ...satHours });
+    const ldJson = {
+      "@context": "https://schema.org",
+      "@type": "CafeOrCoffeeShop",
+      "name": s.name_jp,
+      "alternateName": s.name_en,
+      "url": "https://torin-take.github.io/cafe-nagadai/",
+      "telephone": s.tel,
+      "address": {
+        "@type": "PostalAddress",
+        "postalCode": "852-8521",
+        "addressRegion": "長崎県",
+        "addressLocality": "長崎市",
+        "streetAddress": "文教町1-14",
+        "addressCountry": "JP"
+      },
+      "openingHoursSpecification": openingHours,
+      "servesCuisine": ["コーヒー", "スイーツ", "軽食"],
+      "priceRange": "¥"
+    };
+    const ldEl = document.getElementById('ld-json');
+    if (ldEl) ldEl.textContent = JSON.stringify(ldJson);
   }
 
   // Firebase 初期化 → Firestore をリアルタイム購読 → 変更のたびにページ反映
