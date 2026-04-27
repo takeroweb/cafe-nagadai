@@ -1728,7 +1728,17 @@
     </div>
     <div class="footer-bottom">
       <p class="footer-copy">© 2024 坂の上珈琲 All rights reserved.</p>
-      <div id="d-footer-sns-links"></div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end;">
+        <div class="footer-sns">
+          <a id="d-footer-ig-link" href="#" target="_blank" rel="noopener" aria-label="Instagram" style="display:none;">
+            <svg viewBox="0 0 24 24" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+          <a id="d-footer-tw-link" href="#" target="_blank" rel="noopener" aria-label="Twitter/X" style="display:none;">
+            <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
+          </a>
+        </div>
+        <div id="d-footer-sns-links"></div>
+      </div>
     </div>
   </div>
 </footer>
@@ -1889,9 +1899,14 @@
       `<span class="badge badge-closed">${d.shop.closed}</span> 定休日`
     );
     setHtml('d-info-access', nl2br(d.shop.access) + `<br /><span class="info-note">${d.shop.parking_note}</span>`);
-    const snsLinksHtml = (d.shop.sns_links || []).filter(l => l.label && l.url)
-      .map(l => `<a href="${l.url}" target="_blank" rel="noopener" style="color:inherit;">${l.label}</a>`).join('<br />');
-    setHtml('d-info-sns', snsLinksHtml || `Instagram: <strong>${d.shop.instagram}</strong>`);
+    // アクセス欄 SNS 表示（表示フラグ+追加リンク）
+    const infoSnsLines = [];
+    if (d.shop.instagram_visible !== false && d.shop.instagram) infoSnsLines.push(`Instagram: <strong>${d.shop.instagram}</strong>`);
+    if (d.shop.twitter_visible  !== false && d.shop.twitter)   infoSnsLines.push(`Twitter/X: <strong>${d.shop.twitter}</strong>`);
+    (d.shop.sns_links || []).filter(l => l.label && l.url).forEach(l =>
+      infoSnsLines.push(`<a href="${l.url}" target="_blank" rel="noopener" style="color:inherit;">${l.label}</a>`)
+    );
+    setHtml('d-info-sns', infoSnsLines.join('<br />'));
 
     // Gallery
     const galleryGrid = document.getElementById('d-gallery-grid');
@@ -1932,17 +1947,33 @@
     // Contact lead
     setHtml('d-contact-lead', nl2br(d.contact.lead));
 
-    // Contact Instagram link
+    // Contact Instagram link（表示フラグに連動）
     const igContactLink = document.getElementById('d-ig-contact-link');
     const igContactHandle = document.getElementById('d-ig-contact-handle');
-    if (igContactLink) igContactLink.href = igUrl;
+    if (igContactLink) {
+      igContactLink.href = igUrl;
+      igContactLink.style.display = (d.shop.instagram_visible !== false) ? '' : 'none';
+    }
     if (igContactHandle) igContactHandle.textContent = igHandle || '@sakanouecoffee';
 
     // Footer description
     const footerDesc = document.getElementById('d-footer-desc');
     if (footerDesc) footerDesc.innerHTML = nl2br(d.shop.footer_desc || '');
 
-    // Footer SNS links（Instagram・X含む全リスト）
+    // フッター Instagram / Twitter アイコン（条件付き表示）
+    const footerIg = document.getElementById('d-footer-ig-link');
+    if (footerIg) {
+      footerIg.href = igUrl;
+      footerIg.style.display = (d.shop.instagram_visible !== false) ? 'flex' : 'none';
+    }
+    const footerTwUser = (d.shop.twitter || '').replace(/^@/, '');
+    const footerTw = document.getElementById('d-footer-tw-link');
+    if (footerTw) {
+      footerTw.href = footerTwUser ? `https://twitter.com/${footerTwUser}` : '#';
+      footerTw.style.display = (d.shop.twitter_visible !== false) ? 'flex' : 'none';
+    }
+
+    // フッター 追加SNSリンク
     const footerSnsEl = document.getElementById('d-footer-sns-links');
     if (footerSnsEl) {
       footerSnsEl.innerHTML = (d.shop.sns_links || [])
