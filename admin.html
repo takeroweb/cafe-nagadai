@@ -633,6 +633,16 @@
     }
     .gallery-admin-footer input { flex: 1; font-size: 12px; padding: 5px 8px; }
 
+    /* ===== EXTRA LINKS ===== */
+    .extra-link-row {
+      display: grid;
+      grid-template-columns: 1fr 2fr auto;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .extra-link-row input { font-size: 13px; }
+
     /* ===== MAP PICKER ===== */
     #admin-map-picker { height: 280px; border-radius: 8px; border: 1.5px solid var(--border); isolation: isolate; }
     .map-search-row { display: flex; gap: 8px; margin-bottom: 10px; }
@@ -924,6 +934,14 @@
         <div class="form-group">
           <label>Twitter / X</label>
           <input type="text" id="shop-twitter" placeholder="@sakanouecoffee" />
+        </div>
+        <div class="form-group form-full">
+          <label>その他SNS・外部リンク</label>
+          <div id="extra-links-container"></div>
+          <button class="btn-add" onclick="addExtraLink()" style="margin-top:6px;">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            リンクを追加
+          </button>
         </div>
       </div>
     </div>
@@ -1221,6 +1239,7 @@
       const el = document.getElementById('shop-' + key);
       if (el) el.value = data.shop[key];
     });
+    renderExtraLinks(data.shop.extra_links || []);
 
     // Hero
     ['eyebrow','title_jp','title_en','description'].forEach(key => {
@@ -1768,6 +1787,48 @@
     showToast('削除しました。', 'success');
   }
 
+  // ===== EXTRA LINKS =====
+  function renderExtraLinks(links) {
+    const container = document.getElementById('extra-links-container');
+    if (!container) return;
+    container.innerHTML = '';
+    links.forEach((link, i) => container.appendChild(buildExtraLinkRow(i, link)));
+  }
+
+  function buildExtraLinkRow(i, link) {
+    const div = document.createElement('div');
+    div.className = 'extra-link-row';
+    div.id = `extra-link-${i}`;
+    div.innerHTML = `
+      <input type="text" id="extra-link-${i}-label" value="${escHtml(link.label || '')}" placeholder="HotPepper Beauty" />
+      <input type="text" id="extra-link-${i}-url" value="${escHtml(link.url || '')}" placeholder="https://..." />
+      <button class="btn-delete" onclick="deleteExtraLink(${i})">削除</button>
+    `;
+    return div;
+  }
+
+  function collectExtraLinks() {
+    const rows = document.querySelectorAll('.extra-link-row');
+    return Array.from(rows, (_, i) => ({
+      label: v(`extra-link-${i}-label`, ''),
+      url:   v(`extra-link-${i}-url`,   '')
+    })).filter(l => l.label || l.url);
+  }
+
+  function addExtraLink() {
+    if (!currentData.shop.extra_links) currentData.shop.extra_links = [];
+    currentData.shop.extra_links = collectExtraLinks();
+    currentData.shop.extra_links.push({ label: '', url: '' });
+    renderExtraLinks(currentData.shop.extra_links);
+  }
+
+  function deleteExtraLink(i) {
+    currentData.shop.extra_links = collectExtraLinks();
+    currentData.shop.extra_links.splice(i, 1);
+    renderExtraLinks(currentData.shop.extra_links);
+    saveData(db, currentData);
+  }
+
   // ===== COLLECT DATA FROM FORMS =====
   function collectData() {
     const data = JSON.parse(JSON.stringify(currentData));
@@ -1777,6 +1838,7 @@
       const el = document.getElementById('shop-' + k);
       if (el) data.shop[k] = el.value;
     });
+    data.shop.extra_links = collectExtraLinks();
 
     // Hero
     ['eyebrow','title_jp','title_en','description'].forEach(k => {

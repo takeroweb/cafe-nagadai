@@ -844,6 +844,14 @@
 
     .footer-sns svg { width: 16px; height: 16px; stroke: rgba(255,255,255,0.6); fill: none; }
 
+    #d-footer-extra-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+    #d-footer-extra-links a {
+      font-size: 12px; color: rgba(255,255,255,0.55); text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.18); border-radius: 4px;
+      padding: 4px 10px; transition: color 0.2s, border-color 0.2s;
+    }
+    #d-footer-extra-links a:hover { color: #fff; border-color: var(--brown-light); }
+
     /* ===== CONTACT / CHAT ===== */
     #contact { background: var(--beige); }
 
@@ -1730,6 +1738,7 @@
           <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
         </a>
       </div>
+      <div id="d-footer-extra-links"></div>
     </div>
   </div>
 </footer>
@@ -1890,7 +1899,9 @@
       `<span class="badge badge-closed">${d.shop.closed}</span> 定休日`
     );
     setHtml('d-info-access', nl2br(d.shop.access) + `<br /><span class="info-note">${d.shop.parking_note}</span>`);
-    setHtml('d-info-sns', `Instagram: <strong>${d.shop.instagram}</strong><br />Twitter/X: <strong>${d.shop.twitter}</strong>`);
+    const extraSnsHtml = (d.shop.extra_links || []).filter(l => l.label && l.url)
+      .map(l => `<br /><a href="${l.url}" target="_blank" rel="noopener" style="color:inherit;">${l.label}</a>`).join('');
+    setHtml('d-info-sns', `Instagram: <strong>${d.shop.instagram}</strong><br />Twitter/X: <strong>${d.shop.twitter}</strong>${extraSnsHtml}`);
 
     // Gallery
     const galleryGrid = document.getElementById('d-gallery-grid');
@@ -1940,6 +1951,15 @@
     // Footer description
     const footerDesc = document.getElementById('d-footer-desc');
     if (footerDesc) footerDesc.innerHTML = nl2br(d.shop.footer_desc || '');
+
+    // Footer extra links
+    const extraLinksEl = document.getElementById('d-footer-extra-links');
+    if (extraLinksEl) {
+      extraLinksEl.innerHTML = (d.shop.extra_links || [])
+        .filter(l => l.label && l.url)
+        .map(l => `<a href="${l.url}" target="_blank" rel="noopener">${l.label}</a>`)
+        .join('');
+    }
 
     // Footer Instagram link
     const footerIgLink = document.getElementById('d-footer-ig-link');

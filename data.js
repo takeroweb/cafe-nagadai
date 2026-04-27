@@ -15,7 +15,8 @@ const DEFAULT_DATA = {
     parking_note: '※駐車場はございません。公共交通機関をご利用ください。',
     instagram: '@sakanouecoffee',
     twitter: '@sakanouecoffee',
-    footer_desc: '長崎大学のそばで、\n丘の上からの景色と共に\n本物の一杯をお届けします。'
+    footer_desc: '長崎大学のそばで、\n丘の上からの景色と共に\n本物の一杯をお届けします。',
+    extra_links: []
   },
   hero: {
     eyebrow: 'Nagasaki University · Since 2020',
