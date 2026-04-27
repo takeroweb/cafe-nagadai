@@ -116,15 +116,16 @@
     .nav-cta:hover { background: var(--brown-dark) !important; color: var(--white) !important; }
 
     .nav-reserve {
-      background: var(--green);
+      background: var(--brown-light);
       color: var(--white) !important;
       padding: 9px 22px;
       border-radius: 2px;
       font-size: 12px !important;
       letter-spacing: 0.15em;
+      box-shadow: 0 2px 10px rgba(196,149,106,0.35);
     }
     .nav-reserve::after { display: none !important; }
-    .nav-reserve:hover { background: var(--green-light) !important; color: var(--white) !important; }
+    .nav-reserve:hover { background: var(--brown) !important; color: var(--white) !important; box-shadow: 0 3px 14px rgba(139,94,60,0.4) !important; }
 
     /* ===== HERO ===== */
     #hero {
@@ -1207,7 +1208,7 @@
       display: none;
       align-items: center;
       padding: 7px 14px;
-      background: var(--green);
+      background: var(--brown-light);
       color: var(--white);
       border-radius: 4px;
       font-size: 12px;
@@ -1215,9 +1216,10 @@
       text-decoration: none;
       letter-spacing: 0.08em;
       white-space: nowrap;
-      transition: background 0.2s;
+      transition: background 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px rgba(196,149,106,0.35);
     }
-    .nav-reserve-mobile:hover { background: var(--green-light); color: var(--white); }
+    .nav-reserve-mobile:hover { background: var(--brown); color: var(--white); box-shadow: 0 3px 12px rgba(139,94,60,0.4); }
 
     /* ===== HAMBURGER ===== */
     .hamburger {
