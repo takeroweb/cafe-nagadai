@@ -633,15 +633,15 @@
     }
     .gallery-admin-footer input { flex: 1; font-size: 12px; padding: 5px 8px; }
 
-    /* ===== EXTRA LINKS ===== */
-    .extra-link-row {
+    /* ===== SNS FIELDS ===== */
+    .sns-fields-grid {
       display: grid;
-      grid-template-columns: 1fr 2fr auto;
-      gap: 6px;
+      grid-template-columns: 110px 1fr auto;
+      gap: 6px 10px;
       align-items: center;
-      margin-bottom: 6px;
     }
-    .extra-link-row input { font-size: 13px; }
+    .sns-field-name { font-size: 13px; font-weight: 500; color: var(--text-muted); }
+    .sns-vis-label { white-space: nowrap; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; }
 
     /* ===== MAP PICKER ===== */
     #admin-map-picker { height: 280px; border-radius: 8px; border: 1.5px solid var(--border); isolation: isolate; }
@@ -927,31 +927,33 @@
           <label>フッター説明文</label>
           <textarea id="shop-footer_desc" class="short" placeholder="長崎大学のそばで、&#10;丘の上からの景色と共に&#10;本物の一杯をお届けします。"></textarea>
         </div>
-        <div class="form-group">
-          <label>Instagram</label>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <input type="text" id="shop-instagram" placeholder="@sakanouecoffee" style="flex:1;" />
-            <label style="white-space:nowrap;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;">
-              <input type="checkbox" id="shop-instagram_visible" /> 表示する
-            </label>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Twitter / X</label>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <input type="text" id="shop-twitter" placeholder="@sakanouecoffee" style="flex:1;" />
-            <label style="white-space:nowrap;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;">
-              <input type="checkbox" id="shop-twitter_visible" /> 表示する
-            </label>
-          </div>
-        </div>
         <div class="form-group form-full">
-          <label>その他SNS</label>
-          <div id="sns-links-container"></div>
-          <button class="btn-add" onclick="addSnsLink()" style="margin-top:6px;">
-            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            リンクを追加
-          </button>
+          <label>SNS アカウント</label>
+          <div class="sns-fields-grid">
+            <span class="sns-field-name">LINE</span>
+            <input type="text" id="shop-line" placeholder="@アカウントID" />
+            <label class="sns-vis-label"><input type="checkbox" id="shop-line_visible" /> 表示する</label>
+
+            <span class="sns-field-name">Instagram</span>
+            <input type="text" id="shop-instagram" placeholder="@sakanouecoffee" />
+            <label class="sns-vis-label"><input type="checkbox" id="shop-instagram_visible" /> 表示する</label>
+
+            <span class="sns-field-name">X（旧Twitter）</span>
+            <input type="text" id="shop-twitter" placeholder="@sakanouecoffee" />
+            <label class="sns-vis-label"><input type="checkbox" id="shop-twitter_visible" /> 表示する</label>
+
+            <span class="sns-field-name">TikTok</span>
+            <input type="text" id="shop-tiktok" placeholder="@アカウントID" />
+            <label class="sns-vis-label"><input type="checkbox" id="shop-tiktok_visible" /> 表示する</label>
+
+            <span class="sns-field-name">YouTube</span>
+            <input type="text" id="shop-youtube" placeholder="@チャンネル名" />
+            <label class="sns-vis-label"><input type="checkbox" id="shop-youtube_visible" /> 表示する</label>
+
+            <span class="sns-field-name">Facebook</span>
+            <input type="text" id="shop-facebook" placeholder="ページ名 or @ID" />
+            <label class="sns-vis-label"><input type="checkbox" id="shop-facebook_visible" /> 表示する</label>
+          </div>
         </div>
       </div>
     </div>
@@ -1249,11 +1251,14 @@
       const el = document.getElementById('shop-' + key);
       if (el) el.value = data.shop[key];
     });
-    const igVisEl = document.getElementById('shop-instagram_visible');
-    if (igVisEl) igVisEl.checked = data.shop.instagram_visible !== false;
-    const twVisEl = document.getElementById('shop-twitter_visible');
-    if (twVisEl) twVisEl.checked = data.shop.twitter_visible !== false;
-    renderSnsLinks(data.shop.sns_links || []);
+    ['instagram','twitter'].forEach(k => {
+      const el = document.getElementById(`shop-${k}_visible`);
+      if (el) el.checked = data.shop[`${k}_visible`] !== false;
+    });
+    ['line','tiktok','youtube','facebook'].forEach(k => {
+      const el = document.getElementById(`shop-${k}_visible`);
+      if (el) el.checked = !!data.shop[`${k}_visible`];
+    });
 
     // Hero
     ['eyebrow','title_jp','title_en','description'].forEach(key => {
@@ -1801,62 +1806,21 @@
     showToast('削除しました。', 'success');
   }
 
-  // ===== SNS LINKS =====
-  function renderSnsLinks(links) {
-    const container = document.getElementById('sns-links-container');
-    if (!container) return;
-    container.innerHTML = '';
-    links.forEach((link, i) => container.appendChild(buildSnsLinkRow(i, link)));
-  }
-
-  function buildSnsLinkRow(i, link) {
-    const div = document.createElement('div');
-    div.className = 'extra-link-row';
-    div.id = `sns-link-${i}`;
-    div.innerHTML = `
-      <input type="text" id="sns-link-${i}-label" value="${escHtml(link.label || '')}" placeholder="Instagram" />
-      <input type="text" id="sns-link-${i}-url" value="${escHtml(link.url || '')}" placeholder="https://..." />
-      <button class="btn-delete" onclick="deleteSnsLink(${i})">削除</button>
-    `;
-    return div;
-  }
-
-  function collectSnsLinks() {
-    const rows = document.querySelectorAll('.extra-link-row');
-    return Array.from(rows, (_, i) => ({
-      label: v(`sns-link-${i}-label`, ''),
-      url:   v(`sns-link-${i}-url`,   '')
-    })).filter(l => l.label || l.url);
-  }
-
-  function addSnsLink() {
-    if (!currentData.shop.sns_links) currentData.shop.sns_links = [];
-    currentData.shop.sns_links = collectSnsLinks();
-    currentData.shop.sns_links.push({ label: '', url: '' });
-    renderSnsLinks(currentData.shop.sns_links);
-  }
-
-  function deleteSnsLink(i) {
-    currentData.shop.sns_links = collectSnsLinks();
-    currentData.shop.sns_links.splice(i, 1);
-    renderSnsLinks(currentData.shop.sns_links);
-    saveData(db, currentData);
-  }
 
   // ===== COLLECT DATA FROM FORMS =====
   function collectData() {
     const data = JSON.parse(JSON.stringify(currentData));
 
     // Shop
-    ['name_jp','name_en','since','address','tel','hours_weekday','hours_saturday','closed','access','parking_note','footer_desc','instagram','twitter'].forEach(k => {
+    ['name_jp','name_en','since','address','tel','hours_weekday','hours_saturday','closed','access','parking_note','footer_desc',
+     'line','instagram','twitter','tiktok','youtube','facebook'].forEach(k => {
       const el = document.getElementById('shop-' + k);
       if (el) data.shop[k] = el.value;
     });
-    const igVis = document.getElementById('shop-instagram_visible');
-    if (igVis) data.shop.instagram_visible = igVis.checked;
-    const twVis = document.getElementById('shop-twitter_visible');
-    if (twVis) data.shop.twitter_visible = twVis.checked;
-    data.shop.sns_links = collectSnsLinks();
+    ['line','instagram','twitter','tiktok','youtube','facebook'].forEach(k => {
+      const el = document.getElementById(`shop-${k}_visible`);
+      if (el) data.shop[`${k}_visible`] = el.checked;
+    });
 
     // Hero
     ['eyebrow','title_jp','title_en','description'].forEach(k => {

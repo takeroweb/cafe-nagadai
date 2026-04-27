@@ -842,13 +842,6 @@
       background: rgba(196,149,106,0.1);
     }
 
-    #d-footer-sns-links { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
-    #d-footer-sns-links a {
-      font-size: 12px; color: rgba(255,255,255,0.6); text-decoration: none;
-      border: 1px solid rgba(255,255,255,0.22); border-radius: 4px;
-      padding: 5px 12px; transition: color 0.2s, border-color 0.2s;
-    }
-    #d-footer-sns-links a:hover { color: #fff; border-color: var(--brown-light); }
 
     /* ===== CONTACT / CHAT ===== */
     #contact { background: var(--beige); }
@@ -1728,17 +1721,7 @@
     </div>
     <div class="footer-bottom">
       <p class="footer-copy">© 2024 坂の上珈琲 All rights reserved.</p>
-      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end;">
-        <div class="footer-sns">
-          <a id="d-footer-ig-link" href="#" target="_blank" rel="noopener" aria-label="Instagram" style="display:none;">
-            <svg viewBox="0 0 24 24" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
-          </a>
-          <a id="d-footer-tw-link" href="#" target="_blank" rel="noopener" aria-label="Twitter/X" style="display:none;">
-            <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
-          </a>
-        </div>
-        <div id="d-footer-sns-links"></div>
-      </div>
+      <div class="footer-sns" id="d-footer-sns"></div>
     </div>
   </div>
 </footer>
@@ -1899,13 +1882,27 @@
       `<span class="badge badge-closed">${d.shop.closed}</span> 定休日`
     );
     setHtml('d-info-access', nl2br(d.shop.access) + `<br /><span class="info-note">${d.shop.parking_note}</span>`);
-    // アクセス欄 SNS 表示（表示フラグ+追加リンク）
-    const infoSnsLines = [];
-    if (d.shop.instagram_visible !== false && d.shop.instagram) infoSnsLines.push(`Instagram: <strong>${d.shop.instagram}</strong>`);
-    if (d.shop.twitter_visible  !== false && d.shop.twitter)   infoSnsLines.push(`Twitter/X: <strong>${d.shop.twitter}</strong>`);
-    (d.shop.sns_links || []).filter(l => l.label && l.url).forEach(l =>
-      infoSnsLines.push(`<a href="${l.url}" target="_blank" rel="noopener" style="color:inherit;">${l.label}</a>`)
-    );
+    // SNS設定（6プラットフォーム）
+    const SNS_PLATFORMS = [
+      { key: 'line',      label: 'LINE',         urlFn: h => `https://line.me/R/ti/p/@${h.replace(/^@/,'')}` },
+      { key: 'instagram', label: 'Instagram',    urlFn: h => `https://www.instagram.com/${h.replace(/^@/,'')}/` },
+      { key: 'twitter',   label: 'X（旧Twitter）', urlFn: h => `https://twitter.com/${h.replace(/^@/,'')}` },
+      { key: 'tiktok',    label: 'TikTok',       urlFn: h => `https://www.tiktok.com/@${h.replace(/^@/,'')}` },
+      { key: 'youtube',   label: 'YouTube',      urlFn: h => `https://www.youtube.com/@${h.replace(/^@/,'')}` },
+      { key: 'facebook',  label: 'Facebook',     urlFn: h => `https://www.facebook.com/${h.replace(/^@/,'')}` },
+    ];
+    const SNS_ICONS = {
+      line:      '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+      instagram: '<rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>',
+      twitter:   '<path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/>',
+      tiktok:    '<path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/>',
+      youtube:   '<rect x="2" y="5" width="20" height="14" rx="3"/><polyline points="10 9 16 12 10 15"/>',
+      facebook:  '<path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>',
+    };
+    // アクセス欄 SNS 表示
+    const infoSnsLines = SNS_PLATFORMS
+      .filter(p => d.shop[`${p.key}_visible`] !== false && d.shop[p.key])
+      .map(p => `${p.label}: <strong>${d.shop[p.key]}</strong>`);
     setHtml('d-info-sns', infoSnsLines.join('<br />'));
 
     // Gallery
@@ -1960,26 +1957,14 @@
     const footerDesc = document.getElementById('d-footer-desc');
     if (footerDesc) footerDesc.innerHTML = nl2br(d.shop.footer_desc || '');
 
-    // フッター Instagram / Twitter アイコン（条件付き表示）
-    const footerIg = document.getElementById('d-footer-ig-link');
-    if (footerIg) {
-      footerIg.href = igUrl;
-      footerIg.style.display = (d.shop.instagram_visible !== false) ? 'flex' : 'none';
-    }
-    const footerTwUser = (d.shop.twitter || '').replace(/^@/, '');
-    const footerTw = document.getElementById('d-footer-tw-link');
-    if (footerTw) {
-      footerTw.href = footerTwUser ? `https://twitter.com/${footerTwUser}` : '#';
-      footerTw.style.display = (d.shop.twitter_visible !== false) ? 'flex' : 'none';
-    }
-
-    // フッター 追加SNSリンク
-    const footerSnsEl = document.getElementById('d-footer-sns-links');
-    if (footerSnsEl) {
-      footerSnsEl.innerHTML = (d.shop.sns_links || [])
-        .filter(l => l.label && l.url)
-        .map(l => `<a href="${l.url}" target="_blank" rel="noopener">${l.label}</a>`)
-        .join('');
+    // フッター SNS アイコン（全6プラットフォーム、表示フラグ連動）
+    const footerSns = document.getElementById('d-footer-sns');
+    if (footerSns) {
+      footerSns.innerHTML = SNS_PLATFORMS
+        .filter(p => d.shop[`${p.key}_visible`] !== false && d.shop[p.key])
+        .map(p => `<a href="${p.urlFn(d.shop[p.key])}" target="_blank" rel="noopener" aria-label="${p.label}">
+          <svg viewBox="0 0 24 24" stroke-width="1.5">${SNS_ICONS[p.key]}</svg>
+        </a>`).join('');
     }
 
     // Footer info

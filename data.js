@@ -13,12 +13,19 @@ const DEFAULT_DATA = {
     closed: '日祝',
     access: '長崎電気軌道「長大前」電停より徒歩1分\n長崎バス「文教町」停留所より徒歩2分',
     parking_note: '※駐車場はございません。公共交通機関をご利用ください。',
+    line: '',
+    line_visible: false,
     instagram: '@sakanouecoffee',
     instagram_visible: true,
     twitter: '@sakanouecoffee',
     twitter_visible: true,
-    footer_desc: '長崎大学のそばで、\n丘の上からの景色と共に\n本物の一杯をお届けします。',
-    sns_links: []
+    tiktok: '',
+    tiktok_visible: false,
+    youtube: '',
+    youtube_visible: false,
+    facebook: '',
+    facebook_visible: false,
+    footer_desc: '長崎大学のそばで、\n丘の上からの景色と共に\n本物の一杯をお届けします。'
   },
   hero: {
     eyebrow: 'Nagasaki University · Since 2020',
