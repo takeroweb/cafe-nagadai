@@ -1196,6 +1196,29 @@
     .chat-popup-close:hover { background: rgba(255,255,255,0.35); }
     .chat-popup-close svg { width: 14px; height: 14px; stroke: #fff; fill: none; stroke-width: 2; }
 
+    /* ===== HEADER RIGHT (mobile reserve + hamburger) ===== */
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-reserve-mobile {
+      display: none;
+      align-items: center;
+      padding: 7px 14px;
+      background: var(--green);
+      color: var(--white);
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .nav-reserve-mobile:hover { background: var(--green-light); color: var(--white); }
+
     /* ===== HAMBURGER ===== */
     .hamburger {
       display: none;
@@ -1267,6 +1290,8 @@
       }
 
       .hamburger { display: flex; }
+      .nav-reserve-mobile.visible { display: inline-flex; }
+      #d-nav-reserve { display: none !important; }
 
       section { padding: 70px 0; }
 
@@ -1383,8 +1408,11 @@
     <a id="d-nav-reserve" href="#" target="_blank" rel="noopener" class="nav-reserve" style="display:none;">予約</a>
     <a href="#contact" class="nav-cta">お問い合わせ</a>
   </nav>
-  <div class="hamburger" onclick="toggleMenu()" aria-label="メニューを開く">
-    <span></span><span></span><span></span>
+  <div class="header-right">
+    <a id="d-nav-reserve-mobile" href="#" target="_blank" rel="noopener" class="nav-reserve-mobile">予約</a>
+    <div class="hamburger" onclick="toggleMenu()" aria-label="メニューを開く">
+      <span></span><span></span><span></span>
+    </div>
   </div>
 </header>
 
@@ -1874,11 +1902,16 @@
   function applyData(d) {
 
     // 予約ボタン
+    const resUrl = d.shop.reservation_url || '';
     const navReserve = document.getElementById('d-nav-reserve');
     if (navReserve) {
-      const resUrl = d.shop.reservation_url || '';
       navReserve.href = resUrl;
       navReserve.style.display = resUrl ? '' : 'none';
+    }
+    const navReserveMobile = document.getElementById('d-nav-reserve-mobile');
+    if (navReserveMobile) {
+      navReserveMobile.href = resUrl || '#';
+      navReserveMobile.classList.toggle('visible', !!resUrl);
     }
 
     // Logo / タイトル
