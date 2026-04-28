@@ -1651,15 +1651,15 @@
           お電話やSNSのDMでもお気軽にご連絡ください。
         </p>
         <div class="contact-links">
-          <div class="contact-link-item">
+          <a class="contact-link-item" id="d-tel-contact-link" href="tel:095-000-0000" style="text-decoration:none;color:inherit;">
             <div class="contact-link-icon">
               <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.23h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.8a16 16 0 0 0 6.29 6.29l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7a2 2 0 0 1 1.72 2.04z"/></svg>
             </div>
             <div>
               <span class="contact-link-label">電話でのお問い合わせ</span>
-              <span class="contact-link-value">095-000-0000</span>
+              <span class="contact-link-value" id="d-tel-contact-value">095-000-0000</span>
             </div>
-          </div>
+          </a>
           <a class="contact-link-item" id="d-ig-contact-link" href="#" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;">
             <div class="contact-link-icon">
               <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
@@ -1956,7 +1956,11 @@
     // Access info
     setHtml('d-info-name', `${d.shop.name_jp}<br /><span class="info-note">${d.shop.name_en}</span>`);
     setHtml('d-info-address', nl2br(d.shop.address));
-    setTxt('d-info-tel', d.shop.tel);
+    setHtml('d-info-tel', `<a href="tel:${d.shop.tel}" style="color:inherit;">${d.shop.tel}</a>`);
+    const telLink = document.getElementById('d-tel-contact-link');
+    const telValue = document.getElementById('d-tel-contact-value');
+    if (telLink) telLink.href = `tel:${d.shop.tel}`;
+    if (telValue) telValue.textContent = d.shop.tel;
     setHtml('d-info-hours',
       `<span class="badge badge-open">平日</span> ${d.shop.hours_weekday}<br />` +
       `<span class="badge badge-open">土曜</span> ${d.shop.hours_saturday}<br />` +
@@ -2062,7 +2066,7 @@
     if (footerInfo) {
       footerInfo.innerHTML = `
         <p>${nl2br(d.shop.address)}</p>
-        <p style="margin-top:12px;">TEL: ${d.shop.tel}</p>
+        <p style="margin-top:12px;">TEL: <a href="tel:${d.shop.tel}" style="color:inherit;">${d.shop.tel}</a></p>
         <p style="margin-top:12px;">平日 ${d.shop.hours_weekday}<br />土曜 ${d.shop.hours_saturday}<br />${d.shop.closed} 定休</p>
       `;
     }
