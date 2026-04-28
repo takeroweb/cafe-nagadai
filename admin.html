@@ -1265,6 +1265,20 @@
     }
   }
 
+  function getStoragePath(url) {
+    if (!url || !url.includes('firebasestorage.googleapis.com')) return null;
+    try {
+      const match = url.match(/\/o\/([^?]+)/);
+      return match ? decodeURIComponent(match[1]) : null;
+    } catch { return null; }
+  }
+
+  async function deleteStorageFile(url) {
+    const path = getStoragePath(url);
+    if (!path) return;
+    try { await storage.ref(path).delete(); } catch {}
+  }
+
   function compressImage(file, maxWidth = 1200, quality = 0.82) {
     return new Promise(resolve => {
       const reader = new FileReader();
@@ -1290,6 +1304,7 @@
     input.value = '';
     const preview = document.getElementById(previewId);
     if (preview) { preview.style.opacity = '0.4'; }
+    const oldUrl = fileUploads[urlFieldId];
     setUploadingState(true);
     showToast('画像を圧縮・アップロード中...', 'info');
     try {
@@ -1300,6 +1315,7 @@
       await ref.put(compressed, { contentType: 'image/jpeg' });
       const url = await ref.getDownloadURL();
       fileUploads[urlFieldId] = url;
+      deleteStorageFile(oldUrl);
       if (preview) { preview.src = url; preview.style.opacity = '1'; preview.classList.add('loaded'); }
       showToast('画像のアップロード完了！保存ボタンを押してください。', 'success');
     } catch(e) {
@@ -1550,9 +1566,11 @@
 
   function deleteCatItem(catIndex, j) {
     syncCat(catIndex);
+    const deletedImage = currentData.menu.categories[catIndex].items[j]?.image;
     currentData.menu.categories[catIndex].items.splice(j, 1);
     renderCatItems(catIndex, currentData.menu.categories[catIndex].items);
     saveData(db, currentData);
+    deleteStorageFile(deletedImage);
     showToast('削除しました。', 'success');
   }
 
@@ -1842,6 +1860,7 @@
     input.value = '';
     const thumb = document.querySelector(`#gallery-item-${i} .gallery-admin-thumb`);
     if (thumb) { thumb.style.opacity = '0.4'; }
+    const oldGalleryUrl = fileUploads[`gallery-${i}-url`];
     setUploadingState(true);
     showToast('画像を圧縮・アップロード中...', 'info');
     try {
@@ -1851,6 +1870,7 @@
       await ref.put(compressed, { contentType: 'image/jpeg' });
       const url = await ref.getDownloadURL();
       fileUploads[`gallery-${i}-url`] = url;
+      deleteStorageFile(oldGalleryUrl);
       if (thumb) { thumb.src = url; thumb.style.opacity = '1'; }
       showToast('画像のアップロード完了！保存ボタンを押してください。', 'success');
     } catch(e) {
@@ -1878,9 +1898,11 @@
 
   function deleteGalleryItem(i) {
     collectGalleryIntoData();
+    const deletedUrl = currentData.gallery[i]?.url;
     currentData.gallery.splice(i, 1);
     renderGalleryItems(currentData.gallery);
     saveData(db, currentData);
+    deleteStorageFile(deletedUrl);
     showToast('削除しました。', 'success');
   }
 
