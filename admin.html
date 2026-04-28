@@ -1993,15 +1993,23 @@
       return;
     }
     if (!confirm('1つ前に保存したデータに戻しますか？\n現在の変更は失われます。')) return;
-    currentData = JSON.parse(JSON.stringify(previousData));
+    const restoreTarget = JSON.parse(JSON.stringify(previousData));
     previousData = null;
     updateUndoButton();
-    populateForms(currentData);
+    isSaving = true;
+    const btn = document.querySelector('.btn-reset');
+    if (btn) { btn.disabled = true; }
     try {
-      await saveData(db, currentData);
+      await saveData(db, restoreTarget);
+      currentData = restoreTarget;
+      populateForms(currentData);
+      document.getElementById('remote-update-banner').style.display = 'none';
       showToast('1つ前のデータに戻しました。', 'success');
     } catch(e) {
       showToast('失敗しました。' + (e.message || ''), 'error');
+    } finally {
+      setTimeout(() => { isSaving = false; }, 2000);
+      updateUndoButton();
     }
   }
 
