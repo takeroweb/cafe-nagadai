@@ -1127,6 +1127,30 @@
     .chat-send-btn svg { width: 17px; height: 17px; fill: none; stroke: #fff; stroke-width: 2; }
 
     /* Floating chat button */
+    .scroll-top-btn {
+      position: fixed;
+      bottom: 100px;
+      right: 32px;
+      z-index: 200;
+      width: 44px; height: 44px;
+      background: rgba(74,47,26,0.75);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 12px rgba(74,47,26,0.25);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s, transform 0.2s;
+      backdrop-filter: blur(4px);
+    }
+    .scroll-top-btn.visible { opacity: 1; pointer-events: auto; }
+    .scroll-top-btn:hover { transform: scale(1.1); }
+    .scroll-top-btn svg { width: 20px; height: 20px; stroke: #fff; fill: none; stroke-width: 2.5; }
+    @media (max-width: 600px) {
+      .scroll-top-btn { bottom: 84px; right: 20px; width: 40px; height: 40px; }
+    }
+
     .chat-fab {
       position: fixed;
       bottom: 32px;
@@ -1704,6 +1728,10 @@
 </section>
 
 <!-- ===== FLOATING CHAT BUTTON ===== -->
+<button class="scroll-top-btn" id="scroll-top-btn" aria-label="トップへ戻る">
+  <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+
 <button class="chat-fab" id="chat-fab" aria-label="チャットを開く">
   <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
   <div class="fab-badge"></div>
@@ -2295,6 +2323,15 @@
     if (window.scrollY > 400 && !popupInited) {
       badge.style.display = 'block';
     }
+  });
+
+  // トップへ戻るボタン
+  const scrollTopBtn = document.getElementById('scroll-top-btn');
+  window.addEventListener('scroll', () => {
+    scrollTopBtn.classList.toggle('visible', window.scrollY > 300);
+  });
+  scrollTopBtn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
   document.querySelectorAll('.menu-card, .concept-card, .about-img, .about-text').forEach(el => {
