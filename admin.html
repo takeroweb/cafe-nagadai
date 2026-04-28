@@ -1270,6 +1270,7 @@
     input.value = '';
     const preview = document.getElementById(previewId);
     if (preview) { preview.style.opacity = '0.4'; }
+    setUploadingState(true);
     showToast('画像をアップロード中...', 'info');
     try {
       const path = `images/${urlFieldId}_${Date.now()}_${file.name}`;
@@ -1278,10 +1279,12 @@
       const url = await ref.getDownloadURL();
       fileUploads[urlFieldId] = url;
       if (preview) { preview.src = url; preview.style.opacity = '1'; preview.classList.add('loaded'); }
-      showToast('画像のアップロード完了！', 'success');
+      showToast('画像のアップロード完了！保存ボタンを押してください。', 'success');
     } catch(e) {
       if (preview) { preview.style.opacity = '1'; }
       showToast('アップロード失敗: ' + (e.message || ''), 'error');
+    } finally {
+      setUploadingState(false);
     }
   }
 
@@ -1817,6 +1820,7 @@
     input.value = '';
     const thumb = document.querySelector(`#gallery-item-${i} .gallery-admin-thumb`);
     if (thumb) { thumb.style.opacity = '0.4'; }
+    setUploadingState(true);
     showToast('画像をアップロード中...', 'info');
     try {
       const path = `images/gallery_${i}_${Date.now()}_${file.name}`;
@@ -1825,10 +1829,12 @@
       const url = await ref.getDownloadURL();
       fileUploads[`gallery-${i}-url`] = url;
       if (thumb) { thumb.src = url; thumb.style.opacity = '1'; }
-      showToast('画像のアップロード完了！', 'success');
+      showToast('画像のアップロード完了！保存ボタンを押してください。', 'success');
     } catch(e) {
       if (thumb) { thumb.style.opacity = '1'; }
       showToast('アップロード失敗: ' + (e.message || ''), 'error');
+    } finally {
+      setUploadingState(false);
     }
   }
 
@@ -2090,7 +2096,21 @@
 
   let currentUser = null;
   let isSaving = false;
+  let isUploading = false;
   let remoteLatestData = null;
+
+  function setUploadingState(uploading) {
+    isUploading = uploading;
+    const btn = document.querySelector('.btn-save');
+    if (!btn) return;
+    if (uploading) {
+      btn.disabled = true;
+      btn.textContent = '画像アップロード中...';
+    } else {
+      btn.disabled = false;
+      btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg><span class="btn-label">保存する</span>';
+    }
+  }
 
   function showRemoteUpdateBanner(newData) {
     remoteLatestData = newData;
