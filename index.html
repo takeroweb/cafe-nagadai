@@ -1836,6 +1836,8 @@
       panelsEl.appendChild(panel);
 
       // カードを描画
+      const grid = document.createElement('div');
+      grid.className = 'menu-grid';
       cat.items.forEach(item => {
         const card = document.createElement('div');
         card.className = 'menu-card';
@@ -1850,8 +1852,9 @@
             '<p class="menu-card-price">' + (item.price || '') + '</p>' +
             '<p class="menu-card-hint">タップして詳細を見る</p>' +
           '</div>';
-        panel.appendChild(card);
+        grid.appendChild(card);
       });
+      panel.appendChild(grid);
     });
 
     // タブクリック（イベント委譲）
