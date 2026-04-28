@@ -190,7 +190,8 @@
       border: 1px solid var(--border);
     }
 
-    .btn-reset:hover { background: #fef0f0; color: var(--danger); border-color: #f5c6c6; }
+    .btn-reset:hover:not(:disabled) { background: #fef0f0; color: var(--danger); border-color: #f5c6c6; }
+    .btn-reset:disabled { opacity: 0.4; cursor: not-allowed; }
 
     /* ===== MAIN CONTENT ===== */
     .main {
@@ -845,9 +846,9 @@
     <span class="topbar-title" id="topbar-title">基本情報</span>
   </div>
   <div class="topbar-actions">
-    <button class="btn btn-reset" onclick="resetData()">
+    <button class="btn btn-reset" onclick="resetData()" disabled title="保存後に使えます">
       <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.24"/></svg>
-      <span class="btn-label">初期設定に戻す</span>
+      <span class="btn-label">1つ前に戻す</span>
     </button>
     <button class="btn btn-save" onclick="saveAll()">
       <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
@@ -1960,6 +1961,8 @@
     if (btn) { btn.disabled = true; btn.textContent = '保存中...'; }
     isSaving = true;
     try {
+      previousData = JSON.parse(JSON.stringify(currentData));
+      updateUndoButton();
       currentData = collectData();
       // メニューカテゴリが空なら保存しない（データ破損を防ぐ）
       if (!currentData.menu.categories || currentData.menu.categories.length === 0) {
@@ -1976,15 +1979,30 @@
     }
   }
 
-  // ===== RESET =====
+  // ===== UNDO =====
+  function updateUndoButton() {
+    const btn = document.querySelector('.btn-reset');
+    if (!btn) return;
+    btn.disabled = !previousData;
+    btn.title = previousData ? '1つ前の保存データに戻す' : '保存後に使えます';
+  }
+
   async function resetData() {
-    if (!confirm('すべての変更を初期設定に戻しますか？\nこの操作は元に戻せません。')) return;
-    currentData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+    if (!previousData) {
+      showToast('1つ前のデータがありません。先に保存してください。', 'error');
+      return;
+    }
+    if (!confirm('1つ前に保存したデータに戻しますか？\n現在の変更は失われます。')) return;
+    currentData = JSON.parse(JSON.stringify(previousData));
+    previousData = null;
+    updateUndoButton();
     populateForms(currentData);
     try {
       await saveData(db, currentData);
-    } catch(e) {}
-    showToast('初期設定に戻しました。', 'success');
+      showToast('1つ前のデータに戻しました。', 'success');
+    } catch(e) {
+      showToast('失敗しました。' + (e.message || ''), 'error');
+    }
   }
 
   // ===== TOAST =====
@@ -2098,6 +2116,7 @@
   let isSaving = false;
   let isUploading = false;
   let remoteLatestData = null;
+  let previousData = null;
 
   function setUploadingState(uploading) {
     isUploading = uploading;
