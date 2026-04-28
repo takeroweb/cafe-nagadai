@@ -106,6 +106,9 @@
   const auth = firebase.auth();
   const db   = firebase.firestore();
 
+  const GOOGLE_SVG = `<svg viewBox="0 0 48 48" style="width:20px;height:20px;flex-shrink:0"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Googleでログイン`;
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
   // ログイン済みなら管理画面へ
   auth.onAuthStateChanged(user => {
     if (user) window.location.replace('admin.html');
@@ -117,37 +120,66 @@
     el.className = 'msg show ' + type;
   }
 
-  async function isWhitelisted(email) {
-    try {
-      const snap = await db.collection('whitelist').doc(email.toLowerCase()).get();
-      return snap.exists;
-    } catch { return false; }
+  function resetBtn() {
+    const btn = document.getElementById('btn-google');
+    btn.disabled = false;
+    btn.innerHTML = GOOGLE_SVG;
   }
 
   // ===== Googleログイン =====
-  async function doGoogleLogin() {
+  function doGoogleLogin() {
     const btn = document.getElementById('btn-google');
     btn.disabled = true;
     btn.textContent = '認証中...';
-    try {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      const result = await auth.signInWithPopup(provider);
-      const email = result.user.email;
-      if (!await isWhitelisted(email)) {
-        await auth.signOut();
-        showMsg('login-msg', 'このGoogleアカウントはアクセスが許可されていません。\n管理者にお問い合わせください。', 'error');
-        return;
-      }
-      // onAuthStateChanged がリダイレクト処理
-    } catch (e) {
-      if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') {
-        showMsg('login-msg', 'Googleログインに失敗しました。\n' + (e.message || ''), 'error');
-      }
-    } finally {
-      btn.disabled = false;
-      btn.innerHTML = `<svg viewBox="0 0 48 48" style="width:20px;height:20px;flex-shrink:0"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Googleでログイン`;
+    const provider = new firebase.auth.GoogleAuthProvider();
+
+    if (isMobile) {
+      // スマホはリダイレクト方式（popupはiOS Safariでブロックされる）
+      auth.signInWithRedirect(provider);
+      return;
     }
+
+    // PC はポップアップ方式
+    auth.signInWithPopup(provider)
+      .then(result => {
+        const email = result.user.email;
+        return db.collection('whitelist').doc(email.toLowerCase()).get()
+          .then(snap => {
+            if (!snap.exists) {
+              return auth.signOut().then(() => {
+                showMsg('login-msg', 'このGoogleアカウントはアクセスが許可されていません。\n管理者にお問い合わせください。', 'error');
+                resetBtn();
+              });
+            }
+          });
+      })
+      .catch(e => {
+        if (e.code === 'auth/popup-blocked') {
+          auth.signInWithRedirect(provider);
+        } else if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') {
+          showMsg('login-msg', 'Googleログインに失敗しました。\n' + (e.message || ''), 'error');
+          resetBtn();
+        } else {
+          resetBtn();
+        }
+      });
   }
+
+  // リダイレクト方式の結果受け取り（スマホ用）
+  auth.getRedirectResult()
+    .then(result => {
+      if (!result || !result.user) return;
+      return db.collection('whitelist').doc(result.user.email.toLowerCase()).get()
+        .then(snap => {
+          if (!snap.exists) {
+            return auth.signOut().then(() => {
+              showMsg('login-msg', 'このGoogleアカウントはアクセスが許可されていません。\n管理者にお問い合わせください。', 'error');
+            });
+          }
+          // onAuthStateChanged が admin.html へ遷移
+        });
+    })
+    .catch(() => {});
 
 </script>
 </body>
