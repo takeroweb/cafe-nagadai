@@ -95,13 +95,12 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script>
   firebase.initializeApp({
-    apiKey: "AIzaSyDv2glZjdgRkDiCPCQqAMo6fvDinBhbvrE",
-    authDomain: "cafe-nagadai-35631.firebaseapp.com",
-    projectId: "cafe-nagadai-35631",
-    storageBucket: "cafe-nagadai-35631.firebasestorage.app",
-    messagingSenderId: "851628794397",
-    appId: "1:851628794397:web:937940a83d3d5a732bdcf4",
-    measurementId: "G-L2KLZSC1GM"
+    apiKey: "AIzaSyCoSxScuwyr7IWOb_Y9-eTT1SJkP7F3PHU",
+    authDomain: "takeroweb-demo.firebaseapp.com",
+    projectId: "takeroweb-demo",
+    storageBucket: "takeroweb-demo.firebasestorage.app",
+    messagingSenderId: "1020678335636",
+    appId: "1:1020678335636:web:c847c9668591859d3c5881"
   });
   const auth = firebase.auth();
   const db   = firebase.firestore();
@@ -135,9 +134,9 @@
     auth.signInWithPopup(provider)
       .then(result => {
         const email = result.user.email;
-        return db.collection('whitelist').doc(email.toLowerCase()).get()
+        return db.collection('sites').doc('nagadai').collection('config').doc('admins').get()
           .then(snap => {
-            if (!snap.exists) {
+            if (!snap.exists || !snap.data().emails.includes(email.toLowerCase())) {
               return auth.signOut().then(() => {
                 showMsg('login-msg', 'このGoogleアカウントはアクセスが許可されていません。\n管理者にお問い合わせください。', 'error');
                 resetBtn();
@@ -163,9 +162,9 @@
   auth.getRedirectResult()
     .then(result => {
       if (!result || !result.user) return;
-      return db.collection('whitelist').doc(result.user.email.toLowerCase()).get()
+      return db.collection('sites').doc('nagadai').collection('config').doc('admins').get()
         .then(snap => {
-          if (!snap.exists) {
+          if (!snap.exists || !snap.data().emails.includes(result.user.email.toLowerCase())) {
             return auth.signOut().then(() => {
               showMsg('login-msg', 'このGoogleアカウントはアクセスが許可されていません。\n管理者にお問い合わせください。', 'error');
             });
