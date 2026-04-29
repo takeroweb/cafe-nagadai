@@ -1129,8 +1129,8 @@
     /* Floating chat button */
     .scroll-top-btn {
       position: fixed;
-      bottom: 100px;
-      right: 39px;
+      bottom: 104px;
+      right: 43px;
       z-index: 200;
       width: 44px; height: 44px;
       background: rgba(74,47,26,0.75);
@@ -1148,79 +1148,105 @@
     .scroll-top-btn:hover { transform: scale(1.1); }
     .scroll-top-btn svg { width: 20px; height: 20px; stroke: #fff; fill: none; stroke-width: 2.5; }
     @media (max-width: 600px) {
-      .scroll-top-btn { bottom: 84px; right: 26px; width: 40px; height: 40px; }
+      .scroll-top-btn { bottom: 84px; right: 21px; width: 40px; height: 40px; }
     }
 
-    .chat-fab {
-      position: fixed;
-      bottom: 32px;
-      right: 32px;
-      z-index: 200;
-      width: 58px; height: 58px;
-      background: linear-gradient(135deg, var(--brown-dark), var(--brown));
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 4px 20px rgba(74,47,26,0.35);
-      transition: transform 0.2s, box-shadow 0.2s;
-      border: none;
+    :root {
+      --chat-accent: #C4956A;
+      --chat-dark:   #4A2F1A;
+      --chat-border: #E8DFD5;
+      --chat-gray:   #7A6755;
     }
-
-    .chat-fab:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(74,47,26,0.45); }
-    .chat-fab svg { width: 26px; height: 26px; fill: none; stroke: #fff; stroke-width: 1.8; }
-    .chat-fab .fab-badge {
-      position: absolute;
-      top: 4px; right: 4px;
-      width: 14px; height: 14px;
-      background: #e05c5c;
-      border-radius: 50%;
-      border: 2px solid #fff;
+    #chat-fab {
+      position:fixed; bottom:38px; right:38px; z-index:200;
+      width:54px; height:54px; border-radius:50%;
+      background:var(--chat-accent); border:none; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 4px 24px rgba(0,0,0,0.22);
+      transition:transform .3s, background .3s;
     }
-
-    /* Floating chat popup */
-    .chat-popup {
-      position: fixed;
-      bottom: 104px;
-      right: 32px;
-      z-index: 200;
-      width: 360px;
-      height: 520px;
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 12px 48px rgba(74,47,26,0.22);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      transform: scale(0.85) translateY(20px);
-      transform-origin: bottom right;
-      opacity: 0;
-      pointer-events: none;
-      transition: transform 0.25s ease, opacity 0.25s ease;
+    #chat-fab:hover { transform:scale(1.08); }
+    #chat-fab svg { width:22px; height:22px; fill:#fff; }
+    #chat-popup {
+      position:fixed; bottom:104px; right:38px; z-index:200;
+      width:320px; background:#fff; border-radius:12px;
+      box-shadow:0 8px 48px rgba(0,0,0,0.2);
+      display:flex; flex-direction:column; overflow:hidden;
+      transform:scale(0.92) translateY(14px); opacity:0; pointer-events:none;
+      transition:transform .28s ease, opacity .28s ease;
+      transform-origin:bottom right;
     }
-
-    .chat-popup.open {
-      transform: scale(1) translateY(0);
-      opacity: 1;
-      pointer-events: auto;
+    #chat-popup.open { transform:scale(1) translateY(0); opacity:1; pointer-events:auto; }
+    .chat-head {
+      background:var(--chat-dark); color:#fff;
+      padding:14px 18px; display:flex; align-items:center; justify-content:space-between;
+      flex-shrink:0;
     }
-
-    .chat-popup .chat-widget-header { border-radius: 0; }
-
-    .chat-popup-close {
-      position: absolute;
-      top: 14px; right: 14px;
-      background: rgba(255,255,255,0.2);
-      border: none;
-      border-radius: 50%;
-      width: 28px; height: 28px;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.15s;
-      z-index: 1;
+    .chat-head-title { font-size:.78rem; letter-spacing:.1em; font-weight:500; }
+    .chat-head-close {
+      background:none; border:none; color:rgba(255,255,255,.55);
+      cursor:pointer; font-size:1.1rem; padding:2px 6px; transition:color .2s;
     }
-
-    .chat-popup-close:hover { background: rgba(255,255,255,0.35); }
-    .chat-popup-close svg { width: 14px; height: 14px; stroke: #fff; fill: none; stroke-width: 2; }
+    .chat-head-close:hover { color:#fff; }
+    #chat-msgs {
+      overflow-y:auto; padding:14px 12px 10px;
+      display:flex; flex-direction:column; gap:8px;
+      min-height:160px; max-height:290px;
+      overscroll-behavior:contain;
+    }
+    .cm { max-width:86%; }
+    .cm.bot  { align-self:flex-start; }
+    .cm.user { align-self:flex-end; }
+    .cm-bubble { padding:9px 13px; border-radius:14px; font-size:.8rem; line-height:1.78; }
+    .cm.bot  .cm-bubble { background:#F0EDE8; color:var(--chat-dark); border-radius:3px 14px 14px 14px; }
+    .cm.user .cm-bubble { background:var(--chat-accent); color:#fff; border-radius:14px 3px 14px 14px; }
+    .cm-typing .cm-bubble { display:flex; gap:4px; align-items:center; padding:12px 14px; }
+    .cm-dot { width:6px; height:6px; border-radius:50%; background:var(--chat-gray); animation:cdp .9s infinite; }
+    .cm-dot:nth-child(2) { animation-delay:.18s; }
+    .cm-dot:nth-child(3) { animation-delay:.36s; }
+    @keyframes cdp { 0%,60%,100%{transform:scale(.6);opacity:.35}30%{transform:scale(1);opacity:1} }
+    .chat-quick { display:flex; flex-wrap:wrap; gap:5px; padding:2px 12px 10px; flex-shrink:0; }
+    .cq-btn {
+      background:none; border:1px solid var(--chat-accent); color:var(--chat-accent);
+      border-radius:20px; padding:4px 11px; font-size:.72rem;
+      cursor:pointer; transition:background .2s, color .2s;
+    }
+    .cq-btn:hover { background:var(--chat-accent); color:#fff; }
+    .chat-foot {
+      display:flex; align-items:center; gap:8px; padding:10px 12px;
+      border-top:1px solid var(--chat-border); flex-shrink:0;
+    }
+    #chat-inp {
+      flex:1; min-width:0; border:1px solid var(--chat-border); border-radius:14px;
+      padding:8px 14px; font-size:.82rem; outline:none; line-height:1.5;
+      resize:none; overflow-y:hidden; height:38px; max-height:120px;
+      transition:border-color .2s; font-family:'Noto Sans JP',sans-serif;
+    }
+    #chat-inp:focus { border-color:var(--chat-accent); }
+    #chat-snd {
+      flex-shrink:0; align-self:center;
+      background:var(--chat-accent); border:none; border-radius:50%;
+      width:38px; height:38px; display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:background .2s, opacity .2s;
+    }
+    #chat-snd:disabled { background:var(--chat-border); cursor:default; opacity:.6; }
+    #chat-snd:not(:disabled):hover { background:var(--chat-dark); }
+    #chat-snd svg { width:16px; height:16px; }
+    @media (max-width:768px) {
+      #chat-fab { bottom:20px; right:16px; width:50px; height:50px; }
+      #chat-popup {
+        left:4px; right:4px; width:auto;
+        bottom:0; top:auto; max-height:88vh;
+        border-radius:18px 18px 0 0;
+        transform:translateY(100%); opacity:1; pointer-events:none;
+        transition:transform .35s cubic-bezier(0.4,0,0.2,1);
+      }
+      #chat-popup.open { transform:translateY(0); opacity:1; pointer-events:auto; }
+      #chat-msgs { flex:1; max-height:none; min-height:0; }
+      .chat-head { border-radius:18px 18px 0 0; padding-top:calc(14px + env(safe-area-inset-top,0px)); }
+      .chat-foot { padding-bottom:calc(10px + env(safe-area-inset-bottom,0px)); }
+      #chat-inp { font-size:16px; }
+    }
 
     /* ===== HEADER RIGHT (mobile reserve + hamburger) ===== */
     .header-right {
@@ -1732,29 +1758,22 @@
   <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
 </button>
 
-<button class="chat-fab" id="chat-fab" aria-label="チャットを開く">
-  <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-  <div class="fab-badge"></div>
+<button id="chat-fab" aria-label="チャットで質問する">
+  <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
 </button>
-
-<!-- ===== FLOATING CHAT POPUP ===== -->
-<div class="chat-popup" id="chat-popup">
-  <div class="chat-widget-header">
-    <div class="chat-widget-avatar">☕</div>
-    <div class="chat-widget-info">
-      <h3>坂の上スタッフ</h3>
-      <p>よくある質問にお答えします</p>
-    </div>
-    <div class="chat-online-dot" style="margin-right:36px;"></div>
-    <button class="chat-popup-close" id="chat-popup-close" aria-label="閉じる">
-      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
+<div id="chat-popup" role="dialog" aria-label="サポートチャット">
+  <div class="chat-head">
+    <span class="chat-head-title">坂の上スタッフ</span>
+    <button class="chat-head-close" id="chat-x" aria-label="閉じる">✕</button>
   </div>
-  <div class="chat-messages" id="popup-chat-messages"></div>
-  <div class="chat-input-row">
-    <input type="text" id="popup-chat-input" placeholder="質問を入力してください…" autocomplete="off" />
-    <button class="chat-send-btn" id="popup-chat-send" aria-label="送信">
-      <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+  <div id="chat-msgs"></div>
+  <div class="chat-foot">
+    <textarea id="chat-inp" placeholder="メッセージを入力..."></textarea>
+    <button id="chat-snd" aria-label="送信">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M22 2L11 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
     </button>
   </div>
 </div>
@@ -2200,130 +2219,115 @@
     });
   }, { threshold: 0.1 });
 
-  // ===== CHAT ENGINE =====
-  // Firestoreデータ到着前のフォールバック（applyDataが上書きする）
-  if (!window.__SITE_FAQ__)     window.__SITE_FAQ__     = DEFAULT_DATA.chat.faq.map(f => ({ keywords: f.keywords.split(',').map(k => k.trim()), answer: f.answer }));
+  // ===== CHAT FAQ フォールバック（applyDataが上書きする）=====
+  if (!window.__SITE_FAQ__)     window.__SITE_FAQ__     = DEFAULT_DATA.chat.faq.map(f => ({ keywords: f.keywords.split(',').map(k => k.trim()), answer: f.answer, quick: [] }));
   if (!window.__SITE_WELCOME__) window.__SITE_WELCOME__ = DEFAULT_DATA.chat.welcome;
   if (!window.__SITE_FALLBACK__)window.__SITE_FALLBACK__= DEFAULT_DATA.chat.fallback;
   if (!window.__SITE_QUICK__)   window.__SITE_QUICK__   = DEFAULT_DATA.chat.faq.map(f => f.label);
 
-  function getAnswer(text) {
-    const lower = text.toLowerCase();
-    for (const faq of (window.__SITE_FAQ__ || [])) {
-      if (faq.keywords.some(k => lower.includes(k))) return faq.answer;
-    }
-    return window.__SITE_FALLBACK__ || '';
-  }
-
-  function createChat(messagesEl, inputEl, sendBtnEl) {
-    function scrollBottom() { messagesEl.scrollTop = messagesEl.scrollHeight; }
-
-    function addMsg(text, type) {
-      const wrap = document.createElement('div');
-      wrap.className = 'chat-msg ' + type;
-      if (type === 'bot') {
-        const av = document.createElement('div');
-        av.className = 'chat-bot-av';
-        av.textContent = '☕';
-        wrap.appendChild(av);
+  // メインチャット（コンタクトセクション）初期化
+  (function() {
+    const msgsEl = document.getElementById('main-chat-messages');
+    const inputEl = document.getElementById('main-chat-input');
+    const sendEl  = document.getElementById('main-chat-send');
+    if (!msgsEl || !inputEl || !sendEl) return;
+    function getAns(t) {
+      const low = t.toLowerCase();
+      for (const f of (window.__SITE_FAQ__ || [])) {
+        if (f.keywords.some(k => low.includes(k))) return f.answer;
       }
-      const bubble = document.createElement('div');
-      bubble.className = 'chat-bubble';
-      bubble.textContent = text;
-      wrap.appendChild(bubble);
-      messagesEl.appendChild(wrap);
-      scrollBottom();
+      return window.__SITE_FALLBACK__ || '';
     }
-
-    function addQuickReplies() {
-      const qr = document.createElement('div');
-      qr.className = 'chat-quick-replies';
+    function addMsg(text, type) {
+      const w = document.createElement('div'); w.className = 'chat-msg ' + type;
+      if (type === 'bot') { const a = document.createElement('div'); a.className = 'chat-bot-av'; a.textContent = '☕'; w.appendChild(a); }
+      const b = document.createElement('div'); b.className = 'chat-bubble'; b.textContent = text; w.appendChild(b);
+      msgsEl.appendChild(w); msgsEl.scrollTop = msgsEl.scrollHeight;
+    }
+    function addQR() {
+      const qr = document.createElement('div'); qr.className = 'chat-quick-replies';
       (window.__SITE_QUICK__ || []).forEach(label => {
-        const btn = document.createElement('button');
-        btn.className = 'chat-qbtn';
-        btn.textContent = label;
-        btn.onclick = () => handleMsg(label);
+        const btn = document.createElement('button'); btn.className = 'chat-qbtn'; btn.textContent = label;
+        btn.onclick = () => { addMsg(label, 'user'); inputEl.value = ''; setTimeout(() => addMsg(getAns(label), 'bot'), 650); };
         qr.appendChild(btn);
       });
-      messagesEl.appendChild(qr);
-      scrollBottom();
+      msgsEl.appendChild(qr); msgsEl.scrollTop = msgsEl.scrollHeight;
     }
-
-    function showTyping() {
-      const wrap = document.createElement('div');
-      wrap.className = 'chat-msg bot';
-      wrap.id = messagesEl.id + '-typing';
-      const av = document.createElement('div');
-      av.className = 'chat-bot-av';
-      av.textContent = '☕';
-      const t = document.createElement('div');
-      t.className = 'chat-typing';
-      t.innerHTML = '<span></span><span></span><span></span>';
-      wrap.appendChild(av);
-      wrap.appendChild(t);
-      messagesEl.appendChild(wrap);
-      scrollBottom();
+    function handle(text) {
+      if (!text.trim()) return; addMsg(text, 'user'); inputEl.value = '';
+      setTimeout(() => addMsg(getAns(text), 'bot'), 650);
     }
+    sendEl.addEventListener('click', () => handle(inputEl.value));
+    inputEl.addEventListener('keydown', e => { if (e.key === 'Enter') handle(inputEl.value); });
+    setTimeout(() => { addMsg(window.__SITE_WELCOME__ || '', 'bot'); addQR(); }, 500);
+  })();
 
-    function removeTyping() {
-      const el = document.getElementById(messagesEl.id + '-typing');
-      if (el) el.remove();
-    }
-
-    function handleMsg(text) {
-      if (!text.trim()) return;
-      addMsg(text, 'user');
-      inputEl.value = '';
-      showTyping();
-      setTimeout(() => {
-        removeTyping();
-        addMsg(getAnswer(text), 'bot');
-      }, 650);
-    }
-
-    sendBtnEl.addEventListener('click', () => handleMsg(inputEl.value));
-    inputEl.addEventListener('keydown', e => { if (e.key === 'Enter') handleMsg(inputEl.value); });
-
-    setTimeout(() => { addMsg(window.__SITE_WELCOME__ || '', 'bot'); addQuickReplies(); }, 500);
-  }
-
-  // メインチャット初期化
-  createChat(
-    document.getElementById('main-chat-messages'),
-    document.getElementById('main-chat-input'),
-    document.getElementById('main-chat-send')
-  );
-
-  // フローティングチャット
-  let popupInited = false;
-  const fab = document.getElementById('chat-fab');
-  const popup = document.getElementById('chat-popup');
-  const popupClose = document.getElementById('chat-popup-close');
-
-  fab.addEventListener('click', () => {
-    const isOpen = popup.classList.toggle('open');
-    if (isOpen) {
-      fab.querySelector('.fab-badge').style.display = 'none';
-      if (!popupInited) {
-        createChat(
-          document.getElementById('popup-chat-messages'),
-          document.getElementById('popup-chat-input'),
-          document.getElementById('popup-chat-send')
-        );
-        popupInited = true;
+  // ===== フローティングチャットウィジェット =====
+  (function() {
+    const fab=document.getElementById('chat-fab'),
+          popup=document.getElementById('chat-popup'),
+          msgs=document.getElementById('chat-msgs'),
+          inp=document.getElementById('chat-inp'),
+          snd=document.getElementById('chat-snd'),
+          closX=document.getElementById('chat-x');
+    let started=false;
+    function getAnswer(text){
+      const low=text.toLowerCase();
+      for(const f of(window.__SITE_FAQ__||[])){
+        if(f.keywords.some(k=>low.includes(k.toLowerCase())))return f;
       }
+      return{answer:window.__SITE_FALLBACK__||'ご質問ありがとうございます。',quick:[]};
     }
-  });
-
-  popupClose.addEventListener('click', () => popup.classList.remove('open'));
-
-  // スクロールでFABのバッジを表示
-  window.addEventListener('scroll', () => {
-    const badge = fab.querySelector('.fab-badge');
-    if (window.scrollY > 400 && !popupInited) {
-      badge.style.display = 'block';
+    function addMsg(text,role){
+      const d=document.createElement('div');d.className='cm '+role;
+      d.innerHTML='<div class="cm-bubble">'+text.replace(/\n/g,'<br>')+'</div>';
+      msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d;
     }
-  });
+    function addQuick(items){
+      if(!items||!items.length)return;
+      const d=document.createElement('div');d.className='chat-quick';
+      items.forEach(function(label){
+        const b=document.createElement('button');b.className='cq-btn';b.textContent=label;
+        b.onclick=function(){d.remove();send(label);};d.appendChild(b);
+      });
+      msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
+    }
+    function showTyping(){
+      const d=document.createElement('div');d.className='cm bot cm-typing';
+      d.innerHTML='<div class="cm-bubble"><span class="cm-dot"></span><span class="cm-dot"></span><span class="cm-dot"></span></div>';
+      msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d;
+    }
+    function resizeInp(){
+      inp.style.height='38px';
+      inp.style.height=Math.min(inp.scrollHeight,120)+'px';
+      snd.disabled=!inp.value.trim();
+    }
+    function send(text){
+      if(!text.trim())return;
+      addMsg(text,'user');inp.value='';resizeInp();
+      const t=showTyping();
+      setTimeout(function(){
+        t.remove();const f=getAnswer(text);
+        addMsg(f.answer,'bot');addQuick(f.quick||[]);
+      },650+Math.random()*400);
+    }
+    function openChat(){
+      popup.classList.add('open');inp.focus();
+      if(!started){started=true;addMsg(window.__SITE_WELCOME__||'いらっしゃいませ。','bot');addQuick(window.__SITE_QUICK__||[]);}
+    }
+    function closeChat(){popup.classList.remove('open');}
+    fab.addEventListener('click',function(){popup.classList.contains('open')?closeChat():openChat();});
+    closX.addEventListener('click',closeChat);
+    snd.addEventListener('click',function(){send(inp.value);});
+    snd.disabled=true;
+    inp.addEventListener('input',resizeInp);
+    var isComposing=false;
+    inp.addEventListener('compositionstart',function(){isComposing=true;});
+    inp.addEventListener('compositionend',function(){isComposing=false;});
+    inp.addEventListener('keydown',function(e){
+      if(e.key==='Enter'&&!e.shiftKey&&!isComposing){e.preventDefault();send(inp.value);}
+    });
+  })();
 
   // トップへ戻るボタン
   const scrollTopBtn = document.getElementById('scroll-top-btn');
